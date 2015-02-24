@@ -1,0 +1,9 @@
+name: nomirrorsmap
+dependencies:
+  barback: any
+  LiveScoring:
+    path: D:/SpawtzLiveScoring/Src/DartProjects/LiveScoring
+transformers:
+  nomirrorsmap:
+    libraries: ["lib/entites/entites.dart"]
+    packages: ["shared"]
