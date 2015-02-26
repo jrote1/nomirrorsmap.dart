@@ -97,6 +97,12 @@ class ClassConverter implements Converter
 						var value = fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] );
 						if(converters.containsKey(property.type.reflectedType))
 							value = converters[property.type.reflectedType].to(value);
+						if(value is List)
+						{
+							var list = property.type.newInstance(new Symbol(""), []).reflectee;
+							list.addAll(value);
+							value = list;
+						}
 						instanceMirror.setField( property.simpleName, value );
 					}
 				}

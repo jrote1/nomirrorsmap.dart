@@ -5,6 +5,7 @@ import 'dart:io' as io;
 import 'package:unittest/unittest.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
+import 'dart:collection';
 
 part 'transformer_tests.dart';
 
@@ -122,6 +123,24 @@ main( )
 		} );
 
 
+		test( "When a property is of a type that inherits from list, the conversion from baseObject to object works", ( )
+		{
+			var classObjectData = new ClassObjectData( )
+				..properties = { };
+
+			classObjectData.properties["customList"] = new ListObjectData( )
+				..values = [ new NativeObjectData()..value ="Hello", new NativeObjectData()..value = "World"];
+			classObjectData.previousHashCode = "1";
+			classObjectData.objectType = TestObjectWithCustomList;
+
+			var classConverter = new ClassConverter( );
+			TestObjectWithCustomList result = classConverter.fromBaseObjectData( classObjectData );
+
+			expect( result.customList[0], "Hello" );
+			expect( result.customList[1], "World" );
+		} );
+
+
 	} );
 
 }
@@ -145,4 +164,37 @@ class CustomConverterTest
 {
 	int id;
 	String value;
+}
+
+class CustomList<E> extends ListBase<E>
+{
+	var innerList = new List<E>( );
+
+	int get length
+	=> innerList.length;
+
+	void set length( int length )
+	{
+		innerList.length = length;
+	}
+
+	void operator []=( int index, E value ) {
+		innerList[index] = value;
+	}
+
+	E operator []( int index ) => innerList[index];
+
+	// Though not strictly necessary, for performance reasons
+	// you should implement add and addAll.
+
+	void add( E value )
+	=> innerList.add( value );
+
+	void addAll( Iterable<E> all )
+	=> innerList.addAll( all );
+}
+
+class TestObjectWithCustomList
+{
+	CustomList<String> customList = new CustomList<String>();
 }
