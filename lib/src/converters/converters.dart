@@ -1,6 +1,11 @@
-library nomirrorsmap.parsers;
+library nomirrorsmap.converters;
 
+import 'dart:mirrors';
 import 'dart:convert';
 
-part 'json_converter.dart';
+import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
+
 part 'converter.dart';
+part 'class_converter.dart';
+part 'json_converter.dart';
+part 'helpers/class_converter_instance.dart';

@@ -1,6 +1,8 @@
-part of nomirrorsmap.parsers;
+part of nomirrorsmap.converters;
 
-abstract class Converter{
-	Map<String, dynamic> parse(dynamic value);
-	dynamic deparse(Map<String, dynamic> values);
+abstract class Converter
+{
+	BaseObjectData toBaseObjectData( dynamic value );
+
+	dynamic fromBaseObjectData( BaseObjectData baseObjectData );
 }

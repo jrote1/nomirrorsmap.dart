@@ -1,8 +1,6 @@
 name: nomirrorsmap
 dependencies:
   barback: any
-  LiveScoring:
-    path: D:/SpawtzLiveScoring/Src/DartProjects/LiveScoring
 dev_dependencies:
   unittest: any
 transformers:

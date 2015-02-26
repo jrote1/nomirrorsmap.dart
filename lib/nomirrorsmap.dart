@@ -1,12 +1,14 @@
+library nomirrorsmap;
+
+export 'src/converters/converters.dart';
+
 import 'src/converters/converters.dart';
 
-class MapEngine
+class NoMirrorsMap
 {
-	encode( dynamic obj, {Type converter: JsonParser} ){
-
-	}
-
-	decode( dynamic obj, Type type, {Type converter: JsonParser} ){
-
+	dynamic convert( dynamic value, Converter sourceConverter, Converter destinationConverter )
+	{
+		var convertedSource = sourceConverter.toBaseObjectData( value );
+		return destinationConverter.fromBaseObjectData( convertedSource );
 	}
 }
