@@ -18,7 +18,13 @@ main( )
 	{
 		test( "Can deserialize simple object structure", ( )
 		{
+			var json = new io.File.fromUri( new Uri.file( "test_json/reversed_hashcode_json.json" ) ).readAsStringSync( );
 
+			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
+
+			expect(result.id, 1);
+			expect(result.children, isNotNull);
+			expect(result.parents, isNotNull);
 		} );
 
 		test( "Can deserialize objects with circular references", ( )
@@ -121,6 +127,7 @@ class ClassConverter implements Converter
 						instanceMirror.setField( property.simpleName, fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] ) );
 					}
 				}
+				classConverterInstance.filled = true;
 			}
 			return classConverterInstance.instance;
 		}
