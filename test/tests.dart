@@ -33,7 +33,11 @@ main( )
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
-			var parent = result.parents[0];
+			var result1 = new NoMirrorsMap( ).convert( result, new ClassConverter( ), new JsonConverter( ) );
+
+			var result2 = new NoMirrorsMap( ).convert( result1, new JsonConverter( ), new ClassConverter( ) ) as Person;
+
+			var parent = result2.parents[0];
 
 			expect( parent.children[0].parents[0], parent );
 		} );
