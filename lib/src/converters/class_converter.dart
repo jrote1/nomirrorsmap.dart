@@ -19,11 +19,16 @@ class CustomClassConverter<TActualType, TConvertedType>
 		_toFunc = func;
 	}
 
-	Function get to => _toFunc;
+	Function get to
+	=> _toFunc;
 }
 
 class ClassConverter implements Converter
 {
+	Type startType;
+
+	ClassConverter( {this.startType} );
+
 	static Map<Type, CustomClassConverter> converters = {
 	};
 
@@ -76,10 +81,15 @@ class ClassConverter implements Converter
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
+		return _fromBaseObjectData( baseObjectData, baseObjectData.objectType == null ? startType : baseObjectData.objectType );
+	}
+
+	dynamic _fromBaseObjectData( BaseObjectData baseObjectData, Type type )
+	{
 		if ( baseObjectData is ClassObjectData )
 		{
 			ClassConverterInstance classConverterInstance;
-			var instanceMirror = reflectClass( baseObjectData.objectType ).newInstance( new Symbol( "" ), [] );
+			var instanceMirror = reflectClass( type ).newInstance( new Symbol( "" ), [] );
 			if ( instances.containsKey( baseObjectData.previousHashCode ) )
 				classConverterInstance = instances[baseObjectData.previousHashCode];
 			else
@@ -90,17 +100,19 @@ class ClassConverter implements Converter
 			if ( !classConverterInstance.filled && baseObjectData.properties.length > 0 )
 			{
 				instanceMirror = reflect( classConverterInstance.instance );
-				for ( var property in _getPublicReadWriteProperties( reflectClass( baseObjectData.objectType ) ) )
+				for ( var property in _getPublicReadWriteProperties( reflectClass( type ) ) )
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
 					{
-						var value = fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] );
-						if(converters.containsKey(property.type.reflectedType))
-							value = converters[property.type.reflectedType].to(value);
-						if(value is List)
+						var propertyObjectData = baseObjectData.properties[MirrorSystem.getName( property.simpleName )];
+						var propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
+						var value = _fromBaseObjectData( propertyObjectData, propertyType );
+						if ( converters.containsKey( propertyType ) )
+							value = converters[propertyType].to( value );
+						if ( value is List )
 						{
-							var list = property.type.newInstance(new Symbol(""), []).reflectee;
-							list.addAll(value);
+							var list = reflectClass( propertyType ).newInstance( new Symbol( "" ), [] ).reflectee;
+							list.addAll( value );
 							value = list;
 						}
 						instanceMirror.setField( property.simpleName, value );
@@ -112,7 +124,7 @@ class ClassConverter implements Converter
 		}
 		if ( baseObjectData is ListObjectData )
 			return baseObjectData.values.map( ( v )
-											  => fromBaseObjectData( v ) ).toList( );
+											  => _fromBaseObjectData( v, v.objectType == null ? type : v.objectType ) ).toList( );
 		return (baseObjectData as NativeObjectData).value;
 	}
 

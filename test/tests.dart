@@ -19,6 +19,11 @@ main( )
 			var result = new NoMirrorsMap( ).convert( null, new ClassConverter( ), new JsonConverter( ) );
 			expect( result, "null" );
 		} );
+
+		test("Can serialize to Pascal case",(){
+			var result = new NoMirrorsMap( ).convert( new Person()..id = 1..children = []..parents = [], new ClassConverter( ), new JsonConverter( ), [new PascalCaseManipulator()] );
+			expect( result, endsWith('''"Id":1,"Parents":[],"Children":[]}''') );
+		});
 	} );
 
 	group( "Deserialization Tests", ( )
@@ -59,7 +64,13 @@ main( )
 
 		test( "Can deserialize objects that do not have \$type", ( )
 		{
+			var json = "{\"id\": 1, \"children\": [], \"parents\": []}";
 
+			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: Person ) );
+
+			expect( result.id, 1 );
+			expect( result.children, isNotNull );
+			expect( result.parents, isNotNull );
 		} );
 
 		test( "Can deserialize null", ( )
@@ -68,7 +79,12 @@ main( )
 			expect( result, null );
 		} );
 
+		test("Can deserialize using CamelCaseManipulator",(){
+			var json = '''{"\$type":"nomirrorsmap.tests.Person","\$hashcode":"511757599","Id":1,"Parents":[],"Children":[]}''';
 
+			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ), [new CamelCaseManipulator()] );
+			expect( result.id, 1 );
+		});
 	} );
 
 
@@ -126,10 +142,13 @@ main( )
 		test( "When a property is of a type that inherits from list, the conversion from baseObject to object works", ( )
 		{
 			var classObjectData = new ClassObjectData( )
-				..properties = { };
+				..properties = {
+			};
 
 			classObjectData.properties["customList"] = new ListObjectData( )
-				..values = [ new NativeObjectData()..value ="Hello", new NativeObjectData()..value = "World"];
+				..values = [ new NativeObjectData( )
+				..value = "Hello", new NativeObjectData( )
+				..value = "World"];
 			classObjectData.previousHashCode = "1";
 			classObjectData.objectType = TestObjectWithCustomList;
 
@@ -196,5 +215,5 @@ class CustomList<E> extends ListBase<E>
 
 class TestObjectWithCustomList
 {
-	CustomList<String> customList = new CustomList<String>();
+	CustomList<String> customList = new CustomList<String>( );
 }

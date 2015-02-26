@@ -23,11 +23,10 @@ class JsonConverter implements Converter
 								   } );
 			return new ClassObjectData( )
 				..previousHashCode = (json as Map)["\$hashcode"]
-				..objectType = _getClassMirrorByName( json["\$type"] ).reflectedType
+				..objectType = json.containsKey("\$type") ? _getClassMirrorByName( json["\$type"] ).reflectedType : null
 				..properties = properties;
 		} else if ( json is List )
 			return new ListObjectData( )
-				..objectType = List
 				..values = json.map( ( o )
 									 => _jsonToBaseObjectData( o ) ).toList( );
 		return new NativeObjectData( )
