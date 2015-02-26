@@ -22,9 +22,9 @@ main( )
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
-			expect(result.id, 1);
-			expect(result.children, isNotNull);
-			expect(result.parents, isNotNull);
+			expect( result.id, 1 );
+			expect( result.children, isNotNull );
+			expect( result.parents, isNotNull );
 		} );
 
 		test( "Can deserialize objects with circular references", ( )
@@ -50,6 +50,9 @@ main( )
 			expect( parent.id, 1 );
 		} );
 
+		test("Can deserialize objects that do not have \$type",(){
+
+		});
 	} );
 }
 
@@ -80,7 +83,7 @@ class ClassConverter implements Converter
 		if ( seenHashCodes.contains( value.hashCode.toString( ) ) )
 			return new ClassObjectData( )
 				..objectType = reflect( value ).type.reflectedType
-				..hashcode = value.hashCode.toString( )
+				..previousHashCode = value.hashCode.toString( )
 				..properties = {
 			};
 		seenHashCodes.add( value.hashCode.toString( ) );
@@ -94,7 +97,7 @@ class ClassConverter implements Converter
 
 		return new ClassObjectData( )
 			..objectType = reflect( value ).type.reflectedType
-			..hashcode = value.hashCode.toString( )
+			..previousHashCode = value.hashCode.toString( )
 			..properties = properties;
 	}
 
@@ -110,16 +113,16 @@ class ClassConverter implements Converter
 		{
 			ClassConverterInstance classConverterInstance;
 			var instanceMirror = reflectClass( baseObjectData.objectType ).newInstance( new Symbol( "" ), [] );
-			if ( instances.containsKey( baseObjectData.hashcode ) )
-				classConverterInstance = instances[baseObjectData.hashcode];
+			if ( instances.containsKey( baseObjectData.previousHashCode ) )
+				classConverterInstance = instances[baseObjectData.previousHashCode];
 			else
-				classConverterInstance = instances[baseObjectData.hashcode] = new ClassConverterInstance( )
+				classConverterInstance = instances[baseObjectData.previousHashCode] = new ClassConverterInstance( )
 					..filled = false
 					..instance = instanceMirror.reflectee;
 
-			if(!classConverterInstance.filled && baseObjectData.properties.length > 0)
+			if ( !classConverterInstance.filled && baseObjectData.properties.length > 0 )
 			{
-				instanceMirror = reflect(classConverterInstance.instance);
+				instanceMirror = reflect( classConverterInstance.instance );
 				for ( var property in _getPublicReadWriteProperties( reflectClass( baseObjectData.objectType ) ) )
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
@@ -185,9 +188,7 @@ class ClassConverter implements Converter
 	(v is MethodMirror && !v.isStatic && !v.isPrivate && v.isGetter);
 }
 
-class
-
-JsonConverter implements Converter
+class JsonConverter implements Converter
 {
 
 	BaseObjectData toBaseObjectData( dynamic value )
@@ -209,7 +210,7 @@ JsonConverter implements Converter
 									   properties[key] = _jsonToBaseObjectData( value );
 								   } );
 			return new ClassObjectData( )
-				..hashcode = (json as Map)["\$hashcode"]
+				..previousHashCode = (json as Map)["\$hashcode"]
 				..objectType = _getClassMirrorByName( json["\$type"] ).reflectedType
 				..properties = properties;
 		} else if ( json is List )
@@ -267,7 +268,7 @@ JsonConverter implements Converter
 			var result = {
 			};
 			result["\$type"] = MirrorSystem.getName( reflectClass( baseObjectData.objectType ).qualifiedName );
-			result["\$hashcode"] = baseObjectData.hashcode;
+			result["\$hashcode"] = baseObjectData.previousHashCode;
 			baseObjectData.properties.forEach( ( name, value )
 											   {
 												   result[name] = _fromBaseObjectData( value );
@@ -288,7 +289,7 @@ class ClassObjectData extends BaseObjectData
 	bool get isNativeType
 	=> false;
 
-	String hashcode;
+	String previousHashCode;
 
 	Map<String, BaseObjectData> properties;
 }
