@@ -29,7 +29,9 @@ main( )
 
 			var result2 = new NoMirrorsMap( ).convert( result, new ClassConverter( ), new JsonConverter());
 
-			var parent = result.parents[0];
+			var result3 = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter()) as Person;
+
+			var parent = result3.parents[0];
 
 			expect( parent.children[0].parents[0], parent );
 		} );
@@ -44,21 +46,29 @@ class ClassConverter implements Converter
 	{
 		if(_isPrimitive(value))
 			return new NativeObjectData()
-				..objectType = value.reflectedType
+				..objectType = reflect(value).type.reflectedType
 				..value = value;
 		if(value is List)
-			return value.map((v) => toBaseObjectData(v)).toList();
+		{
+			return new ListObjectData()
+				..objectType = reflect(value).type.reflectedType
+				..values = value.map( ( v )
+									  => toBaseObjectData( v ) ).toList( );
+		}
 
 		if(seenHashCodes.contains(value.hashCode.toString()))
-			return BaseObjectData()
+			return new ClassObjectData()
 				..objectType = reflect(value).type.reflectedType
-				..hashcode = value.hashCode.toString();
+				..hashcode = value.hashCode.toString()
+				..properties = {};
+		seenHashCodes.add(value.hashCode.toString());
 
 		var properties = {};
 		for ( var property in _getPublicReadWriteProperties( reflect( value ).type ) )
 		{
-			properties[MirrorSystem.getName(property.simpleName)] = toBaseObjectData(reflect(value).getField(property.simpleName));
+			properties[MirrorSystem.getName(property.simpleName)] = toBaseObjectData(reflect(value).getField(property.simpleName).reflectee);
 		}
+
 		return new ClassObjectData()
 			..objectType = reflect(value).type.reflectedType
 			..hashcode = value.hashCode.toString()
