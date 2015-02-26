@@ -1,9 +1,10 @@
 name: nomirrorsmap
+version: 0.0.1
 dependencies:
   barback: any
 dev_dependencies:
   unittest: any
-transformers:
-  - nomirrorsmap:
-      libraries: ["lib/entites/entites.dart"]
-      packages: ["shared"]
+#transformers:
+#  - nomirrorsmap:
+#      libraries: ["lib/entites/entites.dart"]
+#      packages: ["shared"]
