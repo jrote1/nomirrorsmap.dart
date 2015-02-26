@@ -4,6 +4,10 @@ import 'package:LiveScoring/entities/entities.dart';
 
 import 'package:library/nomirrorsmaps.dart' as library;
 
+
+
+
+
 class ClientInformationMap implements ObjectMap<ClientInformation>
 {
 	Type get type
