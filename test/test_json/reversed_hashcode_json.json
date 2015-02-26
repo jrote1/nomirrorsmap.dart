@@ -1,0 +1,22 @@
+{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 3,
+  "parents": [{
+    "$type": "nomirrorsmap.tests.Person",
+    "$hashcode": "48854486",
+    "parents": [],
+    "children": [{
+      "$type": "nomirrorsmap.tests.Person",
+      "$hashcode": "48854487",
+      "id": 2,
+      "parents": [{
+        "$type": "nomirrorsmap.tests.Person",
+        "$hashcode": "48854486",
+        "id": 1
+      }],
+      "children": []
+    }]
+  }],
+  "children": []
+}

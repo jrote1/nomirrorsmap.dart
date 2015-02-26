@@ -25,17 +25,32 @@ main( )
 		{
 			var json = new io.File.fromUri( new Uri.file( "test_json/hashcode_test.json" ) ).readAsStringSync( );
 
-			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter()) as Person;
+			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
-			var result2 = new NoMirrorsMap( ).convert( result, new ClassConverter( ), new JsonConverter());
-
-			var result3 = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter()) as Person;
-
-			var parent = result3.parents[0];
+			var parent = result.parents[0];
 
 			expect( parent.children[0].parents[0], parent );
 		} );
+
+		test( "Can deserialize objects with circular references, even if properties are seen after reference", ( )
+		{
+			var json = new io.File.fromUri( new Uri.file( "test_json/reversed_hashcode_json.json" ) ).readAsStringSync( );
+
+			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
+
+			var parent = result.parents[0];
+
+			expect( parent, parent.children[0].parents[0] );
+			expect( parent.id, 1 );
+		} );
+
 	} );
+}
+
+class ClassConverterInstance
+{
+	dynamic instance;
+	bool filled;
 }
 
 class ClassConverter implements Converter
@@ -44,66 +59,80 @@ class ClassConverter implements Converter
 
 	BaseObjectData toBaseObjectData( dynamic value )
 	{
-		if(_isPrimitive(value))
-			return new NativeObjectData()
-				..objectType = reflect(value).type.reflectedType
+		if ( _isPrimitive( value ) )
+			return new NativeObjectData( )
+				..objectType = reflect( value ).type.reflectedType
 				..value = value;
-		if(value is List)
+		if ( value is List )
 		{
-			return new ListObjectData()
-				..objectType = reflect(value).type.reflectedType
+			return new ListObjectData( )
+				..objectType = reflect( value ).type.reflectedType
 				..values = value.map( ( v )
 									  => toBaseObjectData( v ) ).toList( );
 		}
 
-		if(seenHashCodes.contains(value.hashCode.toString()))
-			return new ClassObjectData()
-				..objectType = reflect(value).type.reflectedType
-				..hashcode = value.hashCode.toString()
-				..properties = {};
-		seenHashCodes.add(value.hashCode.toString());
+		if ( seenHashCodes.contains( value.hashCode.toString( ) ) )
+			return new ClassObjectData( )
+				..objectType = reflect( value ).type.reflectedType
+				..hashcode = value.hashCode.toString( )
+				..properties = {
+			};
+		seenHashCodes.add( value.hashCode.toString( ) );
 
-		var properties = {};
+		var properties = {
+		};
 		for ( var property in _getPublicReadWriteProperties( reflect( value ).type ) )
 		{
-			properties[MirrorSystem.getName(property.simpleName)] = toBaseObjectData(reflect(value).getField(property.simpleName).reflectee);
+			properties[MirrorSystem.getName( property.simpleName )] = toBaseObjectData( reflect( value ).getField( property.simpleName ).reflectee );
 		}
 
-		return new ClassObjectData()
-			..objectType = reflect(value).type.reflectedType
-			..hashcode = value.hashCode.toString()
+		return new ClassObjectData( )
+			..objectType = reflect( value ).type.reflectedType
+			..hashcode = value.hashCode.toString( )
 			..properties = properties;
 	}
 
-	bool _isPrimitive(v) => v is num || v is bool || v is String;
+	bool _isPrimitive( v )
+	=> v is num || v is bool || v is String;
 
-	Map<String, dynamic> instances = {};
+	Map<String, ClassConverterInstance> instances = {
+	};
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
 		if ( baseObjectData is ClassObjectData )
 		{
-			if(instances.containsKey(baseObjectData.hashcode))
-				return instances[baseObjectData.hashcode];
+			ClassConverterInstance classConverterInstance;
 			var instanceMirror = reflectClass( baseObjectData.objectType ).newInstance( new Symbol( "" ), [] );
-			var instance = instanceMirror.reflectee;
-			instances[baseObjectData.hashcode] = instance;
-			for ( var property in _getPublicReadWriteProperties( reflectClass( baseObjectData.objectType ) ) )
+			if ( instances.containsKey( baseObjectData.hashcode ) )
+				classConverterInstance = instances[baseObjectData.hashcode];
+			else
+				classConverterInstance = instances[baseObjectData.hashcode] = new ClassConverterInstance( )
+					..filled = false
+					..instance = instanceMirror.reflectee;
+
+			if(!classConverterInstance.filled && baseObjectData.properties.length > 0)
 			{
-				if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
+				instanceMirror = reflect(classConverterInstance.instance);
+				for ( var property in _getPublicReadWriteProperties( reflectClass( baseObjectData.objectType ) ) )
 				{
-					instanceMirror.setField( property.simpleName, fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] ) );
+					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
+					{
+						instanceMirror.setField( property.simpleName, fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] ) );
+					}
 				}
 			}
-			return instance;
+			return classConverterInstance.instance;
 		}
 		if ( baseObjectData is ListObjectData )
-			return baseObjectData.values.map( ( v ) => fromBaseObjectData( v ) ).toList( );
+			return baseObjectData.values.map( ( v )
+											  => fromBaseObjectData( v ) ).toList( );
 		return (baseObjectData as NativeObjectData).value;
 	}
 
 	static ClassMirror _objectMirror = reflectClass( Object );
-	static Map<ClassMirror, List<DeclarationMirror>> _publicReadWriteProperties = {};
+	static Map<ClassMirror, List<DeclarationMirror>> _publicReadWriteProperties = {
+	};
 
 	List<DeclarationMirror> _getPublicReadWriteProperties( ClassMirror classMirror )
 	{
@@ -221,21 +250,27 @@ JsonConverter implements Converter
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
-		return JSON.encode(_fromBaseObjectData(baseObjectData));
+		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
 	}
 
-	dynamic _fromBaseObjectData(BaseObjectData baseObjectData){
-		if(baseObjectData is ClassObjectData){
-			var result = {};
-			result["\$type"] = MirrorSystem.getName(reflectClass(baseObjectData.objectType).qualifiedName);
+	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )
+	{
+		if ( baseObjectData is ClassObjectData )
+		{
+			var result = {
+			};
+			result["\$type"] = MirrorSystem.getName( reflectClass( baseObjectData.objectType ).qualifiedName );
 			result["\$hashcode"] = baseObjectData.hashcode;
-			baseObjectData.properties.forEach((name, value){
-				result[name] = _fromBaseObjectData(value);
-			});
+			baseObjectData.properties.forEach( ( name, value )
+											   {
+												   result[name] = _fromBaseObjectData( value );
+											   } );
 			return result;
 		}
-		if(baseObjectData is ListObjectData){
-			return baseObjectData.values.map((v) => _fromBaseObjectData(v)).toList();
+		if ( baseObjectData is ListObjectData )
+		{
+			return baseObjectData.values.map( ( v )
+											  => _fromBaseObjectData( v ) ).toList( );
 		}
 		return (baseObjectData as NativeObjectData).value;
 	}
@@ -245,6 +280,7 @@ class ClassObjectData extends BaseObjectData
 {
 	bool get isNativeType
 	=> false;
+
 	String hashcode;
 
 	Map<String, BaseObjectData> properties;
@@ -272,7 +308,8 @@ class BaseObjectData
 {
 	Type objectType;
 
-	bool get isNativeType => false;
+	bool get isNativeType
+	=> false;
 }
 
 abstract class Converter
