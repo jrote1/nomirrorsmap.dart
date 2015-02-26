@@ -1,26 +1,55 @@
 part of nomirrorsmap.converters;
 
+class CustomClassConverter<TActualType, TConvertedType>
+{
+	Function _fromFunc;
+
+	set from( TConvertedType func( TActualType val ) )
+	{
+		_fromFunc = func;
+	}
+
+	Function get from
+	=> _fromFunc;
+
+	Function _toFunc;
+
+	set to( TActualType func( TConvertedType val ) )
+	{
+		_toFunc = func;
+	}
+
+	Function get to => _toFunc;
+}
+
 class ClassConverter implements Converter
 {
+	static Map<Type, CustomClassConverter> converters = {
+	};
+
 	List<String> seenHashCodes = [];
 
 	BaseObjectData toBaseObjectData( dynamic value )
 	{
+		var valueType = reflect( value ).type.reflectedType;
+		if ( converters.containsKey( valueType ) )
+			value = converters[valueType].from( value );
+
 		if ( _isPrimitive( value ) )
 			return new NativeObjectData( )
-				..objectType = reflect( value ).type.reflectedType
+				..objectType = valueType
 				..value = value;
 		if ( value is List )
 		{
 			return new ListObjectData( )
-				..objectType = reflect( value ).type.reflectedType
+				..objectType = valueType
 				..values = value.map( ( v )
 									  => toBaseObjectData( v ) ).toList( );
 		}
 
 		if ( seenHashCodes.contains( value.hashCode.toString( ) ) )
 			return new ClassObjectData( )
-				..objectType = reflect( value ).type.reflectedType
+				..objectType = valueType
 				..previousHashCode = value.hashCode.toString( )
 				..properties = {
 			};
@@ -34,13 +63,13 @@ class ClassConverter implements Converter
 		}
 
 		return new ClassObjectData( )
-			..objectType = reflect( value ).type.reflectedType
+			..objectType = valueType
 			..previousHashCode = value.hashCode.toString( )
 			..properties = properties;
 	}
 
 	bool _isPrimitive( v )
-	=> v is num || v is bool || v is String;
+	=> v is num || v is bool || v is String || v == null;
 
 	Map<String, ClassConverterInstance> instances = {
 	};
@@ -65,7 +94,10 @@ class ClassConverter implements Converter
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
 					{
-						instanceMirror.setField( property.simpleName, fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] ) );
+						var value = fromBaseObjectData( baseObjectData.properties[MirrorSystem.getName( property.simpleName )] );
+						if(converters.containsKey(property.type.reflectedType))
+							value = converters[property.type.reflectedType].to(value);
+						instanceMirror.setField( property.simpleName, value );
 					}
 				}
 				classConverterInstance.filled = true;
@@ -82,12 +114,12 @@ class ClassConverter implements Converter
 	static Map<ClassMirror, List<DeclarationMirror>> _publicReadWriteProperties = {
 	};
 
-	List<DeclarationMirror> _getPublicReadWriteProperties( ClassMirror classMirror )
+	List<VariableMirror> _getPublicReadWriteProperties( ClassMirror classMirror )
 	{
 		var properties = _publicReadWriteProperties[classMirror];
 		if ( properties == null )
 		{
-			properties = <DeclarationMirror> [];
+			properties = <VariableMirror> [];
 			if ( classMirror != _objectMirror )
 			{
 				properties.addAll( _getPublicReadWriteProperties( classMirror.superclass ) );
