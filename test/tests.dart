@@ -159,6 +159,12 @@ main( )
 			expect( result.customList[1], "World" );
 		} );
 
+		test( "With a json string with no type attributes and a sub property of different type, deserialises correctly", () {
+			var json = new io.File.fromUri( new Uri.file( "test_json/no_type_string_objects.json" ) ).readAsStringSync( );
+			NoTypeTestClass result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: NoTypeTestClass ) );
+			expect( result.testProperty.name, "OtherName" );
+		});
+
 
 	} );
 
@@ -216,4 +222,17 @@ class CustomList<E> extends ListBase<E>
 class TestObjectWithCustomList
 {
 	CustomList<String> customList = new CustomList<String>( );
+}
+
+class NoTypeTestClass
+{
+	int id;
+	String firstName;
+	NoTypeTestPropertyClass testProperty;
+}
+
+class NoTypeTestPropertyClass
+{
+	int id;
+	String name;
 }

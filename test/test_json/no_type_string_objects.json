@@ -1,0 +1,8 @@
+{
+  "id": 1,
+  "firstName": "Matthew",
+  "testProperty": {
+    "id": 2,
+    "name": "OtherName"
+  }
+}

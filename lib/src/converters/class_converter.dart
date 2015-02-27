@@ -90,13 +90,17 @@ class ClassConverter implements Converter
 		{
 			ClassConverterInstance classConverterInstance;
 			var instanceMirror = reflectClass( type ).newInstance( new Symbol( "" ), [] );
-			if ( instances.containsKey( baseObjectData.previousHashCode ) )
+			if ( baseObjectData.previousHashCode != null && instances.containsKey( baseObjectData.previousHashCode ) )
 				classConverterInstance = instances[baseObjectData.previousHashCode];
 			else
-				classConverterInstance = instances[baseObjectData.previousHashCode] = new ClassConverterInstance( )
+			{
+				classConverterInstance = new ClassConverterInstance( )
 					..filled = false
 					..instance = instanceMirror.reflectee;
 
+				if(baseObjectData.previousHashCode != null)
+					instances[baseObjectData.previousHashCode] = classConverterInstance;
+			}
 			if ( !classConverterInstance.filled && baseObjectData.properties.length > 0 )
 			{
 				instanceMirror = reflect( classConverterInstance.instance );
