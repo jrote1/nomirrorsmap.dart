@@ -1,0 +1,41 @@
+{
+  "odata.metadata": "http://localhost/odata/$metadata#Users/@Element",
+  "Id": 2,
+  "FirstName": "No",
+  "LastName": "Mirrors",
+  "EmailAddress": "fsgpoidhnfoglb@example.com",
+  "MobilePhone": "65406834354356",
+  "Umpire": false,
+  "TeamUsers": [
+    {
+      "Id": 6665,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    },
+    {
+      "Id": 6677,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    },
+    {
+      "Id": 6680,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    }
+  ],
+  "SecurityRole": {
+    "Id": 1,
+    "Name": "Administrator",
+    "Description": "Top level security.  Can perform all actions within the system",
+    "AssociationLevel": {
+      "Id": 1,
+      "Value": "Top"
+    }
+  }
+}

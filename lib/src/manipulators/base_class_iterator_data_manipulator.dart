@@ -20,6 +20,11 @@ abstract class BaseClassIteratorDataManipulator implements BaseObjectDataManipul
 
 			classObjectData.properties = newProperties;
 		}
+		if ( baseObjectData is ListObjectData ){
+			for(var value in baseObjectData.values){
+				manipulate(value);
+			}
+		}
 	}
 
 	String manipulatePropertyName( String propertyName );

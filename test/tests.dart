@@ -95,6 +95,15 @@ main( )
 			expect( result.children.length, 1 );
 			expect(result.children[0].id, 2);
 		});
+
+		test("Can deserialize type that contains a list",(){
+			var json = new io.File.fromUri( new Uri.file( "test_json/list.json" ) ).readAsStringSync( );
+
+			User result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: User ), [new CamelCaseManipulator()] );
+
+			expect( result.id, 2 );
+			expect(result.teamUsers[0].role.id, 1);
+		});
 	} );
 
 
@@ -245,4 +254,38 @@ class NoTypeTestPropertyClass
 {
 	int id;
 	String name;
+}
+
+class User {
+	int id;
+	String firstName;
+	String lastName;
+	String emailAddress;
+	String mobilePhone;
+	bool umpire;
+
+	List<TeamMember> teamUsers;
+	SecurityRole securityRole;
+}
+
+class TeamMember {
+	Role role;
+	User user;
+}
+
+class Role {
+	int id;
+	String name;
+}
+
+class SecurityRole {
+	int id;
+	String name;
+	String description;
+	AssociationLevel associationLevel;
+}
+
+class AssociationLevel {
+	int id;
+	String value;
 }
