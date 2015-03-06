@@ -1,5 +1,5 @@
 name: nomirrorsmap
-version: 0.0.7
+version: 0.0.8
 dependencies:
   barback: any
 dev_dependencies:
