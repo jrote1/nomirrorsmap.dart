@@ -133,6 +133,9 @@ class ClassConverter implements Converter
 			return baseObjectData.values.map( ( v )
 											  => _fromBaseObjectData( v, v.objectType == null ? listType : v.objectType ) ).toList( );
 		}
+		if( type == DateTime){
+			return DateTime.parse( (baseObjectData as NativeObjectData).value );
+		}
 		return (baseObjectData as NativeObjectData).value;
 	}
 

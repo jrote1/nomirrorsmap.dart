@@ -30,7 +30,6 @@ class JsonConverter implements Converter
 				..values = json.map( ( o )
 									 => _jsonToBaseObjectData( o ) ).toList( );
 		return new NativeObjectData( )
-			..objectType = reflect( json ).type.reflectedType
 			..value = json;
 	}
 

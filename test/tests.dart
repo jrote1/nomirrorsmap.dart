@@ -104,6 +104,12 @@ main( )
 			expect( result.id, 2 );
 			expect(result.teamUsers[0].role.id, 1);
 		});
+
+		test("Can deserialize type that contains a DateTime",(){
+			ClassWithDateTime result = new NoMirrorsMap( ).convert( "{\"time\": \"2055-02-03T15:57:12\"}" , new JsonConverter( ), new ClassConverter( startType: ClassWithDateTime ));
+
+			expect( result.time, new isInstanceOf<DateTime>() );
+		});
 	} );
 
 
@@ -288,4 +294,8 @@ class SecurityRole {
 class AssociationLevel {
 	int id;
 	String value;
+}
+
+class ClassWithDateTime{
+	DateTime time;
 }
