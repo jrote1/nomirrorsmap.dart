@@ -127,8 +127,12 @@ class ClassConverter implements Converter
 			return classConverterInstance.instance;
 		}
 		if ( baseObjectData is ListObjectData )
+		{
+			var listType = reflectType( type ).typeArguments[0].reflectedType;
+
 			return baseObjectData.values.map( ( v )
-											  => _fromBaseObjectData( v, v.objectType == null ? type : v.objectType ) ).toList( );
+											  => _fromBaseObjectData( v, v.objectType == null ? listType : v.objectType ) ).toList( );
+		}
 		return (baseObjectData as NativeObjectData).value;
 	}
 

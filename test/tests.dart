@@ -85,6 +85,16 @@ main( )
 			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ), [new CamelCaseManipulator()] );
 			expect( result.id, 1 );
 		});
+
+		test("Can deserialize type that contains a list",(){
+			var json = "{\"id\": 1, \"children\": [{\"id\": 2,\"children\": [], \"parents\": []}], \"parents\": []}";
+
+			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: Person ) );
+
+			expect( result.id, 1 );
+			expect( result.children.length, 1 );
+			expect(result.children[0].id, 2);
+		});
 	} );
 
 
