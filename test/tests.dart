@@ -193,6 +193,39 @@ main( )
 
 	} );
 
+	group("JsonConverter tests", ()
+	{
+		test("can convert to object using HashCode", ()
+		{
+			const String hashcode = "1234";
+			const String jsonHashcodeName = "\$ref";
+
+			var data = new ClassObjectData()
+				..properties = {}
+				..previousHashCode = hashcode
+				..objectType = CustomConverterTest;
+
+			var converter = new JsonConverter(jsonHashcodeName);
+			String jsonResult = converter.fromBaseObjectData(data);
+
+			var expected = "\"$jsonHashcodeName\":\"$hashcode\"";
+			expect(jsonResult.contains(expected), true);
+		});
+
+		test("can convert from json to object using custom HashCode", ()
+		{
+			const String hashcode = "1234";
+			const String jsonHashcodeName = "\$ref";
+
+			var converter = new JsonConverter(jsonHashcodeName);
+			var json = '{ "\$type": "nomirrorsmap.tests.CustomConverterTest",\"$jsonHashcodeName\": \"$hashcode\"}';
+			var baseObjectData = converter.toBaseObjectData(json) as ClassObjectData;
+
+			expect(baseObjectData.previousHashCode, hashcode);
+			expect(baseObjectData.properties.containsKey(jsonHashcodeName), true);
+		});
+	});
+
 }
 
 class Person
