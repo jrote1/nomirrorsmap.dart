@@ -2,6 +2,11 @@ part of nomirrorsmap.converters;
 
 class JsonConverter implements Converter
 {
+	String _hashcodeName;
+	JsonConverter([String hashcodeName = "\$hashcode"])
+	{
+		_hashcodeName = hashcodeName;
+	}
 
 	BaseObjectData toBaseObjectData( dynamic value )
 	{
@@ -22,7 +27,7 @@ class JsonConverter implements Converter
 									   properties[key] = _jsonToBaseObjectData( value );
 								   } );
 			return new ClassObjectData( )
-				..previousHashCode = (json as Map)["\$hashcode"]
+				..previousHashCode = (json as Map)[_hashcodeName]
 				..objectType = json.containsKey("\$type") ? _getClassMirrorByName( json["\$type"] ).reflectedType : null
 				..properties = properties;
 		} else if ( json is List )
@@ -78,7 +83,7 @@ class JsonConverter implements Converter
 			var result = {
 			};
 			result["\$type"] = MirrorSystem.getName( reflectClass( baseObjectData.objectType ).qualifiedName );
-			result["\$hashcode"] = baseObjectData.previousHashCode;
+			result[_hashcodeName] = baseObjectData.previousHashCode;
 			baseObjectData.properties.forEach( ( name, value )
 											   {
 												   result[name] = _fromBaseObjectData( value );
