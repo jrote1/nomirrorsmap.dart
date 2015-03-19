@@ -78,8 +78,14 @@ class JsonConverter implements Converter
 		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
 	}
 
-	void setHashcodeInformation(Map result, String hashcode, bool hasProperties){
+	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){
 		result[_hashcodeName] = hashcode;
+		setTypeFromObjectType(result, classObjectData);
+	}
+
+	void setTypeFromObjectType(Map json, ClassObjectData classObjectData)
+	{
+		json["\$type"] = MirrorSystem.getName( reflectClass( classObjectData.objectType ).qualifiedName );
 	}
 
 	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )
@@ -88,8 +94,7 @@ class JsonConverter implements Converter
 		{
 			var result = {
 			};
-			result["\$type"] = MirrorSystem.getName( reflectClass( baseObjectData.objectType ).qualifiedName );
-			setHashcodeInformation(result, baseObjectData.previousHashCode, baseObjectData.properties.length > 0);
+			setMetaData(result, baseObjectData.previousHashCode, baseObjectData);
 			baseObjectData.properties.forEach( ( name, value )
 											   {
 												   result[name] = _fromBaseObjectData( value );
@@ -108,12 +113,18 @@ class JsonConverter implements Converter
 class NewtonSoftJsonConverter extends JsonConverter
 {
 	@override
-	void setHashcodeInformation(Map result, String hashcode, bool hasProperties){
-		if(hasProperties)
+	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){
+		if(classObjectData.properties.length > 0 )
+		{
 			result["\$id"] = hashcode;
+			setTypeFromObjectType(result, classObjectData);
+		}
+
 		else
 			result["\$ref"] = hashcode;
 	}
+
+
 
 	@override
 	String getPreviousHashcode(Map json)
