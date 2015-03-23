@@ -9,6 +9,9 @@ import 'dart:collection';
 
 part 'transformer_tests.dart';
 
+String getFileContent(String fileName){
+	return new io.File.fromUri( new Uri.file( fileName ) ).readAsStringSync( );
+}
 
 main( )
 {
@@ -226,6 +229,47 @@ main( )
 		});
 	});
 
+	group("NewtonSoft json test", ()
+	{
+		test( "For fromBaseObjectData, When called with two objects with same reference, Then returned json should have \$id in first object and  \$ref in second object", ( )
+		{
+			var list = new ListObjectData();
+			var klass1 = new ClassObjectData();
+			var klass2 = new ClassObjectData();
+
+			klass1.objectType = klass2.objectType = NewtonSoftTest;
+			klass1.previousHashCode = klass2.previousHashCode = "1";
+			klass1.properties  = {};
+			klass1.properties["age"] = new NativeObjectData()..value = 14;
+			klass1.properties["gender"] = new NativeObjectData()..value = "m";
+
+			klass2.properties  = {};
+
+			list.values = [klass1, klass2];
+
+			var converter = new NewtonSoftJsonConverter();
+			String json = converter.fromBaseObjectData(list);
+
+			expect(json.contains(getFileContent("test_json\\newtonsoft_test.json")), true);
+
+		} );
+
+		test( "For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references", ( )
+		{
+			var converter = new NewtonSoftJsonConverter();
+			ListObjectData json = converter.toBaseObjectData(getFileContent("test_json\\newtonsoft_test.json"));
+
+			expect((json.values[0] as ClassObjectData).previousHashCode, "1");
+			expect((json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode);
+
+		} );
+	});
+
+}
+
+class NewtonSoftTest{
+	int age;
+	String gender;
 }
 
 class Person

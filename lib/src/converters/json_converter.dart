@@ -16,6 +16,8 @@ class JsonConverter implements Converter
 		return _jsonToBaseObjectData( json );
 	}
 
+	String getPreviousHashcode(Map json) =>  json[_hashcodeName];
+
 	BaseObjectData _jsonToBaseObjectData( dynamic json )
 	{
 		if ( json is Map )
@@ -27,7 +29,7 @@ class JsonConverter implements Converter
 									   properties[key] = _jsonToBaseObjectData( value );
 								   } );
 			return new ClassObjectData( )
-				..previousHashCode = (json as Map)[_hashcodeName]
+				..previousHashCode = getPreviousHashcode(json)
 				..objectType = json.containsKey("\$type") ? _getClassMirrorByName( json["\$type"] ).reflectedType : null
 				..properties = properties;
 		} else if ( json is List )
@@ -76,14 +78,23 @@ class JsonConverter implements Converter
 		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
 	}
 
+	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){
+		result[_hashcodeName] = hashcode;
+		setTypeFromObjectType(result, classObjectData);
+	}
+
+	void setTypeFromObjectType(Map json, ClassObjectData classObjectData)
+	{
+		json["\$type"] = MirrorSystem.getName( reflectClass( classObjectData.objectType ).qualifiedName );
+	}
+
 	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )
 	{
 		if ( baseObjectData is ClassObjectData )
 		{
 			var result = {
 			};
-			result["\$type"] = MirrorSystem.getName( reflectClass( baseObjectData.objectType ).qualifiedName );
-			result[_hashcodeName] = baseObjectData.previousHashCode;
+			setMetaData(result, baseObjectData.previousHashCode, baseObjectData);
 			baseObjectData.properties.forEach( ( name, value )
 											   {
 												   result[name] = _fromBaseObjectData( value );
@@ -96,5 +107,31 @@ class JsonConverter implements Converter
 											  => _fromBaseObjectData( v ) ).toList( );
 		}
 		return (baseObjectData as NativeObjectData).value;
+	}
+}
+
+class NewtonSoftJsonConverter extends JsonConverter
+{
+	@override
+	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){
+		if(classObjectData.properties.length > 0 )
+		{
+			result["\$id"] = hashcode;
+			setTypeFromObjectType(result, classObjectData);
+		}
+
+		else
+			result["\$ref"] = hashcode;
+	}
+
+
+
+	@override
+	String getPreviousHashcode(Map json)
+	{
+		if (json.containsKey("\$ref"))
+			return json["\$ref"];
+
+		return json["\$id"];
 	}
 }
