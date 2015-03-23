@@ -136,6 +136,13 @@ class ClassConverter implements Converter
 		if( type == DateTime){
 			return DateTime.parse( (baseObjectData as NativeObjectData).value );
 		}
+
+		if (type == double)
+		{
+			return double.parse( (baseObjectData as NativeObjectData).value.toString());
+		}
+
+
 		return (baseObjectData as NativeObjectData).value;
 	}
 
