@@ -44,6 +44,12 @@ class ClassConverter implements Converter
 			return new NativeObjectData( )
 				..objectType = valueType
 				..value = value;
+		if(_isEnum( value )){
+			return new NativeObjectData( )
+				..objectType = int
+				..value = value.index;
+		}
+
 		if ( value is List )
 		{
 			return new ListObjectData( )
@@ -71,6 +77,12 @@ class ClassConverter implements Converter
 			..objectType = valueType
 			..previousHashCode = value.hashCode.toString( )
 			..properties = properties;
+	}
+
+	bool _isEnum( Object value )
+	{
+		var reflected = reflect(value);
+		return reflected.type.isEnum;
 	}
 
 	bool _isPrimitive( v )
@@ -133,10 +145,27 @@ class ClassConverter implements Converter
 			return baseObjectData.values.map( ( v )
 											  => _fromBaseObjectData( v, v.objectType == null ? listType : v.objectType ) ).toList( );
 		}
+		var nativeObjectValue = (baseObjectData as NativeObjectData).value;
+
 		if( type == DateTime){
-			return DateTime.parse( (baseObjectData as NativeObjectData).value );
+			return DateTime.parse( nativeObjectValue );
 		}
-		return (baseObjectData as NativeObjectData).value;
+		if(_isTypeEnum(type)){
+			var result = reflectClass(type).getField(new Symbol("values")).reflectee;
+			return result[nativeObjectValue];
+		}
+		return nativeObjectValue;
+	}
+
+	bool _isTypeEnum( Type type )
+	{
+		try
+		{
+			return reflectClass( type ).isEnum;
+		}
+		catch(ex){
+			return false;
+		}
 	}
 
 	static ClassMirror _objectMirror = reflectClass( Object );
