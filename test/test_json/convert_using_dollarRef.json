@@ -1,0 +1,15 @@
+{
+  "$id": "1",
+  "$type": "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+  "name": "Test User",
+  "people": [{
+    "$id": "2",
+    "$type": "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+    "name": "Another Test User",
+    "people": []
+  },
+    {
+      "$ref": "1"
+    }
+  ]
+}

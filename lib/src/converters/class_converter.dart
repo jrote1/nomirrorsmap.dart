@@ -154,6 +154,13 @@ class ClassConverter implements Converter
 			var result = reflectClass(type).getField(new Symbol("values")).reflectee;
 			return result[nativeObjectValue];
 		}
+		
+		if (type == double)
+		{
+			return double.parse( nativeObjectValue.toString());
+		}
+
+
 		return nativeObjectValue;
 	}
 

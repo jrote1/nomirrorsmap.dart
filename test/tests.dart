@@ -204,7 +204,18 @@ main( )
 			expect( result.testProperty.name, "OtherName" );
 		});
 
+		test( "With json with int value and setting double does not explode",(){
+			var objectData = new NativeObjectData()..value = 1;
+			var objectd = new ClassObjectData()..objectType = ClassWithDouble ..properties = {
+				"val": objectData
+			};
 
+			var classConverter = new ClassConverter(startType: ClassWithDouble);
+
+			var result = classConverter.fromBaseObjectData(objectd);
+
+			expect(result.val, 1.0);
+		});
 	} );
 
 	group("JsonConverter tests", ()
@@ -274,8 +285,29 @@ main( )
 			expect((json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode);
 
 		} );
+
+		test("can deserialize using dollar ref property only", ()
+		{
+			var converter = new NewtonSoftJsonConverter();
+			var jsonText = getFileContent("test_json\\convert_using_dollarRef.json");
+			var mapper = new NoMirrorsMap();
+			var result = mapper.convert(jsonText, converter, new ClassConverter() );
+
+			expect(result != null, true);
+			var simpleType = result as SimpleTypeUsingDollarRef;
+			expect(result.name, result.people[1].name);
+			expect(result.people[1].name, "Test User");
+
+
+		});
 	});
 
+}
+
+class SimpleTypeUsingDollarRef
+{
+	String name;
+	List<SimpleTypeUsingDollarRef> people;
 }
 
 class NewtonSoftTest{
@@ -290,6 +322,9 @@ class Person
 	List<Person> children;
 }
 
+class ClassWithDouble{
+	double val;
+}
 
 //{"1|Matthew"}
 

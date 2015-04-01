@@ -8,4 +8,5 @@ import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 part 'converter.dart';
 part 'class_converter.dart';
 part 'json_converter.dart';
+part 'newton_soft_json_converter.dart';
 part 'helpers/class_converter_instance.dart';

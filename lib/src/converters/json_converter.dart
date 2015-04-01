@@ -13,10 +13,19 @@ class JsonConverter implements Converter
 		if ( !(value is String) )
 			throw new Exception( "value is not a String" );
 		var json = JSON.decode( value );
-		return _jsonToBaseObjectData( json );
+		return  _jsonToBaseObjectData( json );
 	}
 
 	String getPreviousHashcode(Map json) =>  json[_hashcodeName];
+
+	Type findObjectType(dynamic json)
+	{
+		return json.containsKey("\$type") ? _getClassMirrorByName( json["\$type"] ).reflectedType : null;
+	}
+
+	void afterCreatingClassObjectData(ClassObjectData classObjectData)
+	{
+	}
 
 	BaseObjectData _jsonToBaseObjectData( dynamic json )
 	{
@@ -28,10 +37,15 @@ class JsonConverter implements Converter
 								   {
 									   properties[key] = _jsonToBaseObjectData( value );
 								   } );
-			return new ClassObjectData( )
+
+			var classObjectData = new ClassObjectData( )
 				..previousHashCode = getPreviousHashcode(json)
-				..objectType = json.containsKey("\$type") ? _getClassMirrorByName( json["\$type"] ).reflectedType : null
+				..objectType = findObjectType(json)
 				..properties = properties;
+
+			afterCreatingClassObjectData(classObjectData);
+
+			return classObjectData;
 		} else if ( json is List )
 			return new ListObjectData( )
 				..values = json.map( ( o )
@@ -110,28 +124,3 @@ class JsonConverter implements Converter
 	}
 }
 
-class NewtonSoftJsonConverter extends JsonConverter
-{
-	@override
-	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){
-		if(classObjectData.properties.length > 0 )
-		{
-			result["\$id"] = hashcode;
-			setTypeFromObjectType(result, classObjectData);
-		}
-
-		else
-			result["\$ref"] = hashcode;
-	}
-
-
-
-	@override
-	String getPreviousHashcode(Map json)
-	{
-		if (json.containsKey("\$ref"))
-			return json["\$ref"];
-
-		return json["\$id"];
-	}
-}
