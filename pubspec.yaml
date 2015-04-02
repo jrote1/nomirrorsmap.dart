@@ -1,7 +1,7 @@
 name: nomirrorsmap
 environment:
   sdk: '>=1.9.0 <2.0.0'
-version: 0.0.14
+version: 0.0.15
 dependencies:
   barback: any
 dev_dependencies:
