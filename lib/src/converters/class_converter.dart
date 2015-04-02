@@ -79,10 +79,10 @@ class ClassConverter implements Converter
 			..properties = properties;
 	}
 
-	bool _isEnum( Object value )
+	bool _isEnum( dynamic value )
 	{
-		var reflected = reflect(value);
-		return reflected.type.isEnum;
+		//Not safe
+		return _isTypeEnum(value.runtimeType);
 	}
 
 	bool _isPrimitive( v )
@@ -168,7 +168,8 @@ class ClassConverter implements Converter
 	{
 		try
 		{
-			return reflectClass( type ).isEnum;
+			var field = reflectClass(type).getField(new Symbol("values"));
+			return field != null && field.reflectee != null;
 		}
 		catch(ex){
 			return false;
