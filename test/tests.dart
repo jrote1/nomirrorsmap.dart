@@ -113,9 +113,23 @@ main( )
 
 			expect( result.time, new isInstanceOf<DateTime>() );
 		});
+
+		test( "Can serialize class with enum", ( )
+		{
+			var classWithEnum = new ClassWithEnum()..anEnum = AnEnum.Two;
+			var result = new NoMirrorsMap( ).convert( classWithEnum, new ClassConverter( ), new JsonConverter( ) );
+			expect( result.contains('"anEnum":1' ), true );
+		} );
+
+		test( "Can deserialize class with enum", ( )
+		{
+			var json = '{"\$hashcode":"6216918","\$type":"nomirrorsmap.tests.ClassWithEnum","anEnum":1}';
+			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ) , new ClassConverter( ) ) as ClassWithEnum;
+			expect( result.anEnum, AnEnum.Two );
+		} );
 	} );
 
-
+//
 	group( "ClassConverter test", ( )
 	{
 
@@ -125,13 +139,10 @@ main( )
 					   ..to = ( String val )
 				   {
 					   var values = val.split( "|" );
-					   var result = new CustomConverterTest( )
-						   ..id = int.parse( values[0] )
-						   ..value = values[1];
+					   var result = new CustomConverterTest()..id = int.parse( values[0] )..value = values[1];
 					   return result;
 				   }
-					   ..from = ( CustomConverterTest val )
-				   => "${val.id}|${val.value}";
+					   ..from = ( CustomConverterTest val ) => "${val.id}|${val.value}";
 
 			   } );
 		test( "When a custom converter is specified for a type, the converter is used when converting to baseObject", ( )
@@ -422,6 +433,16 @@ class AssociationLevel {
 
 class ClassWithDateTime{
 	DateTime time;
+}
+
+class ClassWithEnum{
+	AnEnum anEnum;
+}
+
+enum AnEnum{
+	One,
+	Two,
+	Three
 }
 
 class TypeOf<T> {
