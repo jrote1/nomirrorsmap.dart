@@ -297,10 +297,22 @@ main( )
 			var simpleType = result as SimpleTypeUsingDollarRef;
 			expect(result.name, result.people[1].name);
 			expect(result.people[1].name, "Test User");
+		});
+
+		test("can serialize object with no properties", ()
+		{
+			var json = '''[{"\$id":"994910500","\$type":"nomirrorsmap.tests.TypeWithNoProperties"},{"\$ref":"994910500"}]''';
+
+			var result = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter(), new ClassConverter(startType: const TypeOf<List<TypeWithNoProperties>>().type) );
 
 
 		});
 	});
+
+}
+
+class TypeWithNoProperties
+{
 
 }
 
@@ -431,4 +443,10 @@ enum AnEnum{
 	One,
 	Two,
 	Three
+}
+
+class TypeOf<T> {
+	Type get type => T;
+
+	const TypeOf();
 }
