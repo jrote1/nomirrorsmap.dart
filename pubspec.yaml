@@ -4,5 +4,7 @@ environment:
 version: 0.0.16
 dependencies:
   barback: any
+  shared:
+    path: D:\Spawtz\Src\DartProjects\Shared\
 dev_dependencies:
   unittest: any

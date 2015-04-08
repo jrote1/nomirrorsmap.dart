@@ -2,7 +2,7 @@ part of nomirrorsmap.converters;
 
 class NewtonSoftJsonConverter extends JsonConverter
 {
-	Map<String,String> fromJsonHashCodesAndTypes = new Map<String,String>();
+	Map<String,Type> fromJsonHashCodesAndTypes = new Map<String,Type>();
 	List<String> toJsonSeenHashcodes = new List<String>();
 
 	@override
@@ -33,9 +33,16 @@ class NewtonSoftJsonConverter extends JsonConverter
 
 		if (json.containsKey("\$type"))
 			objectType = _getClassMirrorByName( json["\$type"] ).reflectedType;
-		else if
-		(!json.containsKey("\$type") && fromJsonHashCodesAndTypes.containsKey(json["\$ref"]) )
-			objectType = _getClassMirrorByName( fromJsonHashCodesAndTypes[json["\$ref"]] ).reflectedType;
+		else
+		{
+			if
+			( !json.containsKey( "\$type" ) && fromJsonHashCodesAndTypes.containsKey( json["\$ref"] ) )
+			{
+				objectType =fromJsonHashCodesAndTypes[json["\$ref"]];
+			}else{
+				var l = 1;
+			}
+		}
 
 		return objectType;
 	}
@@ -43,8 +50,8 @@ class NewtonSoftJsonConverter extends JsonConverter
 	@override
 	void afterCreatingClassObjectData(ClassObjectData classObjectData)
 	{
-		if (!fromJsonHashCodesAndTypes.containsKey(classObjectData.previousHashCode) && classObjectData.properties.containsKey("\$type"))
-			fromJsonHashCodesAndTypes[classObjectData.previousHashCode] = classObjectData.properties["\$type"].value;
+		if (!fromJsonHashCodesAndTypes.containsKey(classObjectData.previousHashCode) && classObjectData.objectType != null)
+			fromJsonHashCodesAndTypes[classObjectData.previousHashCode] = classObjectData.objectType;
 	}
 
 }
