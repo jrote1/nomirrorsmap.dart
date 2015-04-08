@@ -3,7 +3,8 @@ part of nomirrorsmap.converters;
 class JsonConverter implements Converter
 {
 	String _hashcodeName;
-	JsonConverter([String hashcodeName = "\$hashcode"])
+
+	JsonConverter( [String hashcodeName = "\$hashcode"] )
 	{
 		_hashcodeName = hashcodeName;
 	}
@@ -13,17 +14,18 @@ class JsonConverter implements Converter
 		if ( !(value is String) )
 			throw new Exception( "value is not a String" );
 		var json = JSON.decode( value );
-		return  _jsonToBaseObjectData( json );
+		return _jsonToBaseObjectData( json );
 	}
 
-	String getPreviousHashcode(Map json) =>  json[_hashcodeName];
+	String getPreviousHashcode( Map json )
+	=> json[_hashcodeName];
 
-	Type findObjectType(dynamic json)
+	Type findObjectType( dynamic json )
 	{
-		return json.containsKey("\$type") ? _getClassMirrorByName( json["\$type"] ).reflectedType : null;
+		return json.containsKey( "\$type" ) ? _getClassMirrorByName( json["\$type"] ).reflectedType : null;
 	}
 
-	void afterCreatingClassObjectData(ClassObjectData classObjectData)
+	void afterCreatingClassObjectData( ClassObjectData classObjectData )
 	{
 	}
 
@@ -31,6 +33,12 @@ class JsonConverter implements Converter
 	{
 		if ( json is Map )
 		{
+			var classObjectData = new ClassObjectData( );
+			classObjectData.previousHashCode = getPreviousHashcode( json );
+			classObjectData.previousHashCode = getPreviousHashcode( json );
+			classObjectData.objectType = findObjectType( json );
+
+			afterCreatingClassObjectData( classObjectData );
 			Map<String, BaseObjectData> properties = {
 			};
 			(json as Map).forEach( ( key, value )
@@ -38,12 +46,8 @@ class JsonConverter implements Converter
 									   properties[key] = _jsonToBaseObjectData( value );
 								   } );
 
-			var classObjectData = new ClassObjectData( )
-				..previousHashCode = getPreviousHashcode(json)
-				..objectType = findObjectType(json)
-				..properties = properties;
 
-			afterCreatingClassObjectData(classObjectData);
+			classObjectData.properties = properties;
 
 			return classObjectData;
 		} else if ( json is List )
@@ -92,12 +96,13 @@ class JsonConverter implements Converter
 		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
 	}
 
-	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){
+	void setMetaData( Map result, String hashcode, ClassObjectData classObjectData )
+	{
 		result[_hashcodeName] = hashcode;
-		setTypeFromObjectType(result, classObjectData);
+		setTypeFromObjectType( result, classObjectData );
 	}
 
-	void setTypeFromObjectType(Map json, ClassObjectData classObjectData)
+	void setTypeFromObjectType( Map json, ClassObjectData classObjectData )
 	{
 		json["\$type"] = MirrorSystem.getName( reflectClass( classObjectData.objectType ).qualifiedName );
 	}
@@ -108,7 +113,7 @@ class JsonConverter implements Converter
 		{
 			var result = {
 			};
-			setMetaData(result, baseObjectData.previousHashCode, baseObjectData);
+			setMetaData( result, baseObjectData.previousHashCode, baseObjectData );
 			baseObjectData.properties.forEach( ( name, value )
 											   {
 												   result[name] = _fromBaseObjectData( value );

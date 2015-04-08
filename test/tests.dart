@@ -6,10 +6,13 @@ import 'package:unittest/unittest.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 import 'dart:collection';
+import 'package:shared/dtos/dtos.dart';
+import 'package:shared/events/events.dart';
 
 part 'transformer_tests.dart';
 
-String getFileContent(String fileName){
+String getFileContent( String fileName )
+{
 	return new io.File.fromUri( new Uri.file( fileName ) ).readAsStringSync( );
 }
 
@@ -23,10 +26,14 @@ main( )
 			expect( result, "null" );
 		} );
 
-		test("Can serialize to Pascal case",(){
-			var result = new NoMirrorsMap( ).convert( new Person()..id = 1..children = []..parents = [], new ClassConverter( ), new JsonConverter( ), [new PascalCaseManipulator()] );
-			expect( result, endsWith('''"Id":1,"Parents":[],"Children":[]}''') );
-		});
+		test( "Can serialize to Pascal case", ( )
+		{
+			var result = new NoMirrorsMap( ).convert( new Person( )
+														  ..id = 1
+														  ..children = []
+														  ..parents = [], new ClassConverter( ), new JsonConverter( ), [new PascalCaseManipulator( )] );
+			expect( result, endsWith( '''"Id":1,"Parents":[],"Children":[]}''' ) );
+		} );
 	} );
 
 	group( "Deserialization Tests", ( )
@@ -82,54 +89,44 @@ main( )
 			expect( result, null );
 		} );
 
-		test("Can deserialize using CamelCaseManipulator",(){
+		test( "Can deserialize using CamelCaseManipulator", ( )
+		{
 			var json = '''{"\$type":"nomirrorsmap.tests.Person","\$hashcode":"511757599","Id":1,"Parents":[],"Children":[]}''';
 
-			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ), [new CamelCaseManipulator()] );
+			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ), [new CamelCaseManipulator( )] );
 			expect( result.id, 1 );
-		});
+		} );
 
-		test("Can deserialize type that contains a list",(){
+		test( "Can deserialize type that contains a list", ( )
+		{
 			var json = "{\"id\": 1, \"children\": [{\"id\": 2,\"children\": [], \"parents\": []}], \"parents\": []}";
 
 			Person result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: Person ) );
 
 			expect( result.id, 1 );
 			expect( result.children.length, 1 );
-			expect(result.children[0].id, 2);
-		});
-
-		test("Can deserialize type that contains a list",(){
-			var json = new io.File.fromUri( new Uri.file( "test_json/list.json" ) ).readAsStringSync( );
-
-			User result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: User ), [new CamelCaseManipulator()] );
-
-			expect( result.id, 2 );
-			expect(result.teamUsers[0].role.id, 1);
-		});
-
-		test("Can deserialize type that contains a DateTime",(){
-			ClassWithDateTime result = new NoMirrorsMap( ).convert( "{\"time\": \"2055-02-03T15:57:12\"}" , new JsonConverter( ), new ClassConverter( startType: ClassWithDateTime ));
-
-			expect( result.time, new isInstanceOf<DateTime>() );
-		});
-
-		test( "Can serialize class with enum", ( )
-		{
-			var classWithEnum = new ClassWithEnum()..anEnum = AnEnum.Two;
-			var result = new NoMirrorsMap( ).convert( classWithEnum, new ClassConverter( ), new JsonConverter( ) );
-			expect( result.contains('"anEnum":1' ), true );
+			expect( result.children[0].id, 2 );
 		} );
 
-		test( "Can deserialize class with enum", ( )
+		test( "Can deserialize type that contains a list", ( )
 		{
-			var json = '{"\$hashcode":"6216918","\$type":"nomirrorsmap.tests.ClassWithEnum","anEnum":1}';
-			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ) , new ClassConverter( ) ) as ClassWithEnum;
-			expect( result.anEnum, AnEnum.Two );
+			var json = new io.File.fromUri( new Uri.file( "test_json/list.json" ) ).readAsStringSync( );
+
+			User result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: User ), [new CamelCaseManipulator( )] );
+
+			expect( result.id, 2 );
+			expect( result.teamUsers[0].role.id, 1 );
+		} );
+
+		test( "Can deserialize type that contains a DateTime", ( )
+		{
+			ClassWithDateTime result = new NoMirrorsMap( ).convert( "{\"time\": \"2055-02-03T15:57:12\"}", new JsonConverter( ), new ClassConverter( startType: ClassWithDateTime ) );
+
+			expect( result.time, new isInstanceOf<DateTime>( ) );
 		} );
 	} );
 
-//
+
 	group( "ClassConverter test", ( )
 	{
 
@@ -139,10 +136,13 @@ main( )
 					   ..to = ( String val )
 				   {
 					   var values = val.split( "|" );
-					   var result = new CustomConverterTest()..id = int.parse( values[0] )..value = values[1];
-					   return result;
-				   }
-					   ..from = ( CustomConverterTest val ) => "${val.id}|${val.value}";
+					   var result = new CustomConverterTest( )
+					   ..id = int.parse( values[0] )
+					   ..value = values[1];
+				   return result;
+			   }
+				   ..from = ( CustomConverterTest val )
+		=> "${val.id}|${val.value}";
 
 			   } );
 		test( "When a custom converter is specified for a type, the converter is used when converting to baseObject", ( )
@@ -198,116 +198,164 @@ main( )
 			expect( result.customList[1], "World" );
 		} );
 
-		test( "With a json string with no type attributes and a sub property of different type, deserialises correctly", () {
+		test( "With a json string with no type attributes and a sub property of different type, deserialises correctly", ( )
+		{
 			var json = new io.File.fromUri( new Uri.file( "test_json/no_type_string_objects.json" ) ).readAsStringSync( );
 			NoTypeTestClass result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: NoTypeTestClass ) );
 			expect( result.testProperty.name, "OtherName" );
-		});
+		} );
 
-		test( "With json with int value and setting double does not explode",(){
-			var objectData = new NativeObjectData()..value = 1;
-			var objectd = new ClassObjectData()..objectType = ClassWithDouble ..properties = {
+		test( "With json with int value and setting double does not explode", ( )
+		{
+			var objectData = new NativeObjectData( )
+				..value = 1;
+			var objectd = new ClassObjectData( )
+				..objectType = ClassWithDouble
+				..properties = {
 				"val": objectData
 			};
 
-			var classConverter = new ClassConverter(startType: ClassWithDouble);
+			var classConverter = new ClassConverter( startType: ClassWithDouble );
 
-			var result = classConverter.fromBaseObjectData(objectd);
+			var result = classConverter.fromBaseObjectData( objectd );
 
-			expect(result.val, 1.0);
-		});
+			expect( result.val, 1.0 );
+		} );
 	} );
 
-	group("JsonConverter tests", ()
+	group( "JsonConverter tests", ( )
 	{
-		test("can convert to object using HashCode", ()
+		test( "can convert to object using HashCode", ( )
 		{
 			const String hashcode = "1234";
 			const String jsonHashcodeName = "\$ref";
 
-			var data = new ClassObjectData()
+			var data = new ClassObjectData( )
 				..properties = {}
 				..previousHashCode = hashcode
 				..objectType = CustomConverterTest;
 
-			var converter = new JsonConverter(jsonHashcodeName);
-			String jsonResult = converter.fromBaseObjectData(data);
+			var converter = new JsonConverter( jsonHashcodeName );
+			String jsonResult = converter.fromBaseObjectData( data );
 
 			var expected = "\"$jsonHashcodeName\":\"$hashcode\"";
-			expect(jsonResult.contains(expected), true);
-		});
+			expect( jsonResult.contains( expected ), true );
+		} );
 
-		test("can convert from json to object using custom HashCode", ()
+		test( "can convert from json to object using custom HashCode", ( )
 		{
 			const String hashcode = "1234";
 			const String jsonHashcodeName = "\$ref";
 
-			var converter = new JsonConverter(jsonHashcodeName);
+			var converter = new JsonConverter( jsonHashcodeName );
 			var json = '{ "\$type": "nomirrorsmap.tests.CustomConverterTest",\"$jsonHashcodeName\": \"$hashcode\"}';
-			var baseObjectData = converter.toBaseObjectData(json) as ClassObjectData;
+			var baseObjectData = converter.toBaseObjectData( json ) as ClassObjectData;
 
-			expect(baseObjectData.previousHashCode, hashcode);
-			expect(baseObjectData.properties.containsKey(jsonHashcodeName), true);
-		});
-	});
+			expect( baseObjectData.previousHashCode, hashcode );
+			expect( baseObjectData.properties.containsKey( jsonHashcodeName ), true );
+		} );
+	} );
 
-	group("NewtonSoft json test", ()
+	group( "NewtonSoft json test", ( )
 	{
 		test( "For fromBaseObjectData, When called with two objects with same reference, Then returned json should have \$id in first object and  \$ref in second object", ( )
 		{
-			var list = new ListObjectData();
-			var klass1 = new ClassObjectData();
-			var klass2 = new ClassObjectData();
+			var list = new ListObjectData( );
+			var klass1 = new ClassObjectData( );
+			var klass2 = new ClassObjectData( );
 
 			klass1.objectType = klass2.objectType = NewtonSoftTest;
 			klass1.previousHashCode = klass2.previousHashCode = "1";
-			klass1.properties  = {};
-			klass1.properties["age"] = new NativeObjectData()..value = 14;
-			klass1.properties["gender"] = new NativeObjectData()..value = "m";
+			klass1.properties = {};
+			klass1.properties["age"] = new NativeObjectData( )
+				..value = 14;
+			klass1.properties["gender"] = new NativeObjectData( )
+				..value = "m";
 
-			klass2.properties  = {};
+			klass2.properties = {};
 
 			list.values = [klass1, klass2];
 
-			var converter = new NewtonSoftJsonConverter();
-			String json = converter.fromBaseObjectData(list);
+			var converter = new NewtonSoftJsonConverter( );
+			String json = converter.fromBaseObjectData( list );
 
-			expect(json.contains(getFileContent("test_json\\newtonsoft_test.json")), true);
+			expect( json.contains( getFileContent( "test_json\\newtonsoft_test.json" ) ), true );
 
 		} );
 
 		test( "For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references", ( )
 		{
-			var converter = new NewtonSoftJsonConverter();
-			ListObjectData json = converter.toBaseObjectData(getFileContent("test_json\\newtonsoft_test.json"));
+			var converter = new NewtonSoftJsonConverter( );
+			ListObjectData json = converter.toBaseObjectData( getFileContent( "test_json\\newtonsoft_test.json" ) );
 
-			expect((json.values[0] as ClassObjectData).previousHashCode, "1");
-			expect((json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode);
+			expect( (json.values[0] as ClassObjectData).previousHashCode, "1" );
+			expect( (json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode );
 
 		} );
 
-		test("can deserialize using dollar ref property only", ()
+		test( "can deserialize using dollar ref property only", ( )
 		{
-			var converter = new NewtonSoftJsonConverter();
-			var jsonText = getFileContent("test_json\\convert_using_dollarRef.json");
-			var mapper = new NoMirrorsMap();
-			var result = mapper.convert(jsonText, converter, new ClassConverter() );
+			var converter = new NewtonSoftJsonConverter( );
+			var jsonText = getFileContent( "test_json\\convert_using_dollarRef.json" );
+			var mapper = new NoMirrorsMap( );
+			var result = mapper.convert( jsonText, converter, new ClassConverter( ) );
 
-			expect(result != null, true);
+			expect( result != null, true );
 			var simpleType = result as SimpleTypeUsingDollarRef;
-			expect(result.name, result.people[1].name);
-			expect(result.people[1].name, "Test User");
-		});
+			expect( result.name, result.people[1].name );
+			expect( result.people[1].name, "Test User" );
+		} );
 
-		test("can serialize object with no properties", ()
+		test( "can serialize object with no properties", ( )
 		{
 			var json = '''[{"\$id":"994910500","\$type":"nomirrorsmap.tests.TypeWithNoProperties"},{"\$ref":"994910500"}]''';
 
-			var result = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter(), new ClassConverter(startType: const TypeOf<List<TypeWithNoProperties>>().type) );
+			var result = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter( ), new ClassConverter( startType: const TypeOf<List<TypeWithNoProperties>>( ).type ) );
 
 
+		} );
+
+		test( "Can deserialize", ( )
+		{
+			var converter = new NewtonSoftJsonConverter( );
+			var jsonText = getFileContent( "test_json\\abstract_class_and_inheritence.json" );
+			BaseObjectData result = converter.toBaseObjectData(jsonText);
+
+			assertClassObjectDataTypeNotNull(result);
+		} );
+	} );
+
+}
+
+
+
+void assertClassObjectDataTypeNotNull(BaseObjectData objectData){
+	if(objectData is ClassObjectData){
+		var classObjectData = objectData as ClassObjectData;
+		if(classObjectData.objectType == null)
+		{
+			expect( classObjectData.objectType, isNotNull );
+		}
+		classObjectData.properties.forEach((k,v){
+			assertClassObjectDataTypeNotNull(v);
 		});
-	});
+	}else if (objectData is ListObjectData){
+		var listObjectData = objectData as ListObjectData;
+		listObjectData.values.forEach((v){
+			assertClassObjectDataTypeNotNull(v);
+		});
+	}else{
+
+	}
+}
+
+abstract class TheAbstractClass
+{
+	List<TheAbstractClass> data;
+}
+
+class InheritedClass extends TheAbstractClass
+{
 
 }
 
@@ -322,7 +370,8 @@ class SimpleTypeUsingDollarRef
 	List<SimpleTypeUsingDollarRef> people;
 }
 
-class NewtonSoftTest{
+class NewtonSoftTest
+{
 	int age;
 	String gender;
 }
@@ -334,7 +383,8 @@ class Person
 	List<Person> children;
 }
 
-class ClassWithDouble{
+class ClassWithDouble
+{
 	double val;
 }
 
@@ -397,7 +447,8 @@ class NoTypeTestPropertyClass
 	String name;
 }
 
-class User {
+class User
+{
 	int id;
 	String firstName;
 	String lastName;
@@ -409,44 +460,41 @@ class User {
 	SecurityRole securityRole;
 }
 
-class TeamMember {
+class TeamMember
+{
 	Role role;
 	User user;
 }
 
-class Role {
+class Role
+{
 	int id;
 	String name;
 }
 
-class SecurityRole {
+class SecurityRole
+{
 	int id;
 	String name;
 	String description;
 	AssociationLevel associationLevel;
 }
 
-class AssociationLevel {
+class AssociationLevel
+{
 	int id;
 	String value;
 }
 
-class ClassWithDateTime{
+class ClassWithDateTime
+{
 	DateTime time;
 }
 
-class ClassWithEnum{
-	AnEnum anEnum;
-}
+class TypeOf<T>
+{
+	Type get type
+	=> T;
 
-enum AnEnum{
-	One,
-	Two,
-	Three
-}
-
-class TypeOf<T> {
-	Type get type => T;
-
-	const TypeOf();
+	const TypeOf( );
 }
