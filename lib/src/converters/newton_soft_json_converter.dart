@@ -37,11 +37,7 @@ class NewtonSoftJsonConverter extends JsonConverter
 		{
 			if
 			( !json.containsKey( "\$type" ) && fromJsonHashCodesAndTypes.containsKey( json["\$ref"] ) )
-			{
 				objectType =fromJsonHashCodesAndTypes[json["\$ref"]];
-			}else{
-				var l = 1;
-			}
 		}
 
 		return objectType;

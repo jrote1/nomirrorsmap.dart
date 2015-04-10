@@ -155,9 +155,9 @@ class ClassConverter implements Converter
 			return result[nativeObjectValue];
 		}
 		
-		if (type == double)
+		if (type == double && nativeObjectValue != null)
 		{
-			return double.parse( nativeObjectValue.toString());
+			return double.parse(  nativeObjectValue.toString());
 		}
 
 
