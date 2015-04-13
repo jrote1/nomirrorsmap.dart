@@ -5,11 +5,23 @@ import 'dart:io' as io;
 import 'package:unittest/unittest.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
+import 'package:nomirrorsmap/src/shared/shared.dart';
+import 'package:nomirrorsmap/transformer.dart';
 import 'dart:collection';
-import 'package:shared/dtos/dtos.dart';
-import 'package:shared/events/events.dart';
+import 'package:code_transformers/tests.dart' as codeTransformerTests;
+
+import 'package:barback/barback.dart';
+import 'package:code_transformers/resolver.dart';
+import 'package:code_transformers/tests.dart';
+import 'package:code_transformers/src/dart_sdk.dart';
+
+import 'dart:async';
+
+import 'nomirrorsmap_generated_maps.dart';
+import 'type_to_type_objects.dart' as objects;
 
 part 'transformer_tests.dart';
+part 'type_to_type_tests.dart';
 
 String getFileContent( String fileName )
 {
@@ -18,6 +30,11 @@ String getFileContent( String fileName )
 
 main( )
 {
+	GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());
+
+	TransformerTests.run();
+	TypeToTypeTests.run();
+
 	group( "Serialization Tests", ( )
 	{
 		test( "Can serialize an object that is null", ( )
@@ -315,6 +332,15 @@ main( )
 
 		} );
 
+		test( "can serialize enum", ( )
+		{
+			var json = '''1''';
+
+			var result = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter( ), new ClassConverter( startType: TestEnum ) );
+
+			expect(result, TestEnum.Two);
+		} );
+
 		test( "Can deserialize", ( )
 		{
 			var converter = new NewtonSoftJsonConverter( );
@@ -347,6 +373,11 @@ void assertClassObjectDataTypeNotNull(BaseObjectData objectData){
 	}else{
 
 	}
+}
+
+enum TestEnum{
+	One,
+	Two
 }
 
 abstract class TheAbstractClass

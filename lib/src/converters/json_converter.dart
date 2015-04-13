@@ -22,7 +22,7 @@ class JsonConverter implements Converter
 
 	Type findObjectType( dynamic json )
 	{
-		return json.containsKey( "\$type" ) ? _getClassMirrorByName( json["\$type"] ).reflectedType : null;
+		return json.containsKey( "\$type" ) ? GeneratedMapProvider.getClassGeneratedMapByQualifiedName( json["\$type"] ).type : null;
 	}
 
 	void afterCreatingClassObjectData( ClassObjectData classObjectData )
@@ -58,39 +58,6 @@ class JsonConverter implements Converter
 			..value = json;
 	}
 
-	ClassMirror _getClassMirrorByName( String className )
-	{
-		if ( className == null )
-		{
-			return null;
-		}
-
-		var index = className.lastIndexOf( '.' );
-		var libraryName = '';
-		var name = className;
-		if ( index > 0 )
-		{
-			libraryName = className.substring( 0, index );
-			name = className.substring( index + 1 );
-		}
-
-		LibraryMirror library;
-		if ( libraryName.isEmpty )
-		{
-			library = currentMirrorSystem( ).isolate.rootLibrary;
-		} else
-		{
-			library = currentMirrorSystem( ).findLibrary( new Symbol( libraryName ) );
-		}
-
-		if ( library == null )
-		{
-			return null;
-		}
-
-		return library.declarations[new Symbol( name )];
-	}
-
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
 		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
@@ -104,7 +71,7 @@ class JsonConverter implements Converter
 
 	void setTypeFromObjectType( Map json, ClassObjectData classObjectData )
 	{
-		json["\$type"] = MirrorSystem.getName( reflectClass( classObjectData.objectType ).qualifiedName );
+		json["\$type"] =  GeneratedMapProvider.getClassGeneratedMap(classObjectData.objectType).qualifiedName;
 	}
 
 	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )

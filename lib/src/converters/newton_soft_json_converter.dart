@@ -32,7 +32,7 @@ class NewtonSoftJsonConverter extends JsonConverter
 		Type objectType = null;
 
 		if (json.containsKey("\$type"))
-			objectType = _getClassMirrorByName( json["\$type"] ).reflectedType;
+			objectType = GeneratedMapProvider.getClassGeneratedMapByQualifiedName( json["\$type"] ).type;
 		else
 		{
 			if

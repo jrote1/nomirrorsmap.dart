@@ -27,5 +27,5 @@ abstract class BaseClassIteratorDataManipulator implements BaseObjectDataManipul
 		}
 	}
 
-	String manipulatePropertyName( String propertyName );
+	String manipulatePropertyName( String propertyName ) => propertyName;
 }

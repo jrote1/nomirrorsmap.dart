@@ -18,6 +18,10 @@ class NoMirrorsMap
 
 }
 
+class MapType{
+	const MapType();
+}
+
 
 
 

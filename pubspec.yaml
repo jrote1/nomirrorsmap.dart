@@ -1,10 +1,12 @@
 name: nomirrorsmap
+version: 0.0.18+2
 environment:
   sdk: '>=1.9.0 <2.0.0'
-version: 0.0.18
 dependencies:
   barback: any
-  shared:
-    path: D:\Spawtz\Src\DartProjects\Shared\
+  code_transformers: any
+  path: any
 dev_dependencies:
   unittest: any
+transformers:
+  - nomirrorsmap
