@@ -2,6 +2,7 @@ library nomirrorsmap;
 
 export 'src/converters/converters.dart';
 export 'src/manipulators/manipulators.dart';
+export 'src/shared/shared.dart';
 
 import 'src/converters/converters.dart';
 import 'src/manipulators/manipulators.dart';

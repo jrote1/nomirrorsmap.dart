@@ -1,5 +1,5 @@
 name: nomirrorsmap
-version: 0.0.18+4
+version: 0.0.18+3
 environment:
   sdk: '>=1.9.0 <2.0.0'
 dependencies:
