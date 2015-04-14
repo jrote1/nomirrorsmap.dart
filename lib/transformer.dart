@@ -103,9 +103,7 @@ class MapGenerator
 	{
 	    _typesToGenerate.addAll( _uniqueClassElements( 
                  types.where( _shouldBeMapped )
-                 .where((e) => !_getFullTypeName(e.type).startsWith("dart.core."))
-                 .where( ( e )
-                             => e is ClassElement ).toList() ) );
+                 .where( ( e ) => e is ClassElement ).toList() ) );
 
 	}
 	
@@ -124,17 +122,23 @@ class MapGenerator
       return "${element.element.library.displayName}.${element.displayName}";
     }
 	
-	String _getTypeString(Element type, Map<LibraryElement, String> libraryImportNames){
+	String _getTypeString(dynamic element, Map<LibraryElement, String> libraryImportNames){
 	  var result = "";
-          if(libraryImportNames.containsKey(type.library))
-             result = "${libraryImportNames[type.library]}.${type.name}";
-          result = type.name;
-          if(type is ClassElement && type.type.typeArguments.length > 0){
-            result += "<";
-            result += (type as ClassElement).type.typeArguments.map((argument) => _getTypeString(argument.element, libraryImportNames) ).join(",");
-            result += ">";           
-            return "$result";
-          }
+          if(libraryImportNames.containsKey(element.type.element.library))
+             result = "${libraryImportNames[element.type.element.library]}.${element.type}";
+					else
+          	result = element.type.name;
+
+					if(element.type is TypeParameterTypeImpl || element.type is DynamicTypeImpl) {
+						print("Type parameter found: ${element.type}");
+						return result;
+					}
+					if(element.type.typeArguments.length > 0){
+						result += "<";
+						result += element.type.typeArguments.map((a) => _getTypeString(a.element, libraryImportNames)).join(",");
+						result += ">";
+					}
+
           return result;
 	  
 	}
@@ -148,12 +152,12 @@ class MapGenerator
         return result;
     }
 
-	void _addType( List<Element> seenTypes, ClassElement type, StringBuffer mapFileContent, Map<LibraryElement,String> libraryImportNames, List<DartType> noticedTypes )
+	void _addType( ClassElement type, StringBuffer mapFileContent, Map<LibraryElement,String> libraryImportNames, List<Element> noticedTypes )
 	{
 		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf(type, libraryImportNames)},\"${_getFullTypeName(type.type)}\", () => new ${_getTypeString(type, libraryImportNames)}(), {\n" );
 		for ( var field in type.fields )
 		{
-			noticedTypes.add( field.type );
+			noticedTypes.add( field );
 			mapFileContent.write( "'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf(field, libraryImportNames)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n" );
 		}
 		mapFileContent.write( "}),\n" );
@@ -164,7 +168,7 @@ class MapGenerator
 
 		_appendHeader(mapFileContent, assetId);
 		
-		var libraryImportNames = _getLibraryImportNames();
+		var libraryImportNames = _getLibraryImportNames(assetId);
 		_appendLibraryImports(libraryImportNames, mapFileContent, assetId);
 
 		mapFileContent.write("\n");
@@ -173,35 +177,33 @@ class MapGenerator
   static List load(){
     return [\n''');
 		List<Element> seenTypes = [];
-		List<InterfaceType> noticedTypes = [];
+		List<Element> typesToRun = _typesToGenerate.toList();
 
-		for(ClassElement type in _typesToGenerate){
-		  seenTypes.add( type );
-		  if(type.type.element.type == _resolver.getType( "dart.core.List" ).type || type.type.isAssignableTo(_resolver.getType( "dart.core.List" ).type)){
-		    mapFileContent.write("new nomirrorsmap.ListGeneratedMap(${_getTypeStringWithTypeOf(type, libraryImportNames)}, String, () => new ${_getTypeString(type, libraryImportNames)}()),");
-		  }else if(type.isEnum){
-		    mapFileContent.write("new nomirrorsmap.EnumGeneratedMap( ${libraryImportNames[type.library]}.${type.displayName}, ${libraryImportNames[type.library]}.${type.displayName}.values ),\n");
-		  }else{
-		    _addType( seenTypes, type, mapFileContent, libraryImportNames, noticedTypes );
-		  }
+		var listType = _resolver.getType( "dart.core.List" ).type;
+		do {
+			for (dynamic element in typesToRun.toList()) {
+				if (!(element.type.element.library.name.startsWith('dart.core') && isPrimitiveTypeName(element.type.name)) && !seenTypes.contains(element) && !(element.type.element is TypeParameterElementImpl)) {
+					if (listType == element.type.element.type || element.type.isSubtypeOf(listType))
+						mapFileContent.write("new nomirrorsmap.ListGeneratedMap( ${_getTypeStringWithTypeOf(element, libraryImportNames)}, ${_getTypeStringWithTypeOf(element.type.typeArguments.first.element, libraryImportNames)}, () => new ${_getTypeString(element, libraryImportNames)}() ),\n");
+					else if (element.type.element.isEnum)
+						mapFileContent.write("new nomirrorsmap.EnumGeneratedMap( ${_getTypeStringWithTypeOf(element, libraryImportNames)}, ${_getTypeStringWithTypeOf(element, libraryImportNames)}.values ),\n");
+					else if(!(element is FieldElementImpl) && element is ClassElement && !element.isAbstract)
+						_addType(element, mapFileContent, libraryImportNames, typesToRun);
+				}
+				seenTypes.add(element);
+			}
 		}
-
-		List<InterfaceType> seenNoticedTypes = [];
-		for(InterfaceType type in noticedTypes.toList()){
-		  if(!seenNoticedTypes.contains(type))
-		  {
-		    seenNoticedTypes.add(type);
-		    if(type.element.type == _resolver.getType( "dart.core.List" ).type || type.isAssignableTo(_resolver.getType( "dart.core.List" ).type)){
-		      mapFileContent.write("new nomirrorsmap.ListGeneratedMap(${_getTypeStringWithTypeOf(type.element, libraryImportNames)}, String, () => new ${_getTypeString(type.element, libraryImportNames)}()),");
-		    }
-		  }
-		}
+		while(typesToRun.where((t) => !seenTypes.contains(t)).length > 0);
 
 		mapFileContent.write('''];
   }
 }''');
 		
 		return mapFileContent.toString();
+	}
+
+	bool isPrimitiveTypeName(String name) {
+		return name == "String" || name == "int";
 	}
 
 	void _appendLibraryImports( Map<LibraryElement, String> libraryImportNames, StringBuffer mapFileContent, AssetId assetId )
@@ -212,7 +214,7 @@ class MapGenerator
 		});
 	}
 
-	Map<LibraryElement, String> _getLibraryImportNames(){
+	Map<LibraryElement, String> _getLibraryImportNames(AssetId assetId){
 		List<LibraryElement> uniqueLibraries = [];
 		_typesToGenerate.map((e) => e.library).forEach((e){
 			if(!uniqueLibraries.contains(e))
@@ -221,7 +223,10 @@ class MapGenerator
 
 		Map<LibraryElement, String> libraryImportNames = {};
 		uniqueLibraries.forEach((l){
-			libraryImportNames[l] = _randomString( l.displayName.length + 3 );
+			var importAs = _resolver.getImportUri( l, from: assetId ).toString().replaceAll(".","_").replaceAll("/","_").replaceAll("package:","");
+			if(importAs == "")
+				importAs = l.displayName;
+			libraryImportNames[l] = importAs;
 		});
 		return libraryImportNames;
 	}

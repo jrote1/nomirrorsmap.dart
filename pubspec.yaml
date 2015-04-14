@@ -1,5 +1,5 @@
 name: nomirrorsmap
-version: 1.0.0-dev17
+version: 1.0.0-beta1
 author: jrote1<jrote1@me.com>
 description: A multipurpose mapping library
 homepage: https://github.com/jrote1/nomirrorsmap.dart
