@@ -1,5 +1,11 @@
 library nomirrorsmap.shared;
 
+class TypeOf<T>{
+  Type get type => T;
+  
+  const TypeOf();
+}
+
 class EnumGeneratedMap<T> extends GeneratedMap
 {
 	EnumGeneratedMap(Type type, this.values){

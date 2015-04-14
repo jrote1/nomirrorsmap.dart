@@ -521,11 +521,3 @@ class ClassWithDateTime
 {
 	DateTime time;
 }
-
-class TypeOf<T>
-{
-	Type get type
-	=> T;
-
-	const TypeOf( );
-}
