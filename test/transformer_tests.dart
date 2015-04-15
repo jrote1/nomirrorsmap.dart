@@ -26,11 +26,14 @@ class TransformerTests
 				import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 				@MapType()
-                class Car {
+                class Car extends CarBase{
                 	int id;
                 	String name;
                 	List<String> values;
                 	List<Car> previousVersions;
+                }
+
+                abstract class CarBase{
                 	CarType carType;
                 }
 

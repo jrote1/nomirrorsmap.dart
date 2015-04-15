@@ -175,12 +175,17 @@ class MapGenerator
 
 	void _addClassMap( ClassElement type, StringBuffer mapFileContent, Map<LibraryElement, String> libraryImportNames, List<Element> noticedTypes )
 	{
-		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf( type, libraryImportNames )},\"${_getFullTypeName( type.type )}\", () => new ${_getTypeString( type, libraryImportNames )}(), {\n" );
-		for ( var field in type.fields )
-		{
-			noticedTypes.add( field );
-			mapFileContent.write( "'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf( field, libraryImportNames )}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n" );
+		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf(type, libraryImportNames)},\"${_getFullTypeName(type.type)}\", () => new ${_getTypeString(type, libraryImportNames)}(), {\n" );
+
+		var currentElement = type;
+		do {
+			for (var field in currentElement.fields) {
+				noticedTypes.add(field);
+				mapFileContent.write("'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf(field, libraryImportNames)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n");
+			}
+			currentElement = currentElement.supertype.element;
 		}
+		while(currentElement != null && !currentElement.library.name.startsWith("dart.core"));
 		mapFileContent.write( "}),\n" );
 	}
 
