@@ -1,102 +1,4 @@
-import 'package:barback/barback.dart';
-import 'package:analyzer/src/generated/ast.dart';
-import 'package:analyzer/src/generated/element.dart';
-import 'package:code_transformers/resolver.dart';
-import 'package:nomirrorsmap/nomirrorsmap.dart';
-import 'package:path/path.dart' as path;
-import 'dart:io';
-
-import 'dart:async';
-import 'dart:math';
-
-class MainTransformer implements TransformerGroup
-{
-	final Iterable<Iterable> phases;
-
-	MainTransformer( )
-	: phases = _createPhases( );
-
-	MainTransformer.asPlugin( ): phases = _createPhases( );
-
-	static _createPhases( )
-	{
-		var resolvers = new Resolvers( dartSdkDirectory );
-		return [[new MapGeneratorTransformer( resolvers )]];
-	}
-}
-
-class MapGeneratorTransformer extends Transformer with ResolverTransformer
-{
-	MapGeneratorTransformer( Resolvers resolvers )
-	{
-		this.resolvers = resolvers;
-	}
-
-	Future<bool> shouldApplyResolver( Asset asset )
-	=> new Future.value( true );
-
-	void applyResolver( Transform transform, Resolver resolver )
-	{
-		if ( resolver.getType( "nomirrorsmap.MapType" ) != null )
-		{
-			var id = transform.primaryInput.id;
-			var outputPath = path.url.join( path.url.dirname( id.path ), "${path.url.basenameWithoutExtension( id.path )}_nomirrorsmap_generated_maps.dart" );
-			var generatedAssetId = new AssetId( id.package, outputPath );
-
-			var mapFile = (new MapGenerator( resolver )
-				..addTypes( resolver.libraries
-							.expand( ( lib )
-									 => lib.units )
-							.expand( ( compilationUnit )
-									 => compilationUnit.types ).toList( ) ))
-			.buildMapFile( generatedAssetId );
-
-
-			transform.addOutput(
-				new Asset.fromString( generatedAssetId, mapFile ) );
-
-			_editMain( transform, resolver );
-		}
-	}
-
-	void _editMain( Transform transform, Resolver resolver )
-	{
-		AssetId id = transform.primaryInput.id;
-		var lib = resolver.getLibrary( id );
-		var unit = lib.definingCompilationUnit.node;
-		var transaction = resolver.createTextEditTransaction( lib );
-
-		var imports = unit.directives.where( ( d )
-											 => d is ImportDirective );
-		transaction.edit( imports.last.end, imports.last.end, '\nimport '
-		"'${path.url.basenameWithoutExtension( id.path )}"
-		"_nomirrorsmap_generated_maps.dart' show NoMirrorsMapGeneratedMaps;\n"
-		"import 'package:nomirrorsmap/src/shared/shared.dart' as nomirrorsmap;\n" );
-
-		FunctionExpression main = unit.declarations.where( ( d )
-														   =>
-														   d is FunctionDeclaration && d.name.toString( ) == 'main' )
-		.first.functionExpression;
-		var body = main.body;
-		if ( body is BlockFunctionBody )
-		{
-			var location = body.beginToken.end;
-			transaction.edit( location, location, '\n  nomirrorsmap.GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());' );
-		} else if ( body is ExpressionFunctionBody )
-		{
-			transaction.edit( body.beginToken.offset, body.endToken.end,
-							  "{\n  nomirrorsmap.GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());\n"
-							  "  return ${body.expression};\n}" );
-		}
-		// EmptyFunctionBody can only appear as abstract methods and constructors.
-
-		var printer = transaction.commit( );
-		var url = id.path.startsWith( 'lib/' ) ?
-		'package:${id.package}/${id.path.substring( 4 )}' : id.path;
-		printer.build( url );
-		transform.addOutput( new Asset.fromString( id, printer.text ) );
-	}
-}
+part of nomirrorsmap.transformer;
 
 class MapGenerator
 {
@@ -113,22 +15,7 @@ class MapGenerator
 
 	void addTypes( List<Element> types )
 	{
-		_typesToGenerate.addAll( _uniqueClassElements(
-			types.where( _shouldBeMapped )
-			.where( ( e )
-					=> e is ClassElement ).toList( ) ) );
-
-	}
-
-	List<ClassElement> _uniqueClassElements( List<ClassElement> elements )
-	{
-		List<ClassElement> result = [];
-		for ( var element in elements )
-		{
-			if ( !result.contains( element ) )
-				result.add( element );
-		}
-		return result;
+		_typesToGenerate.addAll( types.where( _shouldBeMapped ).toList( ) );
 	}
 
 	String _getFullTypeName( InterfaceType element )
@@ -163,6 +50,15 @@ class MapGenerator
 
 	}
 
+	String _addTypeGetterToLibrary(LibraryElement library, dynamic element, Map<LibraryElement, String> libraryImportNames){
+		var node = library.definingCompilationUnit.node;
+		var transaction = _resolver.createTextEditTransaction( library );
+
+		transaction.edit(node.endToken.end, node.endToken.end, "\nType get nomirrorsmap_${element.type.name}_type => ${_getTypeStringWithTypeOf(element, libraryImportNames)};");
+
+		transaction.commit();
+	}
+
 	String _getTypeStringWithTypeOf( Element type, Map<LibraryElement, String> libraryImportNames )
 	{
 		var result = _getTypeString( type, libraryImportNames );
@@ -173,14 +69,14 @@ class MapGenerator
 		return result;
 	}
 
-	void _addClassMap( ClassElement type, StringBuffer mapFileContent, Map<LibraryElement, String> libraryImportNames, List<Element> noticedTypes )
+	void _addClassMap( ClassElement element, StringBuffer mapFileContent, Map<LibraryElement, String> libraryImportNames, List<Element> typeToRun )
 	{
-		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf(type, libraryImportNames)},\"${_getFullTypeName(type.type)}\", () => new ${_getTypeString(type, libraryImportNames)}(), {\n" );
+		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf(element, libraryImportNames)},\"${_getFullTypeName(element.type)}\", () => new ${_getTypeString(element, libraryImportNames)}(), {\n" );
 
-		var currentElement = type;
+		var currentElement = element;
 		do {
 			for (var field in currentElement.fields) {
-				noticedTypes.add(field);
+				typeToRun.add(field);
 				mapFileContent.write("'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf(field, libraryImportNames)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n");
 			}
 			currentElement = currentElement.supertype.element;
@@ -235,7 +131,7 @@ class MapGenerator
 
 	bool isPrimitiveTypeName( String name )
 	{
-		return name == "String" || name == "int";
+		return name == "String" || name == "int" || name == "double" || name == "num" || name == "bool" || name == "int" ;
 	}
 
 	void _appendLibraryImports( Map<LibraryElement, String> libraryImportNames, StringBuffer mapFileContent, AssetId assetId )

@@ -22,8 +22,7 @@ class TransformerTests
 		test("Test",(){
 			return applyTransformers( phases, inputs: {
 				'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-				'a|web/main.dart': '''import "package:lib2/lib2.dart";
-				import 'package:nomirrorsmap/nomirrorsmap.dart';
+				'a|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 				@MapType()
                 class Car extends CarBase{
@@ -42,16 +41,7 @@ class TransformerTests
                 	Coupe
                 }
 
-				main() {}''',
-				'lib2|lib/lib2.dart': '''library lib2;
-
-				import 'package:nomirrorsmap/nomirrorsmap.dart';
-
-				@MapType()
-				class _PrivateType{
-					int id;
-				}
-				'''
+				main() {}'''
 			}, results: {
 				'a|web/main_nomirrorsmap_generated_maps.dart': '''library main_nomirrorsmap_generated_maps_nomirrorsmap_generated_maps;
 
@@ -67,9 +57,6 @@ new nomirrorsmap.ClassGeneratedMap(main_dart.Car,"Car", () => new main_dart.Car(
 \'values\': new nomirrorsmap.GeneratedPropertyMap( const nomirrorsmap.TypeOf<List<String>>().type, (obj) => obj.values, (obj, value) => obj.values = value ),
 \'previousVersions\': new nomirrorsmap.GeneratedPropertyMap( const nomirrorsmap.TypeOf<List<main_dart.Car>>().type, (obj) => obj.previousVersions, (obj, value) => obj.previousVersions = value ),
 \'carType\': new nomirrorsmap.GeneratedPropertyMap( main_dart.CarType, (obj) => obj.carType, (obj, value) => obj.carType = value ),
-}),
-new nomirrorsmap.ClassGeneratedMap(lib2_lib2_dart.Car,"Car", () => new lib2_lib2_dart.Car(), {
-\'id\': new nomirrorsmap.GeneratedPropertyMap( int, (obj) => obj.id, (obj, value) => obj.id = value ),
 }),
 new nomirrorsmap.ListGeneratedMap( const nomirrorsmap.TypeOf<List<String>>().type, String, () => new List<String>() ),
 new nomirrorsmap.ListGeneratedMap( const nomirrorsmap.TypeOf<List<main_dart.Car>>().type, main_dart.Car, () => new List<main_dart.Car>() ),
