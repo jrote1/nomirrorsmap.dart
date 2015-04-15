@@ -155,11 +155,16 @@ class MapGenerator
 	void _addType( ClassElement type, StringBuffer mapFileContent, Map<LibraryElement,String> libraryImportNames, List<Element> noticedTypes )
 	{
 		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf(type, libraryImportNames)},\"${_getFullTypeName(type.type)}\", () => new ${_getTypeString(type, libraryImportNames)}(), {\n" );
-		for ( var field in type.fields )
-		{
-			noticedTypes.add( field );
-			mapFileContent.write( "'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf(field, libraryImportNames)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n" );
+
+		var currentElement = type;
+		do {
+			for (var field in currentElement.fields) {
+				noticedTypes.add(field);
+				mapFileContent.write("'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf(field, libraryImportNames)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n");
+			}
+			currentElement = currentElement.supertype.element;
 		}
+		while(currentElement != null && !currentElement.library.name.startsWith("dart.core"));
 		mapFileContent.write( "}),\n" );
 	}
 
@@ -229,18 +234,6 @@ class MapGenerator
 			libraryImportNames[l] = importAs;
 		});
 		return libraryImportNames;
-	}
-
-	String _randomString(int length) {
-		const List<String> characters = const ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'];
-
-		var rand = new Random();
-		var stringBuffer = new StringBuffer();
-		for(var i = 0; i < length; i++){
-			stringBuffer.write(characters[rand.nextInt(25)]);
-		}
-
-		return stringBuffer.toString();
 	}
 
 	bool _shouldBeMapped( ClassElement element )
