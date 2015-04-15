@@ -6,6 +6,7 @@ import 'package:analyzer/src/generated/element.dart';
 import 'package:code_transformers/resolver.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:path/path.dart' as path;
+import 'package:nomirrorsmap/src/transformer/generators/generators.dart';
 import 'dart:io';
 
 import 'dart:async';

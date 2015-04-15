@@ -18,73 +18,6 @@ class MapGenerator
 		_typesToGenerate.addAll( types.where( _shouldBeMapped ).toList( ) );
 	}
 
-	String _getFullTypeName( InterfaceType element )
-	{
-		if ( element.element.library.displayName == "" )
-			return element.displayName;
-		return "${element.element.library.displayName}.${element.displayName}";
-	}
-
-	String _getTypeString( dynamic element, Map<LibraryElement, String> libraryImportNames )
-	{
-		var result = "";
-		if ( libraryImportNames.containsKey( element.type.element.library ) )
-			result = "${libraryImportNames[element.type.element.library]}.${element.type}";
-		else
-			result = element.type.name;
-
-		if ( element.type is TypeParameterTypeImpl || element.type is DynamicTypeImpl )
-		{
-			print( "Type parameter found: ${element.type}" );
-			return result;
-		}
-		if ( element.type.typeArguments.length > 0 )
-		{
-			result += "<";
-			result += element.type.typeArguments.map( ( a )
-													  => _getTypeString( a.element, libraryImportNames ) ).join( "," );
-			result += ">";
-		}
-
-		return result;
-
-	}
-
-	String _addTypeGetterToLibrary(LibraryElement library, dynamic element, Map<LibraryElement, String> libraryImportNames){
-		var node = library.definingCompilationUnit.node;
-		var transaction = _resolver.createTextEditTransaction( library );
-
-		transaction.edit(node.endToken.end, node.endToken.end, "\nType get nomirrorsmap_${element.type.name}_type => ${_getTypeStringWithTypeOf(element, libraryImportNames)};");
-
-		transaction.commit();
-	}
-
-	String _getTypeStringWithTypeOf( Element type, Map<LibraryElement, String> libraryImportNames )
-	{
-		var result = _getTypeString( type, libraryImportNames );
-		if ( result.contains( "<" ) )
-		{
-			return "const nomirrorsmap.TypeOf<$result>().type";
-		}
-		return result;
-	}
-
-	void _addClassMap( ClassElement element, StringBuffer mapFileContent, Map<LibraryElement, String> libraryImportNames, List<Element> typeToRun )
-	{
-		mapFileContent.write( "new nomirrorsmap.ClassGeneratedMap(${_getTypeStringWithTypeOf(element, libraryImportNames)},\"${_getFullTypeName(element.type)}\", () => new ${_getTypeString(element, libraryImportNames)}(), {\n" );
-
-		var currentElement = element;
-		do {
-			for (var field in currentElement.fields) {
-				typeToRun.add(field);
-				mapFileContent.write("'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_getTypeStringWithTypeOf(field, libraryImportNames)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n");
-			}
-			currentElement = currentElement.supertype.element;
-		}
-		while(currentElement != null && !currentElement.library.name.startsWith("dart.core"));
-		mapFileContent.write( "}),\n" );
-	}
-
 	String buildMapFile( AssetId assetId )
 	{
 		var mapFileContent = new StringBuffer( );
@@ -102,25 +35,26 @@ class MapGenerator
 		List<Element> seenTypes = [];
 		List<Element> typesToRun = _typesToGenerate.toList( );
 
-		var listType = _resolver.getType( "dart.core.List" ).type;
+		var typeHelper = new TypeHelper(libraryImportNames);
+
+		var resolvers = [new ListGenerator(_resolver, typeHelper),
+		new EnumGenerator(typeHelper),
+		new ClassGenerator(typeHelper)];
+
 		do
 		{
 			for ( dynamic element in typesToRun.toList( ) )
 			{
-				if ( !(element.type.element.library.name.startsWith( 'dart.core' ) && isPrimitiveTypeName( element.type.name )) && !seenTypes.contains( element ) && !(element.type.element is TypeParameterElementImpl) )
+				if ( _isNotDartCoreType(element) && !seenTypes.contains( element ) && !(element.type.element is TypeParameterElementImpl) )
 				{
-					if ( listType == element.type.element.type || element.type.isSubtypeOf( listType ) )
-						mapFileContent.write( "new nomirrorsmap.ListGeneratedMap( ${_getTypeStringWithTypeOf( element, libraryImportNames )}, ${_getTypeStringWithTypeOf( element.type.typeArguments.first.element, libraryImportNames )}, () => new ${_getTypeString( element, libraryImportNames )}() ),\n" );
-					else if ( element.type.element.isEnum )
-						mapFileContent.write( "new nomirrorsmap.EnumGeneratedMap( ${_getTypeStringWithTypeOf( element, libraryImportNames )}, ${_getTypeStringWithTypeOf( element, libraryImportNames )}.values ),\n" );
-					else if ( !(element is FieldElementImpl) && element is ClassElement && !element.isAbstract )
-						_addClassMap( element, mapFileContent, libraryImportNames, typesToRun );
+					if(resolvers.any((r) => r.isApplicable(element))){
+						typesToRun.addAll(resolvers.firstWhere((r) => r.isApplicable(element)).process(element, mapFileContent));
+					}
 				}
 				seenTypes.add( element );
 			}
 		}
-		while ( typesToRun.where( ( t )
-								  => !seenTypes.contains( t ) ).length > 0 );
+		while ( typesToRun.where( ( t ) => !seenTypes.contains( t ) ).length > 0 );
 
 		mapFileContent.write( '''];
   }
@@ -129,7 +63,11 @@ class MapGenerator
 		return mapFileContent.toString( );
 	}
 
-	bool isPrimitiveTypeName( String name )
+	bool _isNotDartCoreType(dynamic element){
+		return !(element.type.element.library.name.startsWith( 'dart.core' ) && _isPrimitiveTypeName( element.type.name ));
+	}
+
+	bool _isPrimitiveTypeName( String name )
 	{
 		return name == "String" || name == "int" || name == "double" || name == "num" || name == "bool" || name == "int" ;
 	}

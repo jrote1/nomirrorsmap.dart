@@ -51,7 +51,7 @@ import "main.dart" as main_dart;
 class NoMirrorsMapGeneratedMaps{
   static List load(){
     return [
-new nomirrorsmap.ClassGeneratedMap(main_dart.Car,"Car", () => new main_dart.Car(), {
+new nomirrorsmap.ClassGeneratedMap( main_dart.Car, "Car", () => new main_dart.Car(), {
 \'id\': new nomirrorsmap.GeneratedPropertyMap( int, (obj) => obj.id, (obj, value) => obj.id = value ),
 \'name\': new nomirrorsmap.GeneratedPropertyMap( String, (obj) => obj.name, (obj, value) => obj.name = value ),
 \'values\': new nomirrorsmap.GeneratedPropertyMap( const nomirrorsmap.TypeOf<List<String>>().type, (obj) => obj.values, (obj, value) => obj.values = value ),
