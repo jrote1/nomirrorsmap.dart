@@ -68,9 +68,15 @@ class ClassConverter implements Converter
 
 		var properties = {
 		};
-		for ( var property in _getPublicReadWriteProperties( reflect( value ).type ) )
+		try
 		{
-			properties[MirrorSystem.getName( property.simpleName )] = toBaseObjectData( reflect( value ).getField( property.simpleName ).reflectee );
+			for ( var property in _getPublicReadWriteProperties( reflect( value ).type ) )
+			{
+				properties[MirrorSystem.getName( property.simpleName )] = toBaseObjectData( reflect( value ).getField( property.simpleName ).reflectee );
+			}
+		}
+		catch(ex){
+			throw "An error occurred getting properties for ${value.runtimeType} are you missing a relection used";
 		}
 
 		return new ClassObjectData( )
