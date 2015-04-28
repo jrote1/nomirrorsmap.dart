@@ -101,7 +101,14 @@ class ClassConverter implements Converter
 		if ( baseObjectData is ClassObjectData )
 		{
 			ClassConverterInstance classConverterInstance;
-			var instanceMirror = reflectClass( type ).newInstance( new Symbol( "" ), [] );
+			var instanceMirror;
+			try
+			{
+				instanceMirror = reflectClass( type ).newInstance( new Symbol( "" ), [] );
+			}
+			catch(ex){
+				throw "Could not instantiate type $type. Are you missing a relection used attribute or an empty constructor?";
+			}
 			if ( baseObjectData.previousHashCode != null && instances.containsKey( baseObjectData.previousHashCode ) )
 				classConverterInstance = instances[baseObjectData.previousHashCode];
 			else

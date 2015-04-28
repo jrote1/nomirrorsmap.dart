@@ -6,8 +6,6 @@ import 'package:unittest/unittest.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 import 'dart:collection';
-import 'package:shared/dtos/dtos.dart';
-import 'package:shared/events/events.dart';
 
 part 'transformer_tests.dart';
 
