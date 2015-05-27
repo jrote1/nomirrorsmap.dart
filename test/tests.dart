@@ -36,9 +36,18 @@ main( )
 
 	group( "Deserialization Tests", ( )
 	{
+		test( "Can deserialize null DateTime", ( )
+		{
+			var json = "null";
+
+			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: DateTime ) ) as Person;
+
+			expect( result, isNull );
+		} );
+
 		test( "Can deserialize simple object structure", ( )
 		{
-			var json = new io.File.fromUri( new Uri.file( "test_json/simple_object.json" ) ).readAsStringSync( );
+			var json = new io.File.fromUri( new Uri.file( "test/test_json/simple_object.json" ) ).readAsStringSync( );
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
@@ -49,7 +58,7 @@ main( )
 
 		test( "Can deserialize objects with circular references", ( )
 		{
-			var json = new io.File.fromUri( new Uri.file( "test_json/hashcode_test.json" ) ).readAsStringSync( );
+			var json = new io.File.fromUri( new Uri.file( "test/test_json/hashcode_test.json" ) ).readAsStringSync( );
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
@@ -60,7 +69,7 @@ main( )
 
 		test( "Can deserialize objects with circular references, even if properties are seen after reference", ( )
 		{
-			var json = new io.File.fromUri( new Uri.file( "test_json/reversed_hashcode_json.json" ) ).readAsStringSync( );
+			var json = new io.File.fromUri( new Uri.file( "test/test_json/reversed_hashcode_json.json" ) ).readAsStringSync( );
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
@@ -108,7 +117,7 @@ main( )
 
 		test( "Can deserialize type that contains a list", ( )
 		{
-			var json = new io.File.fromUri( new Uri.file( "test_json/list.json" ) ).readAsStringSync( );
+			var json = new io.File.fromUri( new Uri.file( "test/test_json/list.json" ) ).readAsStringSync( );
 
 			User result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: User ), [new CamelCaseManipulator( )] );
 
@@ -131,14 +140,14 @@ main( )
 		setUp( ( )
 			   {
 				   ClassConverter.converters[CustomConverterTest] = new CustomClassConverter<CustomConverterTest, String>( )
-					   ..to = ( String val )
+					   ..to = (( String val )
 				   {
 					   var values = val.split( "|" );
 					   var result = new CustomConverterTest( )
 					   ..id = int.parse( values[0] )
 					   ..value = values[1];
 				   return result;
-			   }
+			   })
 				   ..from = ( CustomConverterTest val )
 		=> "${val.id}|${val.value}";
 
@@ -198,7 +207,7 @@ main( )
 
 		test( "With a json string with no type attributes and a sub property of different type, deserialises correctly", ( )
 		{
-			var json = new io.File.fromUri( new Uri.file( "test_json/no_type_string_objects.json" ) ).readAsStringSync( );
+			var json = new io.File.fromUri( new Uri.file( "test/test_json/no_type_string_objects.json" ) ).readAsStringSync( );
 			NoTypeTestClass result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: NoTypeTestClass ) );
 			expect( result.testProperty.name, "OtherName" );
 		} );
@@ -277,14 +286,14 @@ main( )
 			var converter = new NewtonSoftJsonConverter( );
 			String json = converter.fromBaseObjectData( list );
 
-			expect( json.contains( getFileContent( "test_json\\newtonsoft_test.json" ) ), true );
+			expect( json.contains( getFileContent( "test\\test_json\\newtonsoft_test.json" ) ), true );
 
 		} );
 
 		test( "For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references", ( )
 		{
 			var converter = new NewtonSoftJsonConverter( );
-			ListObjectData json = converter.toBaseObjectData( getFileContent( "test_json\\newtonsoft_test.json" ) );
+			ListObjectData json = converter.toBaseObjectData( getFileContent( "test\\test_json\\newtonsoft_test.json" ) );
 
 			expect( (json.values[0] as ClassObjectData).previousHashCode, "1" );
 			expect( (json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode );
@@ -294,7 +303,7 @@ main( )
 		test( "can deserialize using dollar ref property only", ( )
 		{
 			var converter = new NewtonSoftJsonConverter( );
-			var jsonText = getFileContent( "test_json\\convert_using_dollarRef.json" );
+			var jsonText = getFileContent( "test\\test_json\\convert_using_dollarRef.json" );
 			var mapper = new NoMirrorsMap( );
 			var result = mapper.convert( jsonText, converter, new ClassConverter( ) );
 
@@ -316,7 +325,7 @@ main( )
 		test( "Can deserialize", ( )
 		{
 			var converter = new NewtonSoftJsonConverter( );
-			var jsonText = getFileContent( "test_json\\abstract_class_and_inheritence.json" );
+			var jsonText = getFileContent( "test\\test_json\\abstract_class_and_inheritence.json" );
 			BaseObjectData result = converter.toBaseObjectData(jsonText);
 
 			assertClassObjectDataTypeNotNull(result);
