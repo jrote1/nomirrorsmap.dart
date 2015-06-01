@@ -94,7 +94,7 @@ class ClassConverter implements Converter
 	}
 
 	bool _isPrimitive( v )
-	=> v is num || v is bool || v is String || v == null;
+	=> v is num || v is bool || v is String || v == null || v is DateTime;
 
 	Map<String, ClassConverterInstance> instances = {
 	};
