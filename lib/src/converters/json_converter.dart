@@ -125,7 +125,13 @@ class JsonConverter implements Converter
 			return baseObjectData.values.map( ( v )
 											  => _fromBaseObjectData( v ) ).toList( );
 		}
-		return (baseObjectData as NativeObjectData).value;
+
+		var value = (baseObjectData as NativeObjectData).value;
+
+		if( value is DateTime )
+			return value.toString();
+
+		return value;
 	}
 }
 
