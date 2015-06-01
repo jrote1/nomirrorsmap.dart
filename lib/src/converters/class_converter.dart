@@ -109,7 +109,7 @@ class ClassConverter implements Converter
 		if ( baseObjectData is ClassObjectData )
 		{
 			ClassConverterInstance classConverterInstance;
-			var instanceMirror;
+			InstanceMirror instanceMirror;
 			try
 			{
 				instanceMirror = reflectClass( type ).newInstance( new Symbol( "" ), [] );
@@ -132,12 +132,24 @@ class ClassConverter implements Converter
 			if ( !classConverterInstance.filled && baseObjectData.properties.length > 0 )
 			{
 				instanceMirror = reflect( classConverterInstance.instance );
-				for ( var property in _getPublicReadWriteProperties( reflectClass( type ) ) )
+				ClassMirror classMirror = reflectClass( type );
+				ClassMirror typeMirror = reflectType( type );
+				for ( var property in _getPublicReadWriteProperties( classMirror ) )
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
 					{
+						var field = reflect(startType).reflectee;
 						var propertyObjectData = baseObjectData.properties[MirrorSystem.getName( property.simpleName )];
-						var propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
+
+						var propertyType;
+						if( property.type is TypeVariableMirror )
+						{
+							var index = typeMirror.typeVariables.indexOf( typeMirror.typeVariables.firstWhere( (v) =>  v == property.type ) );
+							propertyType = typeMirror.typeArguments[index].reflectedType;
+						}else
+						{
+							propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
+						}
 						var value = _fromBaseObjectData( propertyObjectData, propertyType );
 						if ( converters.containsKey( propertyType ) )
 							value = converters[propertyType].to( value );

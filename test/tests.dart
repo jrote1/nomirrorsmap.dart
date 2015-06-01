@@ -330,8 +330,21 @@ main( )
 
 			assertClassObjectDataTypeNotNull(result);
 		} );
+
+		test( "Can deserialize generic", ()
+		{
+			var json = '''{ "id": 1 }''';
+			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: const TypeOf<GenericType<int>>( ).type ) ) as GenericType<int>;
+			expect( result.id, 1 );
+		});
+
 	} );
 
+}
+
+class GenericType<T>
+{
+	T id;
 }
 
 
