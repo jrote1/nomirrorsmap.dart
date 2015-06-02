@@ -161,9 +161,9 @@ class ClassConverter implements Converter
 							value = list;
 						}
 
-						if(!(value is List) && value.runtimeType != propertyType)
+						if(!(value is List) && value != null && value.runtimeType != propertyType)
 						{
-							print( "NoMirrorsMap poossible issue: Property ${MirrorSystem.getName( property.simpleName )} value does not math converted value are you missing an enumValues");
+							print( "NoMirrorsMap poossible issue: Property ${MirrorSystem.getName( property.simpleName )} of type ${propertyType} value does not math converted value or type ${value.runtimeType} are you missing an enumValues");
 						}
 						instanceMirror.setField( property.simpleName, value );
 					}
