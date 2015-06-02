@@ -31,6 +31,7 @@ class ClassConverter implements Converter
 
 	static Map<Type, CustomClassConverter> converters = {
 	};
+	static Map<Type, List> enumValues = {};
 
 	List<String> seenHashCodes = [];
 
@@ -150,7 +151,7 @@ class ClassConverter implements Converter
 						{
 							propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
 						}
-						var value = _fromBaseObjectData( propertyObjectData, propertyType );
+						Object value = _fromBaseObjectData( propertyObjectData, propertyType );
 						if ( converters.containsKey( propertyType ) )
 							value = converters[propertyType].to( value );
 						if ( value is List )
@@ -158,6 +159,11 @@ class ClassConverter implements Converter
 							var list = reflectClass( propertyType ).newInstance( new Symbol( "" ), [] ).reflectee;
 							list.addAll( value );
 							value = list;
+						}
+
+						if(!(value is List) && value.runtimeType != propertyType)
+						{
+							print( "NoMirrorsMap poossible issue: Property ${MirrorSystem.getName( property.simpleName )} value does not math converted value are you missing an enumValues");
 						}
 						instanceMirror.setField( property.simpleName, value );
 					}
@@ -185,8 +191,7 @@ class ClassConverter implements Converter
 
 		if ( _isTypeEnum( type ) )
 		{
-			var result = reflectClass( type ).getField( new Symbol( "values" ) ).reflectee;
-			return result[nativeObjectValue];
+			return enumValues[type][nativeObjectValue];
 		}
 
 		if ( type == double && nativeObjectValue != null )
@@ -200,15 +205,7 @@ class ClassConverter implements Converter
 
 	bool _isTypeEnum( Type type )
 	{
-		try
-		{
-			var field = reflectClass( type ).getField( new Symbol( "values" ) );
-			return field != null && field.reflectee != null;
-		}
-		catch ( ex )
-		{
-			return false;
-		}
+		return enumValues.containsKey( type );
 	}
 
 	static ClassMirror _objectMirror = reflectClass( Object );
