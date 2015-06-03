@@ -139,7 +139,6 @@ class ClassConverter implements Converter
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
 					{
-						var field = reflect(startType).reflectee;
 						var propertyObjectData = baseObjectData.properties[MirrorSystem.getName( property.simpleName )];
 
 						var propertyType;
@@ -156,7 +155,11 @@ class ClassConverter implements Converter
 							value = converters[propertyType].to( value );
 						if ( value is List )
 						{
-							var list = reflectClass( propertyType ).newInstance( new Symbol( "" ), [] ).reflectee;
+							var list;
+							if( propertyType.toString() == "List" || propertyType.toString().startsWith("List<") )
+								list = [];
+							else
+								list = reflectClass( propertyType ).newInstance( new Symbol( "" ), [] ).reflectee;
 							list.addAll( value );
 							value = list;
 						}
