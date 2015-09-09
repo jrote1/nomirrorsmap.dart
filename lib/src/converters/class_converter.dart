@@ -1,10 +1,10 @@
 part of nomirrorsmap.converters;
 
-class CustomClassConverter<TActualType, TConvertedType>
+class CustomClassConverter<TActualType>
 {
 	Function _fromFunc;
 
-	set from( TConvertedType func( TActualType val ) )
+	set from( BaseObjectData func( TActualType val ) )
 	{
 		_fromFunc = func;
 	}
@@ -14,7 +14,7 @@ class CustomClassConverter<TActualType, TConvertedType>
 
 	Function _toFunc;
 
-	set to( TActualType func( TConvertedType val ) )
+	set to( TActualType func( BaseObjectData val ) )
 	{
 		_toFunc = func;
 	}
@@ -39,7 +39,7 @@ class ClassConverter implements Converter
 	{
 		var valueType = reflect( value ).type.reflectedType;
 		if ( converters.containsKey( valueType ) )
-			value = converters[valueType].from( value );
+			return converters[valueType].from( value );
 
 		if ( _isPrimitive( value ) )
 			return new NativeObjectData( )
@@ -150,9 +150,11 @@ class ClassConverter implements Converter
 						{
 							propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
 						}
-						Object value = _fromBaseObjectData( propertyObjectData, propertyType );
+						Object value;
 						if ( converters.containsKey( propertyType ) )
-							value = converters[propertyType].to( value );
+							value = converters[propertyType].to( propertyObjectData );
+						else
+							value = _fromBaseObjectData( propertyObjectData, propertyType );
 						if ( value is List )
 						{
 							var list;
