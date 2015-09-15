@@ -90,7 +90,8 @@ class ClassConverter
 		}
 		catch ( ex )
 		{
-			throw "An error occurred getting properties for ${value.runtimeType} are you missing a relection used";
+			throw ex;
+			//throw "An error occurred getting properties for ${value.runtimeType} are you missing a relection used";
 		}
 
 		return new ClassObjectData( )
