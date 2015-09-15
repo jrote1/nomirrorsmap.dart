@@ -43,9 +43,9 @@ class ClassConverter
 	{
 		var reflectedValue = reflect( value );
 		var valueType = reflectedValue.type.reflectedType;
-		var valueHashcode = value.hashCode.toString();
+		var valueHashcode = value.hashCode.toString( );
 
-		if ( converters.containsKey( value.runtimeType ) )
+		if ( converters.containsKey( valueType ) )
 			return converters[valueType].from( value );
 
 		if ( _isPrimitive( value ) )
@@ -78,7 +78,7 @@ class ClassConverter
 		};
 		try
 		{
-			for ( var property in _getPublicReadWriteProperties( value.runtimeType ) )
+			for ( var property in _getPublicReadWriteProperties( reflectedValue.type ) )
 			{
 				var propertyName = _propertyNameCache[property.simpleName];
 				if ( propertyName == null )
@@ -147,21 +147,24 @@ class ClassConverter
 				instanceMirror = reflect( classConverterInstance.instance );
 				ClassMirror classMirror = reflectClass( type );
 				ClassMirror typeMirror = reflectType( type );
-				for ( var property in _getPublicReadWriteProperties( type ) )
+				for ( var property in _getPublicReadWriteProperties( classMirror ) )
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
 					{
 						var propertyObjectData = baseObjectData.properties[MirrorSystem.getName( property.simpleName )];
 
-						var propertyType;
-						if ( property.type is TypeVariableMirror )
+						var propertyType = propertyObjectData.objectType;
+						if ( propertyType == null )
 						{
-							var index = typeMirror.typeVariables.indexOf( typeMirror.typeVariables.firstWhere( ( v )
-																											   => v == property.type ) );
-							propertyType = typeMirror.typeArguments[index].reflectedType;
-						} else
-						{
-							propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
+							if ( property.type is TypeVariableMirror )
+							{
+								var index = typeMirror.typeVariables.indexOf( typeMirror.typeVariables.firstWhere( ( v )
+																												   => v == property.type ) );
+								propertyType = typeMirror.typeArguments[index].reflectedType;
+							} else
+							{
+								propertyType = property.type.reflectedType;
+							}
 						}
 						Object value;
 						if ( converters.containsKey( propertyType ) )
@@ -231,19 +234,18 @@ class ClassConverter
 	}
 
 	static ClassMirror _objectMirror = reflectClass( Object );
-	static HashMap<Type, List<DeclarationMirror>> _publicReadWriteProperties = new HashMap( equals: ( a, b )
+	static HashMap<ClassMirror, List<DeclarationMirror>> _publicReadWriteProperties = new HashMap<ClassMirror, List<DeclarationMirror>>( equals: ( a, b )
 	=> a.hashCode == b.hashCode );
 
-	List<VariableMirror> _getPublicReadWriteProperties( Type type )
+	List<VariableMirror> _getPublicReadWriteProperties( ClassMirror classMirror )
 	{
-		var properties = _publicReadWriteProperties[type];
+		var properties = _publicReadWriteProperties[classMirror];
 		if ( properties == null )
 		{
-			var classMirror = reflectClass( type );
 			properties = <VariableMirror>[];
 			if ( classMirror != _objectMirror )
 			{
-				properties.addAll( _getPublicReadWriteProperties( classMirror.superclass.reflectedType ) );
+				properties.addAll( _getPublicReadWriteProperties( classMirror.superclass ) );
 				classMirror.declarations.forEach( ( k, v )
 												  {
 													  if ( _isPublicField( v ) )
@@ -256,7 +258,7 @@ class ClassConverter
 												  } );
 			}
 		}
-		return _publicReadWriteProperties[type] = properties;
+		return _publicReadWriteProperties[classMirror] = properties;
 	}
 
 	bool _hasSetter( ClassMirror cls, MethodMirror getter )

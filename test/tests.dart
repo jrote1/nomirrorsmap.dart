@@ -19,6 +19,16 @@ class TypeWithDuration
 	Duration duration;
 }
 
+class GenericBase<T>
+{
+	T val;
+}
+
+class PersonGeneric extends GenericBase<Person>
+{
+
+}
+
 main( )
 {
 	group( "Serialization Tests", ( )
@@ -58,10 +68,16 @@ main( )
 
 			var stopwatch = new Stopwatch( )
 				..start( );
-			new ClassConverter( ).toBaseObjectData( list );
-			//var result = new NoMirrorsMap( ).convert( list, , new NewtonSoftJsonConverter( ) );
+			var result = new NoMirrorsMap( ).convert( list, new ClassConverter(), new NewtonSoftJsonConverter( ) );
 			stopwatch.stop( );
 			print( "Took: ${stopwatch.elapsedMilliseconds}" );
+		});
+
+		test("Generic test", ()
+		{
+			var person = new PersonGeneric()..val = new Person();
+			var json = new NoMirrorsMap( ).convert( person, new ClassConverter(), new NewtonSoftJsonConverter( ) );
+			var decodedPerson = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter( ), new ClassConverter(startType: PersonGeneric) );
 		});
 
 		test( "Can deserialize to object", (){
