@@ -108,8 +108,7 @@ class ClassConverter
 	bool _isPrimitive( v )
 	=> v is num || v is bool || v is String || v == null || v is DateTime;
 
-	Map<String, ClassConverterInstance> instances = {
-	};
+	HashMap<String, ClassConverterInstance> instances = new HashMap(equals: (a,b) => a == b);
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
