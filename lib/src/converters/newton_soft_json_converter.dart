@@ -2,8 +2,8 @@ part of nomirrorsmap.converters;
 
 class NewtonSoftJsonConverter extends JsonConverter
 {
-	Map<String,Type> fromJsonHashCodesAndTypes = new Map<String,Type>();
-	List<String> toJsonSeenHashcodes = new List<String>();
+	HashMap<String,Type> fromJsonHashCodesAndTypes = new HashMap<String,Type>(equals: (a,b) => a == b);
+	HashSet<String> toJsonSeenHashcodes = new HashSet<String>(equals: (a,b) => a == b);
 
 	@override
 	void setMetaData(Map result, String hashcode, ClassObjectData classObjectData){

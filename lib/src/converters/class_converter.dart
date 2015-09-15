@@ -23,7 +23,8 @@ class CustomClassConverter<TActualType, TConvertedType>
 	=> _toFunc;
 }
 
-class ClassConverter implements Converter
+class ClassConverter
+	implements Converter
 {
 	Type startType;
 
@@ -33,12 +34,18 @@ class ClassConverter implements Converter
 	};
 	static Map<Type, List> enumValues = {};
 
-	List<String> seenHashCodes = [];
+	HashSet<String> seenHashCodes = new HashSet( equals: ( a, b )
+	=> a == b );
+	HashMap<Symbol, String> _propertyNameCache = new HashMap<Symbol, String>( equals: ( a, b )
+	=> a == b );
 
 	BaseObjectData toBaseObjectData( dynamic value )
 	{
-		var valueType = reflect( value ).type.reflectedType;
-		if ( converters.containsKey( valueType ) )
+		var reflectedValue = reflect( value );
+		var valueType = reflectedValue.type.reflectedType;
+		var valueHashcode = value.hashCode.toString();
+
+		if ( converters.containsKey( value.runtimeType ) )
 			value = converters[valueType].from( value );
 
 		if ( _isPrimitive( value ) )
@@ -60,21 +67,25 @@ class ClassConverter implements Converter
 									  => toBaseObjectData( v ) ).toList( );
 		}
 
-		if ( seenHashCodes.contains( value.hashCode.toString( ) ) )
+		if ( seenHashCodes.contains( valueHashcode ) )
 			return new ClassObjectData( )
 				..objectType = valueType
-				..previousHashCode = value.hashCode.toString( )
-				..properties = {
-			};
-		seenHashCodes.add( value.hashCode.toString( ) );
+				..previousHashCode = valueHashcode
+				..properties = {};
+		seenHashCodes.add( valueHashcode );
 
 		var properties = {
 		};
 		try
 		{
-			for ( var property in _getPublicReadWriteProperties( reflect( value ).type ) )
+			for ( var property in _getPublicReadWriteProperties( value.runtimeType ) )
 			{
-				properties[MirrorSystem.getName( property.simpleName )] = toBaseObjectData( reflect( value ).getField( property.simpleName ).reflectee );
+				var propertyName = _propertyNameCache[property.simpleName];
+				if ( propertyName == null )
+					propertyName = _propertyNameCache[property.simpleName] = MirrorSystem.getName( property.simpleName );
+				properties[propertyName] = toBaseObjectData( reflectedValue
+																 .getField( property.simpleName )
+																 .reflectee );
 			}
 		}
 		catch ( ex )
@@ -84,7 +95,7 @@ class ClassConverter implements Converter
 
 		return new ClassObjectData( )
 			..objectType = valueType
-			..previousHashCode = value.hashCode.toString( )
+			..previousHashCode = valueHashcode
 			..properties = properties;
 	}
 
@@ -135,18 +146,19 @@ class ClassConverter implements Converter
 				instanceMirror = reflect( classConverterInstance.instance );
 				ClassMirror classMirror = reflectClass( type );
 				ClassMirror typeMirror = reflectType( type );
-				for ( var property in _getPublicReadWriteProperties( classMirror ) )
+				for ( var property in _getPublicReadWriteProperties( type ) )
 				{
 					if ( baseObjectData.properties.containsKey( MirrorSystem.getName( property.simpleName ) ) )
 					{
 						var propertyObjectData = baseObjectData.properties[MirrorSystem.getName( property.simpleName )];
 
 						var propertyType;
-						if( property.type is TypeVariableMirror )
+						if ( property.type is TypeVariableMirror )
 						{
-							var index = typeMirror.typeVariables.indexOf( typeMirror.typeVariables.firstWhere( (v) =>  v == property.type ) );
+							var index = typeMirror.typeVariables.indexOf( typeMirror.typeVariables.firstWhere( ( v )
+																											   => v == property.type ) );
 							propertyType = typeMirror.typeArguments[index].reflectedType;
-						}else
+						} else
 						{
 							propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
 						}
@@ -156,17 +168,21 @@ class ClassConverter implements Converter
 						if ( value is List )
 						{
 							var list;
-							if( propertyType.toString() == "List" || propertyType.toString().startsWith("List<") )
+							if ( propertyType.toString( ) == "List" || propertyType.toString( ).startsWith( "List<" ) )
 								list = [];
 							else
-								list = reflectClass( propertyType ).newInstance( new Symbol( "" ), [] ).reflectee;
+								list = reflectClass( propertyType )
+									.newInstance( new Symbol( "" ), [] )
+									.reflectee;
 							list.addAll( value );
 							value = list;
 						}
 
-						if(!(value is List) && value != null && value.runtimeType != propertyType)
+						if ( !(value is List) && value != null && value.runtimeType != propertyType )
 						{
-							print( "NoMirrorsMap poossible issue: Property ${MirrorSystem.getName( property.simpleName )} of type ${propertyType} value does not math converted value or type ${value.runtimeType} are you missing an enumValues");
+							print( "NoMirrorsMap poossible issue: Property ${MirrorSystem.getName(
+								property.simpleName )} of type ${propertyType} value does not math converted value or type ${value
+								.runtimeType} are you missing an enumValues" );
 						}
 						instanceMirror.setField( property.simpleName, value );
 					}
@@ -212,18 +228,19 @@ class ClassConverter implements Converter
 	}
 
 	static ClassMirror _objectMirror = reflectClass( Object );
-	static Map<ClassMirror, List<DeclarationMirror>> _publicReadWriteProperties = {
-	};
+	static HashMap<Type, List<DeclarationMirror>> _publicReadWriteProperties = new HashMap( equals: ( a, b )
+	=> a.hashCode == b.hashCode );
 
-	List<VariableMirror> _getPublicReadWriteProperties( ClassMirror classMirror )
+	List<VariableMirror> _getPublicReadWriteProperties( Type type )
 	{
-		var properties = _publicReadWriteProperties[classMirror];
+		var properties = _publicReadWriteProperties[type];
 		if ( properties == null )
 		{
-			properties = <VariableMirror> [];
+			var classMirror = reflectClass( type );
+			properties = <VariableMirror>[];
 			if ( classMirror != _objectMirror )
 			{
-				properties.addAll( _getPublicReadWriteProperties( classMirror.superclass ) );
+				properties.addAll( _getPublicReadWriteProperties( classMirror.superclass.reflectedType ) );
 				classMirror.declarations.forEach( ( k, v )
 												  {
 													  if ( _isPublicField( v ) )
@@ -236,7 +253,7 @@ class ClassConverter implements Converter
 												  } );
 			}
 		}
-		return _publicReadWriteProperties[classMirror] = properties;
+		return _publicReadWriteProperties[type] = properties;
 	}
 
 	bool _hasSetter( ClassMirror cls, MethodMirror getter )
@@ -248,13 +265,13 @@ class ClassConverter implements Converter
 	// https://code.google.com/p/dart/issues/detail?id=10029
 	Symbol _setterName( Symbol getter )
 	=>
-	new Symbol( '${MirrorSystem.getName( getter )}=' );
+		new Symbol( '${MirrorSystem.getName( getter )}=' );
 
 	bool _isPublicField( DeclarationMirror v )
 	=>
-	v is VariableMirror && !v.isStatic && !v.isPrivate && !v.isFinal;
+		v is VariableMirror && !v.isStatic && !v.isPrivate && !v.isFinal;
 
 	bool _isPublicGetter( DeclarationMirror v )
 	=>
-	(v is MethodMirror && !v.isStatic && !v.isPrivate && v.isGetter);
+		(v is MethodMirror && !v.isStatic && !v.isPrivate && v.isGetter);
 }

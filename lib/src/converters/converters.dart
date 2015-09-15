@@ -4,6 +4,7 @@ import 'dart:mirrors';
 import 'dart:convert';
 
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
+import 'dart:collection';
 
 part 'converter.dart';
 part 'class_converter.dart';

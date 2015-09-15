@@ -32,6 +32,28 @@ main( )
 														  ..parents = [], new ClassConverter( ), new JsonConverter( ), [new PascalCaseManipulator( )] );
 			expect( result, endsWith( '''"Id":1,"Parents":[],"Children":[]}''' ) );
 		} );
+
+		test( "Performance test", (){
+			//218
+			var list = [];
+			for(int i = 0; i < 1000; i++)
+					list.add(new Person( )
+								 ..id = i
+								 ..children = [new Person( )
+									 ..id = i
+									 ..children = []
+									 ..parents = []]
+								 ..parents = [new Person( )
+									 ..id = i
+									 ..children = []
+									 ..parents = []]);
+
+			var stopwatch = new Stopwatch()..start();
+			new ClassConverter( ).toBaseObjectData( list );
+			//var result = new NoMirrorsMap( ).convert( list, , new NewtonSoftJsonConverter( ) );
+			stopwatch.stop();
+			print("Took: ${stopwatch.elapsedMilliseconds}");
+		} );
 	} );
 
 	group( "Deserialization Tests", ( )
