@@ -1,10 +1,10 @@
 part of nomirrorsmap.converters;
 
-class CustomClassConverter<TActualType, TConvertedType>
+class CustomClassConverter<TActualType>
 {
 	Function _fromFunc;
 
-	set from( TConvertedType func( TActualType val ) )
+	set from( BaseObjectData func( TActualType val ) )
 	{
 		_fromFunc = func;
 	}
@@ -14,7 +14,7 @@ class CustomClassConverter<TActualType, TConvertedType>
 
 	Function _toFunc;
 
-	set to( TActualType func( TConvertedType val ) )
+	set to( TActualType func( BaseObjectData val ) )
 	{
 		_toFunc = func;
 	}
@@ -46,7 +46,7 @@ class ClassConverter
 		var valueHashcode = value.hashCode.toString();
 
 		if ( converters.containsKey( value.runtimeType ) )
-			value = converters[valueType].from( value );
+			return converters[valueType].from( value );
 
 		if ( _isPrimitive( value ) )
 			return new NativeObjectData( )
@@ -108,7 +108,8 @@ class ClassConverter
 	bool _isPrimitive( v )
 	=> v is num || v is bool || v is String || v == null || v is DateTime;
 
-	HashMap<String, ClassConverterInstance> instances = new HashMap(equals: (a,b) => a == b);
+	Map<String, ClassConverterInstance> instances = {
+	};
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
@@ -161,9 +162,11 @@ class ClassConverter
 						{
 							propertyType = propertyObjectData.objectType == null ? property.type.reflectedType : propertyObjectData.objectType;
 						}
-						Object value = _fromBaseObjectData( propertyObjectData, propertyType );
+						Object value;
 						if ( converters.containsKey( propertyType ) )
-							value = converters[propertyType].to( value );
+							value = converters[propertyType].to( propertyObjectData );
+						else
+							value = _fromBaseObjectData( propertyObjectData, propertyType );
 						if ( value is List )
 						{
 							var list;

@@ -14,6 +14,11 @@ String getFileContent( String fileName )
 	return new io.File.fromUri( new Uri.file( fileName ) ).readAsStringSync( );
 }
 
+class TypeWithDuration
+{
+	Duration duration;
+}
+
 main( )
 {
 	group( "Serialization Tests", ( )
@@ -33,26 +38,52 @@ main( )
 			expect( result, endsWith( '''"Id":1,"Parents":[],"Children":[]}''' ) );
 		} );
 
-		test( "Performance test", (){
+		test( "Performance test", ()
+		{
 			//218
 			var list = [];
-			for(int i = 0; i < 1000; i++)
-					list.add(new Person( )
-								 ..id = i
-								 ..children = [new Person( )
-									 ..id = i
-									 ..children = []
-									 ..parents = []]
-								 ..parents = [new Person( )
-									 ..id = i
-									 ..children = []
-									 ..parents = []]);
+			for ( int i = 0; i < 1000; i++ )
+				list.add( new Person( )
+							  ..id = i
+							  ..children = [new Person( )
+								  ..id = i
+								  ..children = []
+								  ..parents = []
+							  ]
+							  ..parents = [new Person( )
+								  ..id = i
+								  ..children = []
+								  ..parents = []
+							  ] );
 
-			var stopwatch = new Stopwatch()..start();
+			var stopwatch = new Stopwatch( )
+				..start( );
 			new ClassConverter( ).toBaseObjectData( list );
 			//var result = new NoMirrorsMap( ).convert( list, , new NewtonSoftJsonConverter( ) );
-			stopwatch.stop();
-			print("Took: ${stopwatch.elapsedMilliseconds}");
+			stopwatch.stop( );
+			print( "Took: ${stopwatch.elapsedMilliseconds}" );
+		});
+
+		test( "Can deserialize to object", (){
+			ClassConverter.converters[Duration] = new CustomClassConverter<Duration>()
+				..to = ((BaseObjectData input)
+			{
+				var classObjectData = input as ClassObjectData;
+				return new Duration(minutes: classObjectData.properties["minutes"].value, seconds: classObjectData.properties["seconds"].value );
+			})
+				..from = ((Duration duration)
+			{
+				return {
+					"minutes": duration.inMinutes,
+					"seconds": duration.inSeconds % 60
+				};
+			});
+
+			var json = r'''{ "duration": {"minutes":15, "seconds":10} }''';
+			var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: TypeWithDuration)) as TypeWithDuration;
+
+			expect(result.duration.inMinutes, 15);
+			expect(result.duration.inSeconds, 15*60 + 10);
 		} );
 	} );
 
@@ -161,17 +192,17 @@ main( )
 
 		setUp( ( )
 			   {
-				   ClassConverter.converters[CustomConverterTest] = new CustomClassConverter<CustomConverterTest, String>( )
-					   ..to = (( String val )
+				   ClassConverter.converters[CustomConverterTest] = new CustomClassConverter<CustomConverterTest>( )
+					   ..to = (( NativeObjectData val )
 				   {
-					   var values = val.split( "|" );
+					   var values = val.value.split( "|" );
 					   var result = new CustomConverterTest( )
 					   ..id = int.parse( values[0] )
 					   ..value = values[1];
 				   return result;
 			   })
 				   ..from = ( CustomConverterTest val )
-		=> "${val.id}|${val.value}";
+		=> ( new NativeObjectData()..value = "${val.id}|${val.value}"..objectType = String);
 
 			   } );
 		test( "When a custom converter is specified for a type, the converter is used when converting to baseObject", ( )
@@ -183,7 +214,7 @@ main( )
 
 			var classConverter = new ClassConverter( );
 			ClassObjectData baseObject = classConverter.toBaseObjectData( object );
-			NativeObjectData result = baseObject.properties["testProperty"];
+			var result = baseObject.properties["testProperty"];
 
 			expect( result.value, "1|Matthew" );
 		} );
