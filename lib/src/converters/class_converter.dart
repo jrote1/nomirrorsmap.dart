@@ -235,7 +235,7 @@ class ClassConverter
 
 	static ClassMirror _objectMirror = reflectClass( Object );
 	static HashMap<ClassMirror, List<DeclarationMirror>> _publicReadWriteProperties = new HashMap<ClassMirror, List<DeclarationMirror>>( equals: ( a, b )
-	=> a.hashCode == b.hashCode );
+	=> a == b );
 
 	List<VariableMirror> _getPublicReadWriteProperties( ClassMirror classMirror )
 	{
