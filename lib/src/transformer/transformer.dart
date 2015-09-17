@@ -13,4 +13,6 @@ import 'dart:async';
 import 'dart:math';
 
 part 'map_generator_transformer.dart';
+part 'new_map_generator_transformer.dart';
 part 'map_generator.dart';
+part 'mappings_generator.dart';
