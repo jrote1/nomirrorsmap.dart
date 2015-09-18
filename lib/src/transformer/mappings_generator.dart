@@ -12,13 +12,18 @@ class MappingsGenerator
 
 	void _addTypes( )
 	{
+		var allEnums = _resolver.libraries
+			.expand( ( lib )
+					 => lib.units )
+			.expand( ( compilationUnit )
+					 => compilationUnit.enums ).toList( );
+		_typesToMap.addAll( allEnums.where( _shouldBeMapped ) );
+
 		var allTypes = _resolver.libraries
 			.expand( ( lib )
 					 => lib.units )
 			.expand( ( compilationUnit )
 					 => compilationUnit.types ).toList( );
-
-
 		_typesToMap.addAll( allTypes.where( _shouldBeMapped ) );
 
 		_generateLibraryAliases( );
@@ -57,7 +62,7 @@ class MappingsGenerator
 			DartType metaType = meta.enclosingElement.type;
 			if ( metaType.isAssignableTo( mappableMetadataType.type ) )
 			{
-				if ( type.unnamedConstructor == null || type.unnamedConstructor.parameters.length > 0 )
+				if ( !type.isEnum && (type.unnamedConstructor == null || type.unnamedConstructor.parameters.length > 0) )
 					throw "The type '${type.displayName}' has a @Mappable() annotation but no DefaultConstructor";
 				return true;
 			}
@@ -83,7 +88,8 @@ class MappingsGenerator
 	String _generateClassTop( )
 	{
 		var stringBuilder = new StringBuffer( );
-		stringBuilder.writeln( "import 'package:nomirrorsmap/src/transformer.dart';" );
+		stringBuilder.writeln( "library TestProject.Mappings;\n" );
+		stringBuilder.writeln( "import 'package:nomirrorsmap/nomirrorsmap.dart';" );
 
 		for ( var library in _libraryImportAliases.keys )
 		{
@@ -94,7 +100,7 @@ class MappingsGenerator
 		return '''${stringBuilder.toString( )}
 class TestProjectMappings
 {
-	void register( )
+	static void register( )
 	{
 		_registerAccessors( );
 		_registerClasses( );
@@ -105,18 +111,19 @@ class TestProjectMappings
 	String _generateProperties( )
 	{
 		var stringBuilder = new StringBuffer( );
-		stringBuilder.write( '''\tvoid _registerAccessors()
+		stringBuilder.write( '''\tstatic void _registerAccessors()
 	{\n''' );
 
 		var propertyNames = _typesToMap
+			.where( ( type )
+					=> !type.isEnum )
 			.expand( ( type )
-					 => type.fields )
+					 => _getAllTypeFields( type ) )
 			.map( ( field )
 				  => field.name )
 			.toList( );
-		_uniqifyList( propertyNames );
 
-		for ( var property in propertyNames )
+		for ( var property in _uniqifyList( propertyNames ) )
 		{
 			stringBuilder.writeln(
 				'''\t\tNoMirrorsMapStore.registerAccessor( "$property", ( object, value ) => object.$property = value, (object) => object.$property );''' );
@@ -129,25 +136,27 @@ class TestProjectMappings
 	String _generateClasses( )
 	{
 		var stringBuilder = new StringBuffer( );
-		stringBuilder.write( '''\tvoid _registerClasses()
+		stringBuilder.write( '''\tstatic void _registerClasses()
 	{\n''' );
 
-		for ( var type in _typesToMap )
+		for ( var type in _typesToMap.where( ( type )
+											 => !type.isEnum ) )
 		{
 			var fullTypeName = type.library.displayName;
 			if ( fullTypeName.length > 0 ) fullTypeName += ".";
 			fullTypeName += type.displayName;
 			var importedTypeName = _libraryImportAliases[type.library] + "." + type.displayName;
 			stringBuilder.writeln(
-				"\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, () => new $importedTypeName(), const {" );
+				"\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, () => new $importedTypeName(), {" );
 
-			for ( var field in type.fields )
+			var fields = _getAllTypeFields( type ).toList( );
+			for ( var field in fields )
 			{
-				var typeName = field.type.name;
-				if ( _libraryImportAliases.containsKey( field.type.element.library ) )
-					typeName = _libraryImportAliases[field.type.element.library] + "." + typeName;
+				var typeName = _getActualTypeText( field.type );
+				if ( typeName.contains( "<" ) )
+					typeName = "const TypeOf<$typeName>().type";
 				stringBuilder.write( "\t\t\t'${field.name}': $typeName" );
-				if ( type.fields.last != field )
+				if ( fields.last != field )
 					stringBuilder.writeln( "," );
 				else
 					stringBuilder.writeln( "" );
@@ -160,11 +169,63 @@ class TestProjectMappings
 		return stringBuilder.toString( );
 	}
 
+	Iterable<_Field> _getAllTypeFields( ClassElement type )
+	sync*
+	{
+		bool isObject( InterfaceType type )
+		=> type == null || type.isObject || type.displayName == "Object";
+
+		yield* type.fields.map( ( field )
+								{
+									return new _Field( )
+										..name = field.name
+										..type = field.type;
+								} );
+		if ( !isObject( type.supertype ) )
+		{
+			for ( var currentType = type.supertype; !isObject( currentType ); currentType = currentType.element.supertype )
+			{
+				var genericParameters = <TypeParameterElement, InterfaceType>{};
+				if ( currentType.typeArguments.length > 0 )
+				{
+					for ( var generic in currentType.typeArguments )
+					{
+						genericParameters[currentType.element.typeParameters[currentType.typeArguments.indexOf( generic )]] = generic;
+					}
+				}
+
+				for ( var field in currentType.element.fields )
+				{
+					var type = field.type;
+					if ( type is TypeParameterType )
+						type = genericParameters[type.element];
+
+					if ( type is InterfaceTypeImpl )
+						type = type;
+
+					yield new _Field( )
+						..name = field.name
+						..type = type;
+				}
+			}
+		}
+	}
+
 	String _generateEnums( )
 	{
-		return '''\tvoid _registerEnums()
-	{
-	}''';
+		var stringBuilder = new StringBuffer( );
+		stringBuilder.write( '''\tstatic void _registerEnums()
+	{\n''' );
+
+		for ( var type in _typesToMap.where( ( type )
+											 => type.isEnum ) )
+		{
+			var importedTypeName = _libraryImportAliases[type.library] + "." + type.displayName;
+			stringBuilder.writeln( "\t\tNoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );" );
+		}
+
+		stringBuilder.write( "\t}" );
+		return stringBuilder.toString( );
 	}
 
 	String _generateClassBottom( )
@@ -172,20 +233,32 @@ class TestProjectMappings
 		return '''}''';
 	}
 
-	void _uniqifyList( List<dynamic> list )
+	List<String> _uniqifyList( List<String> list )
 	{
-		for ( int i = 0; i < list.length; i++ )
-		{
-			dynamic o = list[i];
-			int index;
-			do
-			{
-				index = list.indexOf( o, i + 1 );
-				if ( index != -1 )
-				{
-					list.removeRange( index, 1 );
-				}
-			} while ( index != -1 );
-		}
+		var result = new List<String>( );
+
+		for ( var element in list )
+			if ( !result.contains( element ) )
+				result.add( element );
+
+		return result;
 	}
+
+	String _getActualTypeText( InterfaceType type )
+	{
+		var typeName = type.name;
+		if ( _libraryImportAliases.containsKey( type.element.library ) )
+			typeName = _libraryImportAliases[type.element.library] + "." + typeName;
+
+		if ( type.typeArguments.length > 0 )
+			typeName += "<${type.typeArguments.map( _getActualTypeText ).join( "," )}>";
+
+		return typeName;
+	}
+}
+
+class _Field
+{
+	String name;
+	InterfaceType type;
 }

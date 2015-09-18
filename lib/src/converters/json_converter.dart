@@ -22,7 +22,7 @@ class JsonConverter implements Converter
 
 	Type findObjectType( dynamic json )
 	{
-		return json.containsKey( "\$type" ) ? GeneratedMapProvider.getClassGeneratedMapByQualifiedName( json["\$type"] ).type : null;
+		return json.containsKey( "\$type" ) ? NoMirrorsMapStore.getClassGeneratedMapByQualifiedName( json["\$type"] ).type : null;
 	}
 
 	void afterCreatingClassObjectData( ClassObjectData classObjectData )
@@ -71,7 +71,7 @@ class JsonConverter implements Converter
 
 	void setTypeFromObjectType( Map json, ClassObjectData classObjectData )
 	{
-		json["\$type"] =  GeneratedMapProvider.getClassGeneratedMap(classObjectData.objectType).qualifiedName;
+		json["\$type"] =  NoMirrorsMapStore.getClassGeneratedMap(classObjectData.objectType).fullName;
 	}
 
 	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )

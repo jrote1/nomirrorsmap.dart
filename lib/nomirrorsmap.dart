@@ -19,10 +19,16 @@ class NoMirrorsMap
 
 }
 
-class MapType{
-	const MapType();
+class Mappable{
+	const Mappable();
 }
 
+class TypeOf<T>
+{
+	const TypeOf();
+
+	Type get type => T;
+}
 
 
 

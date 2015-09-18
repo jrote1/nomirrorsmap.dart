@@ -15,8 +15,9 @@ import 'package:code_transformers/src/dart_sdk.dart';
 
 import 'dart:async';
 
-import 'nomirrorsmap_generated_maps.dart';
 import 'type_to_type_objects.dart' as objects;
+import 'package:code_transformers/src/test_harness.dart';
+import 'dart:io';
 
 String MAP_LIBRARY = '''
 		library nomirrorsmap;
@@ -31,7 +32,7 @@ main( )
 	var resolvers = new Resolvers( dartSdkDirectory );
 
 	var phases = [
-		[new NewMapGeneratorTransformer( resolvers )]
+		[new MapGeneratorTransformer( resolvers )]
 	];
 
 	group( "Main Modification", ( )
@@ -51,29 +52,31 @@ class TestClass
 
 }'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''import 'package:nomirrorsmap/src/transformer.dart';
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			
+import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
 class TestProjectMappings
 {
-	void register( )
+	static void register( )
 	{
 		_registerAccessors( );
 		_registerClasses( );
 		_registerEnums( );
 	}
 
-	void _registerAccessors()
+	static void _registerAccessors()
 	{
 	}
 
-	void _registerClasses()
+	static void _registerClasses()
 	{
-		NoMirrorsMapStore.registerClass( "TestClass", web_main_dart.TestClass, () => new web_main_dart.TestClass(), const {
+		NoMirrorsMapStore.registerClass( "TestClass", web_main_dart.TestClass, const TypeOf<List<web_main_dart.TestClass>>().type, () => new web_main_dart.TestClass(), {
 		} );
 	}
 
-	void _registerEnums()
+	static void _registerEnums()
 	{
 	}
 }'''
@@ -95,33 +98,35 @@ class TestClass
 	int intVal;
 }'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''import 'package:nomirrorsmap/src/transformer.dart';
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
 class TestProjectMappings
 {
-	void register( )
+	static void register( )
 	{
 		_registerAccessors( );
 		_registerClasses( );
 		_registerEnums( );
 	}
 
-	void _registerAccessors()
+	static void _registerAccessors()
 	{
 		NoMirrorsMapStore.registerAccessor( "stringVal", ( object, value ) => object.stringVal = value, (object) => object.stringVal );
 		NoMirrorsMapStore.registerAccessor( "intVal", ( object, value ) => object.intVal = value, (object) => object.intVal );
 	}
 
-	void _registerClasses()
+	static void _registerClasses()
 	{
-		NoMirrorsMapStore.registerClass( "TestClass", web_main_dart.TestClass, () => new web_main_dart.TestClass(), const {
+		NoMirrorsMapStore.registerClass( "TestClass", web_main_dart.TestClass, const TypeOf<List<web_main_dart.TestClass>>().type, () => new web_main_dart.TestClass(), {
 			'stringVal': String,
 			'intVal': int
 		} );
 	}
 
-	void _registerEnums()
+	static void _registerEnums()
 	{
 	}
 }'''
@@ -142,31 +147,33 @@ class TestClass
 	TestClass testClass;
 }'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''import 'package:nomirrorsmap/src/transformer.dart';
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
 class TestProjectMappings
 {
-	void register( )
+	static void register( )
 	{
 		_registerAccessors( );
 		_registerClasses( );
 		_registerEnums( );
 	}
 
-	void _registerAccessors()
+	static void _registerAccessors()
 	{
 		NoMirrorsMapStore.registerAccessor( "testClass", ( object, value ) => object.testClass = value, (object) => object.testClass );
 	}
 
-	void _registerClasses()
+	static void _registerClasses()
 	{
-		NoMirrorsMapStore.registerClass( "TestClass", web_main_dart.TestClass, () => new web_main_dart.TestClass(), const {
+		NoMirrorsMapStore.registerClass( "TestClass", web_main_dart.TestClass, const TypeOf<List<web_main_dart.TestClass>>().type, () => new web_main_dart.TestClass(), {
 			'testClass': web_main_dart.TestClass
 		} );
 	}
 
-	void _registerEnums()
+	static void _registerEnums()
 	{
 	}
 }'''
@@ -190,31 +197,251 @@ import 'package:testProject1/testProject1.dart';
 main(){}
 '''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''import 'package:nomirrorsmap/src/transformer.dart';
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:testProject1/testProject1.dart' as lib_testProject1_dart;
 
 class TestProjectMappings
 {
-	void register( )
+	static void register( )
 	{
 		_registerAccessors( );
 		_registerClasses( );
 		_registerEnums( );
 	}
 
-	void _registerAccessors()
+	static void _registerAccessors()
 	{
 		NoMirrorsMapStore.registerAccessor( "testClass", ( object, value ) => object.testClass = value, (object) => object.testClass );
 	}
 
-	void _registerClasses()
+	static void _registerClasses()
 	{
-		NoMirrorsMapStore.registerClass( "TestClass", lib_testProject1_dart.TestClass, () => new lib_testProject1_dart.TestClass(), const {
+		NoMirrorsMapStore.registerClass( "TestClass", lib_testProject1_dart.TestClass, const TypeOf<List<lib_testProject1_dart.TestClass>>().type, () => new lib_testProject1_dart.TestClass(), {
 			'testClass': lib_testProject1_dart.TestClass
 		} );
 	}
 
-	void _registerEnums()
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
+
+	test( "With type that is enum", ( )
+	{
+		return applyTransformers( phases, inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+enum MyEnum
+{
+	EnumValue1,
+	EnumValue2,
+	EnumValue3,
+	EnumValue4
+}
+'''
+		}, results: {
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class TestProjectMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+	}
+
+	static void _registerClasses()
+	{
+	}
+
+	static void _registerEnums()
+	{
+		NoMirrorsMapStore.registerEnum( web_main_dart.MyEnum, web_main_dart.MyEnum.values );
+	}
+}'''
+		} );
+	} );
+
+	test( "With type that has base types", ( )
+	{
+		return applyTransformers( phases, inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+class Type1 extends Type2
+{
+	int intVal;
+}
+
+class Type2 extends Type3
+{
+	String stringVal;
+}
+
+class Type3
+{
+	DateTime dateTimeVal;
+}
+'''
+		}, results: {
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class TestProjectMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+		NoMirrorsMapStore.registerAccessor( "intVal", ( object, value ) => object.intVal = value, (object) => object.intVal );
+		NoMirrorsMapStore.registerAccessor( "stringVal", ( object, value ) => object.stringVal = value, (object) => object.stringVal );
+		NoMirrorsMapStore.registerAccessor( "dateTimeVal", ( object, value ) => object.dateTimeVal = value, (object) => object.dateTimeVal );
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "Type1", web_main_dart.Type1, const TypeOf<List<web_main_dart.Type1>>().type, () => new web_main_dart.Type1(), {
+			'intVal': int,
+			'stringVal': String,
+			'dateTimeVal': DateTime
+		} );
+	}
+
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
+
+	test( "With type that has GenericBaseType", ( )
+	{
+		return applyTransformers( phases, inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+class Type1 extends Type2<Type3>
+{
+	int intVal;
+}
+
+class Type2<T>
+{
+	T tVal;
+}
+
+class Type3
+{
+	DateTime dateTimeVal;
+}
+'''
+		}, results: {
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class TestProjectMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+		NoMirrorsMapStore.registerAccessor( "intVal", ( object, value ) => object.intVal = value, (object) => object.intVal );
+		NoMirrorsMapStore.registerAccessor( "tVal", ( object, value ) => object.tVal = value, (object) => object.tVal );
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "Type1", web_main_dart.Type1, const TypeOf<List<web_main_dart.Type1>>().type, () => new web_main_dart.Type1(), {
+			'intVal': int,
+			'tVal': web_main_dart.Type3
+		} );
+	}
+
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
+
+	test( "With type that has List", ( )
+	{
+		return applyTransformers( phases, inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+class Type1
+{
+	List<Type1> values;
+}
+'''
+		}, results: {
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class TestProjectMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+		NoMirrorsMapStore.registerAccessor( "values", ( object, value ) => object.values = value, (object) => object.values );
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "Type1", web_main_dart.Type1, const TypeOf<List<web_main_dart.Type1>>().type, () => new web_main_dart.Type1(), {
+			'values': const TypeOf<List<web_main_dart.Type1>>().type
+		} );
+	}
+
+	static void _registerEnums()
 	{
 	}
 }'''
@@ -224,26 +451,28 @@ class TestProjectMappings
 
 class MainModificationTransformerTests
 {
-	static const String defaultMappingsFile = '''import 'package:nomirrorsmap/src/transformer.dart';
+	static const String defaultMappingsFile = '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 class TestProjectMappings
 {
-	void register( )
+	static void register( )
 	{
 		_registerAccessors( );
 		_registerClasses( );
 		_registerEnums( );
 	}
 
-	void _registerAccessors()
+	static void _registerAccessors()
 	{
 	}
 
-	void _registerClasses()
+	static void _registerClasses()
 	{
 	}
 
-	void _registerEnums()
+	static void _registerEnums()
 	{
 	}
 }''';

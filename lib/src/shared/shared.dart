@@ -1,11 +1,5 @@
 library nomirrorsmap.shared;
 
-class TypeOf<T>{
-  Type get type => T;
-  
-  const TypeOf();
-}
-
 class EnumGeneratedMap<T> extends GeneratedMap
 {
 	EnumGeneratedMap(Type type, this.values){
@@ -87,7 +81,7 @@ class CustomClassConverter<TActualType, TConvertedType>
 	=> _toFunc;
 }
 
-class GeneratedMapProvider{
+class GeneratedMapProvider1{
 	static List<GeneratedMap> _maps = [];
 
 	static ClassGeneratedMap getClassGeneratedMap(Type type){

@@ -17,10 +17,15 @@ import 'package:code_transformers/src/dart_sdk.dart';
 
 import 'dart:async';
 
-import 'nomirrorsmap_generated_maps.dart';
-import 'type_to_type_objects.dart' as objects;
+import 'test_mappings.dart' as test_mappings;
 
-part 'transformer_tests.dart';
+//import 'nomirrorsmap_generated_maps.dart';
+import 'type_to_type_objects.dart' as objects;
+import 'package:code_transformers/src/test_harness.dart';
+import 'dart:io';
+import 'test_objects.dart';
+import 'package:test/src/backend/invoker.dart';
+
 part 'type_to_type_tests.dart';
 
 String _getFileContent( String fileName )
@@ -29,11 +34,14 @@ String _getFileContent( String fileName )
 }
 
 main( )
+async
 {
-	GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());
+	//buildMappingsFile( );
+	test_mappings.TestProjectMappings.register();
+	//GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());
 
-	TransformerTests.run();
-	TypeToTypeTests.run();
+	//TransformerTests.run();
+	//TypeToTypeTests.run( );
 
 	group( "Serialization Tests", ( )
 	{
@@ -48,7 +56,8 @@ main( )
 			var result = new NoMirrorsMap( ).convert( new Person( )
 														  ..id = 1
 														  ..children = []
-														  ..parents = [], new ClassConverter( ), new JsonConverter( ), [new PascalCaseManipulator( )] );
+														  ..parents = [], new ClassConverter( ), new JsonConverter( ),
+														  [new PascalCaseManipulator( )] );
 			expect( result, endsWith( '''"Id":1,"Parents":[],"Children":[]}''' ) );
 		} );
 	} );
@@ -68,7 +77,7 @@ main( )
 
 		test( "Can deserialize objects with circular references", ( )
 		{
-			var json = _getFileContent("hashcode_test.json");
+			var json = _getFileContent( "hashcode_test.json" );
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
@@ -79,7 +88,7 @@ main( )
 
 		test( "Can deserialize objects with circular references, even if properties are seen after reference", ( )
 		{
-			var json = _getFileContent("reversed_hashcode_json.json");
+			var json = _getFileContent( "reversed_hashcode_json.json" );
 
 			var result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( ) ) as Person;
 
@@ -127,9 +136,10 @@ main( )
 
 		test( "Can deserialize type that contains a list", ( )
 		{
-			var json = _getFileContent("list.json");
+			var json = _getFileContent( "list.json" );
 
-			User result = new NoMirrorsMap( ).convert( json, new JsonConverter( ), new ClassConverter( startType: User ), [new CamelCaseManipulator( )] );
+			User result = new NoMirrorsMap( ).convert(
+				json, new JsonConverter( ), new ClassConverter( startType: User ), [new CamelCaseManipulator( )] );
 
 			expect( result.id, 2 );
 			expect( result.teamUsers[0].role.id, 1 );
@@ -137,7 +147,8 @@ main( )
 
 		test( "Can deserialize type that contains a DateTime", ( )
 		{
-			ClassWithDateTime result = new NoMirrorsMap( ).convert( "{\"time\": \"2055-02-03T15:57:12\"}", new JsonConverter( ), new ClassConverter( startType: ClassWithDateTime ) );
+			ClassWithDateTime result = new NoMirrorsMap( ).convert(
+				"{\"time\": \"2055-02-03T15:57:12\"}", new JsonConverter( ), new ClassConverter( startType: ClassWithDateTime ) );
 
 			expect( result.time, new isInstanceOf<DateTime>( ) );
 		} );
@@ -146,28 +157,26 @@ main( )
 
 	group( "ClassConverter test", ( )
 	{
-
 		setUp( ( )
 			   {
 				   ClassConverter.converters[CustomConverterTest] = new CustomClassConverter<CustomConverterTest, String>( )
 					   ..to = ( String val )
-				   {
-					   var values = val.split( "|" );
-					   var result = new CustomConverterTest( )
-					   ..id = int.parse( values[0] )
-					   ..value = values[1];
-				   return result;
-			   }
-				   ..from = ( CustomConverterTest val )
-		=> "${val.id}|${val.value}";
-
+					   {
+						   var values = val.split( "|" );
+						   var result = new CustomConverterTest( )
+							   ..id = int.parse( values[0] )
+							   ..value = values[1];
+						   return result;
+					   }
+					   ..from = ( CustomConverterTest val )
+					   => "${val.id}|${val.value}";
 			   } );
 		test( "When a custom converter is specified for a type, the converter is used when converting to baseObject", ( )
 		{
 			var object = new CustomConverterParentTest( )
-				..testProperty = ( new CustomConverterTest( )
-				..id = 1
-				..value = "Matthew");
+				..testProperty = (new CustomConverterTest( )
+					..id = 1
+					..value = "Matthew");
 
 			var classConverter = new ClassConverter( );
 			ClassObjectData baseObject = classConverter.toBaseObjectData( object );
@@ -180,7 +189,7 @@ main( )
 		{
 			var classObjectData = new ClassObjectData( )
 				..properties = {
-			};
+				};
 			classObjectData.properties["testProperty"] = new NativeObjectData( )
 				..value = "1|Matthew";
 			classObjectData.previousHashCode = "1";
@@ -191,28 +200,6 @@ main( )
 
 			expect( result.testProperty.value, "Matthew" );
 			expect( result.testProperty.id, 1 );
-
-		} );
-
-
-		test( "When a property is of a type that inherits from list, the conversion from baseObject to object works", ( )
-		{
-			var classObjectData = new ClassObjectData( )
-				..properties = {
-			};
-
-			classObjectData.properties["customList"] = new ListObjectData( )
-				..values = [ new NativeObjectData( )
-				..value = "Hello", new NativeObjectData( )
-				..value = "World"];
-			classObjectData.previousHashCode = "1";
-			classObjectData.objectType = TestObjectWithCustomList;
-
-			var classConverter = new ClassConverter( );
-			TestObjectWithCustomList result = classConverter.fromBaseObjectData( classObjectData );
-
-			expect( result.customList[0], "Hello" );
-			expect( result.customList[1], "World" );
 		} );
 
 		test( "With a json string with no type attributes and a sub property of different type, deserialises correctly", ( )
@@ -229,8 +216,8 @@ main( )
 			var objectd = new ClassObjectData( )
 				..objectType = ClassWithDouble
 				..properties = {
-				"val": objectData
-			};
+					"val": objectData
+				};
 
 			var classConverter = new ClassConverter( startType: ClassWithDouble );
 
@@ -275,7 +262,8 @@ main( )
 
 	group( "NewtonSoft json test", ( )
 	{
-		test( "For fromBaseObjectData, When called with two objects with same reference, Then returned json should have \$id in first object and  \$ref in second object", ( )
+		test(
+			"For fromBaseObjectData, When called with two objects with same reference, Then returned json should have \$id in first object and  \$ref in second object", ( )
 		{
 			var list = new ListObjectData( );
 			var klass1 = new ClassObjectData( );
@@ -297,7 +285,6 @@ main( )
 			String json = converter.fromBaseObjectData( list );
 
 			expect( json.contains( _getFileContent( "newtonsoft_test.json" ) ), true );
-
 		} );
 
 		test( "For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references", ( )
@@ -307,7 +294,6 @@ main( )
 
 			expect( (json.values[0] as ClassObjectData).previousHashCode, "1" );
 			expect( (json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode );
-
 		} );
 
 		test( "can deserialize using dollar ref property only", ( )
@@ -327,9 +313,8 @@ main( )
 		{
 			var json = '''[{"\$id":"994910500","\$type":"nomirrorsmap.tests.TypeWithNoProperties"},{"\$ref":"994910500"}]''';
 
-			var result = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter( ), new ClassConverter( startType: const TypeOf<List<TypeWithNoProperties>>( ).type ) );
-
-
+			var result = new NoMirrorsMap( ).convert(
+				json, new NewtonSoftJsonConverter( ), new ClassConverter( startType: const TypeOf<List<TypeWithNoProperties>>( ).type ) );
 		} );
 
 		test( "can serialize enum", ( )
@@ -338,186 +323,78 @@ main( )
 
 			var result = new NoMirrorsMap( ).convert( json, new NewtonSoftJsonConverter( ), new ClassConverter( startType: TestEnum ) );
 
-			expect(result, TestEnum.Two);
+			expect( result, TestEnum.Two );
 		} );
 
 		test( "Can deserialize", ( )
 		{
 			var converter = new NewtonSoftJsonConverter( );
 			var jsonText = _getFileContent( "abstract_class_and_inheritence.json" );
-			BaseObjectData result = converter.toBaseObjectData(jsonText);
+			BaseObjectData result = converter.toBaseObjectData( jsonText );
 
-			assertClassObjectDataTypeNotNull(result);
+			assertClassObjectDataTypeNotNull( result );
 		} );
 	} );
+}
+
+void buildMappingsFile( )
+{
+	var resolvers = new Resolvers( dartSdkDirectory );
+
+	var phases = [
+		[new MapGeneratorTransformer( resolvers )]
+	];
+
+	test("Generate Mappings",()
+	async
+	{
+		var helper = new TestHelper( phases, {
+			'nomirrorsmap|lib/nomirrorsmap.dart': '''
+		library nomirrorsmap;
+
+		class Mappable{
+			const Mappable();
+		}
+	''',
+			'testProject|web/tests.dart': '''import '../test/test_objects.dart';
+
+			main() {}''',
+			'testProject|test/test_objects.dart': await new File( "test/test_objects.dart" ).readAsString( )
+		}, [], formatter: StringFormatter.noTrailingWhitespace );
+		helper.run( );
+
+		var text = await helper['testProject|web/test_project_mappings.dart'];
+
+		await new File( "test/test_mappings.dart" ).writeAsString( text );
+
+		//test_mappings.TestProjectMappings.re( );
+	});
 
 }
 
-
-
-void assertClassObjectDataTypeNotNull(BaseObjectData objectData){
-	if(objectData is ClassObjectData){
+void assertClassObjectDataTypeNotNull( BaseObjectData objectData )
+{
+	if ( objectData is ClassObjectData )
+	{
 		var classObjectData = objectData as ClassObjectData;
-		if(classObjectData.objectType == null)
+		if ( classObjectData.objectType == null )
 		{
 			expect( classObjectData.objectType, isNotNull );
 		}
-		classObjectData.properties.forEach((k,v){
-			assertClassObjectDataTypeNotNull(v);
-		});
-	}else if (objectData is ListObjectData){
-		var listObjectData = objectData as ListObjectData;
-		listObjectData.values.forEach((v){
-			assertClassObjectDataTypeNotNull(v);
-		});
-	}else{
-
-	}
-}
-
-enum TestEnum{
-	One,
-	Two
-}
-
-abstract class TheAbstractClass
-{
-	List<TheAbstractClass> data;
-}
-
-class InheritedClass extends TheAbstractClass
-{
-
-}
-
-class TypeWithNoProperties
-{
-
-}
-
-class SimpleTypeUsingDollarRef
-{
-	String name;
-	List<SimpleTypeUsingDollarRef> people;
-}
-
-class NewtonSoftTest
-{
-	int age;
-	String gender;
-}
-
-class Person
-{
-	int id;
-	List<Person> parents;
-	List<Person> children;
-}
-
-class ClassWithDouble
-{
-	double val;
-}
-
-//{"1|Matthew"}
-
-class CustomConverterParentTest
-{
-	CustomConverterTest testProperty;
-}
-
-class CustomConverterTest
-{
-	int id;
-	String value;
-}
-
-class CustomList<E> extends ListBase<E>
-{
-	var innerList = new List<E>( );
-
-	int get length
-	=> innerList.length;
-
-	void set length( int length )
+		classObjectData.properties.forEach( ( k, v )
+											{
+												assertClassObjectDataTypeNotNull( v );
+											} );
+	} else if ( objectData is ListObjectData )
 	{
-		innerList.length = length;
+		var listObjectData = objectData as ListObjectData;
+		listObjectData.values.forEach( ( v )
+									   {
+										   assertClassObjectDataTypeNotNull( v );
+									   } );
+	} else
+	{
+
 	}
-
-	void operator []=( int index, E value ) {
-		innerList[index] = value;
-	}
-
-	E operator []( int index ) => innerList[index];
-
-	// Though not strictly necessary, for performance reasons
-	// you should implement add and addAll.
-
-	void add( E value )
-	=> innerList.add( value );
-
-	void addAll( Iterable<E> all )
-	=> innerList.addAll( all );
 }
 
-class TestObjectWithCustomList
-{
-	CustomList<String> customList = new CustomList<String>( );
-}
-
-class NoTypeTestClass
-{
-	int id;
-	String firstName;
-	NoTypeTestPropertyClass testProperty;
-}
-
-class NoTypeTestPropertyClass
-{
-	int id;
-	String name;
-}
-
-class User
-{
-	int id;
-	String firstName;
-	String lastName;
-	String emailAddress;
-	String mobilePhone;
-	bool umpire;
-
-	List<TeamMember> teamUsers;
-	SecurityRole securityRole;
-}
-
-class TeamMember
-{
-	Role role;
-	User user;
-}
-
-class Role
-{
-	int id;
-	String name;
-}
-
-class SecurityRole
-{
-	int id;
-	String name;
-	String description;
-	AssociationLevel associationLevel;
-}
-
-class AssociationLevel
-{
-	int id;
-	String value;
-}
-
-class ClassWithDateTime
-{
-	DateTime time;
-}
