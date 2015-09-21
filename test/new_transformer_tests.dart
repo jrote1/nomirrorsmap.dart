@@ -555,6 +555,57 @@ class WebMainDartMappings
 }'''
 		} );
 	} );
+
+	test( "Picks up lists from properties", ( )
+	{
+		return applyTransformers( getPhases( ), inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'package:testProject1/testProject1.dart';
+
+main(){}
+
+@Mappable()
+class Class1
+{
+	List<String> val;
+}
+'''
+		}, results: {
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class WebMainDartMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+		NoMirrorsMapStore.registerAccessor( "val", ( object, value ) => object.val = value, (object) => object.val );
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "Class1", web_main_dart.Class1, const TypeOf<List<web_main_dart.Class1>>().type, () => new web_main_dart.Class1(), {
+			'val': const TypeOf<List<String>>().type
+		} );
+		NoMirrorsMapStore.registerClass( "dart.core.String", String, const TypeOf<List<String>>().type, null, {
+		} );
+	}
+
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
 }
 
 class MainModificationTransformerTests

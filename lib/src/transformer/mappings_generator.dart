@@ -62,6 +62,7 @@ class MappingsGenerator
 																			   => type.isPublic && !type.isAbstract ) ) );
 			}
 		}
+		_typesToMap.addAll( _getListTypesFromPropertiesThatArntAlreadyMapped( ) );
 
 		_generateLibraryAliases( );
 	}
@@ -72,9 +73,13 @@ class MappingsGenerator
 		{
 			if ( !_libraryImportAliases.containsKey( type.library ) )
 			{
-				var libraryFullPath = type.library.definingCompilationUnit.source.assetId.path as String;
-				var libraryImportAlias = TransformerHelpers.sanitizePathToUsableImport( libraryFullPath );
-				_libraryImportAliases[ type.library ] = libraryImportAlias;
+				var source = type.library.definingCompilationUnit.source;
+				if ( source is! DartSourceProxy )
+				{
+					var libraryFullPath = source.assetId.path as String;
+					var libraryImportAlias = TransformerHelpers.sanitizePathToUsableImport( libraryFullPath );
+					_libraryImportAliases[ type.library ] = libraryImportAlias;
+				}
 			}
 		}
 	}
@@ -150,7 +155,7 @@ class $className
 
 		var propertyNames = _typesToMap
 			.where( ( type )
-					=> !type.isEnum )
+					=> !type.isEnum && _typeHasConstructor( type ) )
 			.expand( ( type )
 					 => _getAllTypeFields( type ) )
 			.map( ( field )
@@ -167,6 +172,12 @@ class $className
 		return stringBuilder.toString( );
 	}
 
+	bool _typeHasConstructor( ClassElement type )
+	{
+		return type.constructors.any( ( ctor )
+									  => ctor.parameters.length == 0 );
+	}
+
 	String _generateClasses( )
 	{
 		var stringBuilder = new StringBuffer( );
@@ -179,21 +190,33 @@ class $className
 			var fullTypeName = type.library.displayName;
 			if ( fullTypeName.length > 0 ) fullTypeName += ".";
 			fullTypeName += type.displayName;
-			var importedTypeName = _libraryImportAliases[type.library] + "." + type.displayName;
-			stringBuilder.writeln(
-				"\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, () => new $importedTypeName(), {" );
 
-			var fields = _getAllTypeFields( type ).toList( );
-			for ( var field in fields )
+			var importedTypeName = type.displayName;
+			if ( _libraryImportAliases.containsKey( type.library ) )
+				importedTypeName = _libraryImportAliases[type.library] + "." + type.displayName;
+
+			var hasDefaultConstructor = _typeHasConstructor( type );
+			var constructor = "null";
+			if ( hasDefaultConstructor )
+				constructor = "() => new $importedTypeName()";
+
+			stringBuilder.writeln(
+				"\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {" );
+
+			if ( hasDefaultConstructor )
 			{
-				var typeText = field.typeText;
-				if ( typeText.contains( "<" ) )
-					typeText = "const TypeOf<$typeText>().type";
-				stringBuilder.write( "\t\t\t'${field.name}': $typeText" );
-				if ( fields.last != field )
-					stringBuilder.writeln( "," );
-				else
-					stringBuilder.writeln( "" );
+				var fields = _getAllTypeFields( type ).toList( );
+				for ( var field in fields )
+				{
+					var typeText = field.typeText;
+					if ( typeText.contains( "<" ) )
+						typeText = "const TypeOf<$typeText>().type";
+					stringBuilder.write( "\t\t\t'${field.name}': $typeText" );
+					if ( fields.last != field )
+						stringBuilder.writeln( "," );
+					else
+						stringBuilder.writeln( "" );
+				}
 			}
 
 			stringBuilder.writeln( "\t\t} );" );
@@ -260,6 +283,26 @@ class $className
 
 		stringBuilder.write( "\t}" );
 		return stringBuilder.toString( );
+	}
+
+	List<ClassElement> _getListTypesFromPropertiesThatArntAlreadyMapped( )
+	{
+		return _typesToMap
+			.where( ( type )
+					=> !type.isEnum )
+			.expand( ( type )
+					 => type.fields )
+			.where( ( FieldElement field )
+					=> field.type.name == "List" )
+			.map( ( field )
+				  => field.type )
+			.where( ( InterfaceType type )
+					=> type is InterfaceType && type.typeArguments.length > 0 )
+			.map( ( type )
+				  => type.typeArguments.first.element )
+			.where( ( ClassElement type )
+					=> !_typesToMap.contains( type ) )
+			.toList( );
 	}
 
 	String _generateClassBottom( )
