@@ -31,7 +31,7 @@ class NoMirrorsMapStore
 								 => m.listType == type ) )
 			return _classMappings.firstWhere( ( m )
 											  => m.listType == type );
-		throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
+		return null;
 	}
 
 	static _ClassMapping getClassGeneratedMapByQualifiedName( String qualifiedName )
