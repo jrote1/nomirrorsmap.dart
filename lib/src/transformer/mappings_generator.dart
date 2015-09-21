@@ -44,7 +44,9 @@ class MappingsGenerator
 			.expand( ( lib )
 					 => lib.units )
 			.expand( ( compilationUnit )
-					 => compilationUnit.types ).toList( );
+					 => compilationUnit.types )
+			.where( (type) => !type.isAbstract )
+			.toList( );
 		_typesToMap.addAll( allTypes.where( _shouldBeMapped ) );
 
 		for ( var libraryName in libraryNamesToInclude )
@@ -175,7 +177,7 @@ class $className
 	bool _typeHasConstructor( ClassElement type )
 	{
 		return type.constructors.any( ( ctor )
-									  => ctor.parameters.length == 0 );
+									  => ctor.parameters.length == 0 ) && !type.isAbstract;
 	}
 
 	String _generateClasses( )
