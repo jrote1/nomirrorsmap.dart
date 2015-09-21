@@ -14,12 +14,23 @@ class NoMirrorsMapStore
 								   ..propertyName = propertyName );
 	}
 
+	static Map<Type, _ClassMapping> _classMappingsByType = {};
+
 	static _ClassMapping getClassGeneratedMap( Type type )
 	{
-		if ( _classMappings.any( ( m )
-								 => m.type == type ) )
-			return _classMappings.firstWhere( ( m )
-											  => m.type == type );
+		if ( !_classMappingsByType.containsKey( type ) )
+		{
+			if ( _classMappings.any( ( m )
+									 => m.type == type ) )
+				return _classMappingsByType[type] = _classMappings.firstWhere( ( m )
+																			   => m.type == type );
+			else
+				return _classMappingsByType[type] = null;
+		}
+
+		var classMapping = _classMappingsByType[type];
+		if ( classMapping != null )
+			return classMapping;
 		throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
 	}
 
@@ -121,7 +132,7 @@ class ClassConverter
 	static Map<Type, CustomClassConverter> converters = {
 	};
 
-	List<String> seenHashCodes = [];
+	List<int> seenHashCodes = new List<int>( );
 
 	BaseObjectData toBaseObjectData( Object value )
 	{
@@ -147,13 +158,14 @@ class ClassConverter
 									  => toBaseObjectData( v ) ).toList( );
 		}
 
-		if ( seenHashCodes.contains( value.hashCode.toString( ) ) )
+		var hashCode = value.hashCode;
+		if ( seenHashCodes.contains( hashCode ) )
 			return new ClassObjectData( )
 				..objectType = valueType
-				..previousHashCode = value.hashCode.toString( )
+				..previousHashCode = hashCode.toString()
 				..properties = {
 				};
-		seenHashCodes.add( value.hashCode.toString( ) );
+		seenHashCodes.add( hashCode );
 
 		var generatedMap = NoMirrorsMapStore.getClassGeneratedMap( value.runtimeType );
 
@@ -181,8 +193,7 @@ class ClassConverter
 	bool _isPrimitive( v )
 	=> v is num || v is bool || v is String || v == null || v is DateTime;
 
-	Map<String, ClassConverterInstance> instances = {
-	};
+	Map<String, ClassConverterInstance> instances = new Map<String, ClassConverterInstance>( );
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{

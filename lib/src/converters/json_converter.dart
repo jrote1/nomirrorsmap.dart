@@ -1,6 +1,7 @@
 part of nomirrorsmap.converters;
 
-class JsonConverter implements Converter
+class JsonConverter
+	implements Converter
 {
 	String _hashcodeName;
 
@@ -22,7 +23,9 @@ class JsonConverter implements Converter
 
 	Type findObjectType( dynamic json )
 	{
-		return json.containsKey( "\$type" ) ? NoMirrorsMapStore.getClassGeneratedMapByQualifiedName( json["\$type"] ).type : null;
+		return json.containsKey( "\$type" ) ? NoMirrorsMapStore
+			.getClassGeneratedMapByQualifiedName( json["\$type"] )
+			.type : null;
 	}
 
 	void afterCreatingClassObjectData( ClassObjectData classObjectData )
@@ -34,7 +37,6 @@ class JsonConverter implements Converter
 		if ( json is Map )
 		{
 			var classObjectData = new ClassObjectData( );
-			classObjectData.previousHashCode = getPreviousHashcode( json );
 			classObjectData.previousHashCode = getPreviousHashcode( json );
 			classObjectData.objectType = findObjectType( json );
 
@@ -71,11 +73,57 @@ class JsonConverter implements Converter
 
 	void setTypeFromObjectType( Map json, ClassObjectData classObjectData )
 	{
-		json["\$type"] =  NoMirrorsMapStore.getClassGeneratedMap(classObjectData.objectType).fullName;
+		json["\$type"] = NoMirrorsMapStore
+			.getClassGeneratedMap( classObjectData.objectType )
+			.fullName;
 	}
 
 	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )
 	{
+		/*
+		if ( baseObjectData is ClassObjectData )
+		{
+			stringBuffer.write( "{" );
+
+			stringBuffer.write( "\"$_hashcodeName:\"$hashCode\"," );
+			stringBuffer.write( "\"\$type:\"${NoMirrorsMapStore
+					.getClassGeneratedMap( baseObjectData.objectType )
+					.fullName}\"," );
+
+			for ( var key in baseObjectData.properties.keys )
+			{
+				stringBuffer.write( "\"$key:" );
+				_fromBaseObjectData( baseObjectData.properties[key], stringBuffer );
+				if ( baseObjectData.properties.keys.last != key )
+					stringBuffer.write( "," );
+			}
+
+			baseObjectData.properties.forEach( ( name, value )
+											   {
+
+											   } );
+		}
+		if ( baseObjectData is ListObjectData )
+		{
+			stringBuffer.write( "[" );
+			for ( var i = 0; i < baseObjectData.values.length; i++ )
+			{
+				var value = baseObjectData.values[i];
+				_fromBaseObjectData( value, stringBuffer );
+				if ( i != (baseObjectData.values.length - 1) )
+					stringBuffer.write( "," );
+			}
+			stringBuffer.write( "]" );
+		}
+
+		if ( baseObjectData is NativeObjectData )
+		{
+			if ( baseObjectData.value is String )
+				stringBuffer.write( "\"" + baseObjectData.value.replaceAll( "\"", '\\"' ) + "\"" );
+			else
+				stringBuffer.write( baseObjectData.value );
+		}*/
+
 		if ( baseObjectData is ClassObjectData )
 		{
 			var result = {

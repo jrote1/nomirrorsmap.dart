@@ -33,7 +33,41 @@ String _getFileContent( String fileName )
 	return new io.File.fromUri( new Uri.file( "test/test_json/" + fileName ) ).readAsStringSync( );
 }
 
-main( )
+main()
+{
+	test_mappings.TestProjectMappings.register();
+
+	test( "Performance test", ()
+	{
+		//218
+		var list = [];
+		for ( int i = 0; i < 1000; i++ )
+			list.add( new Person( )
+						  ..id = i
+						  ..children = [new Person( )
+							  ..id = i
+							  ..children = []
+							  ..parents = []
+						  ]
+						  ..parents = [new Person( )
+							  ..id = i
+							  ..children = []
+							  ..parents = []
+						  ] );
+
+		var objects = new ClassConverter().toBaseObjectData( list );
+
+		var stopwatch = new Stopwatch( )
+			..start( );
+
+
+		new NewtonSoftJsonConverter( ).fromBaseObjectData( objects );
+		stopwatch.stop( );
+		print( "Took: ${stopwatch.elapsedMilliseconds}" );
+	});
+}
+
+main1( )
 async
 {
 	//buildMappingsFile( );
@@ -60,6 +94,9 @@ async
 														  [new PascalCaseManipulator( )] );
 			expect( result, endsWith( '''"Id":1,"Parents":[],"Children":[]}''' ) );
 		} );
+
+
+
 	} );
 
 	group( "Deserialization Tests", ( )
