@@ -38,7 +38,8 @@ class MappingsGenerator
 																			   => enumeration.isPublic ) ) );
 				_typesToMap.addAll( library.units.expand( ( unit )
 														  => unit.types.where( ( type )
-																			   => type.isPublic && !type.isAbstract && type.typeParameters.length == 0 ) ) );
+																			   => type.isPublic && !type.isAbstract &&
+																				   type.typeParameters.length == 0 ) ) );
 			}
 		}
 
@@ -262,6 +263,9 @@ class TestProjectMappings
 
 	String _getActualTypeText( InterfaceType type )
 	{
+		if ( type is DynamicTypeImpl )
+			return "dynamic";
+
 		var typeName = type.name;
 		if ( _libraryImportAliases.containsKey( type.element.library ) )
 			typeName = _libraryImportAliases[type.element.library] + "." + typeName;
