@@ -38,7 +38,7 @@ class MappingsGenerator
 																			   => enumeration.isPublic ) ) );
 				_typesToMap.addAll( library.units.expand( ( unit )
 														  => unit.types.where( ( type )
-																			   => type.isPublic ) ) );
+																			   => type.isPublic && !type.isAbstract && type.typeParameters.length == 0 ) ) );
 			}
 		}
 
