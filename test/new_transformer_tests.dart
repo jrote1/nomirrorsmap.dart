@@ -55,12 +55,12 @@ class TestClass
 
 }'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 			
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -101,12 +101,12 @@ class TestClass
 	int intVal;
 }'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -150,12 +150,12 @@ class TestClass
 	TestClass testClass;
 }'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -200,12 +200,12 @@ import 'package:testProject1/testProject1.dart';
 main(){}
 '''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:testProject1/testProject1.dart' as lib_testProject1_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -251,12 +251,12 @@ enum MyEnum
 }
 '''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -306,12 +306,12 @@ class Type3
 }
 '''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -368,12 +368,12 @@ class Type3
 }
 '''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -418,12 +418,12 @@ class Type1
 }
 '''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'main.dart' as web_main_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -465,12 +465,12 @@ main(){}
 		class Class1 {}
 		class Class2 {}'''
 		}, results: {
-			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:testProject1/testProject1.dart' as lib_testProject1_dart;
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -501,11 +501,11 @@ class TestProjectMappings
 
 class MainModificationTransformerTests
 {
-	static const String defaultMappingsFile = '''library TestProject.Mappings;
+	static const String defaultMappingsFile = '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 
-class TestProjectMappings
+class WebMainDartMappings
 {
 	static void register( )
 	{
@@ -534,11 +534,11 @@ class TestProjectMappings
 			return applyTransformers( phases, inputs: {
 				'testProject|web/main.dart': '''main(){}'''
 			}, results: {
-				'testProject|web/main.dart': '''import "test_project_mappings.dart" as TestProjectMappings;
+				'testProject|web/main.dart': '''import "web_main_dart_mappings.dart" as WebMainDartMappings;
 main(){
-	TestProjectMappings.TestProjectMappings.register();
+	WebMainDartMappings.WebMainDartMappings.register();
 }''',
-				'testProject|web/test_project_mappings.dart': defaultMappingsFile
+				'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
 			} );
 		} );
 
@@ -550,12 +550,12 @@ main(){
 main(){}'''
 			}, results: {
 				'testProject|web/main.dart': '''import 'dart:io';
-import "test_project_mappings.dart" as TestProjectMappings;
+import "web_main_dart_mappings.dart" as WebMainDartMappings;
 
 main(){
-	TestProjectMappings.TestProjectMappings.register();
+	WebMainDartMappings.WebMainDartMappings.register();
 }''',
-				'testProject|web/test_project_mappings.dart': defaultMappingsFile
+				'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
 			} );
 		} );
 
@@ -568,12 +568,12 @@ main(){}'''
 			}, results: {
 				'testProject|web/main.dart': '''library TestProject;
 
-import "test_project_mappings.dart" as TestProjectMappings;
+import "web_main_dart_mappings.dart" as WebMainDartMappings;
 
 main(){
-	TestProjectMappings.TestProjectMappings.register();
+	WebMainDartMappings.WebMainDartMappings.register();
 }''',
-				'testProject|web/test_project_mappings.dart': defaultMappingsFile
+				'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
 			} );
 		} );
 
@@ -586,13 +586,13 @@ main() => 1;'''
 			}, results: {
 				'testProject|web/main.dart': '''library TestProject;
 
-import "test_project_mappings.dart" as TestProjectMappings;
+import "web_main_dart_mappings.dart" as WebMainDartMappings;
 
 main() {
-	TestProjectMappings.TestProjectMappings.register();
+	WebMainDartMappings.WebMainDartMappings.register();
 	return 1;
 }''',
-				'testProject|web/test_project_mappings.dart': defaultMappingsFile
+				'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
 			} );
 		} );
 	}

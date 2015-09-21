@@ -54,20 +54,24 @@ class MapGeneratorTransformer extends Transformer
 		var id = transform.primaryInput.id;
 
 		var regex = new RegExp( "(?=[A-Z])" );
-		var mappingsFileName = "${id.package.split( regex ).join( "_" ).toLowerCase( )}_mappings.dart";
+
+		var filePrefix = TransformerHelpers.sanitizePathToUsableImport( id.path );
+		var mappingsClassName = TransformerHelpers.sanitizePathToUsableClassName( id.path ) + "Mappings";
+
+		var mappingsFileName = "${filePrefix}_mappings.dart";
 		var outputPath = path.url.join( path.url.dirname( id.path ), mappingsFileName );
 		var generatedAssetId = new AssetId( id.package, outputPath );
 
-		_transformEntryFile( transform, resolver, mappingsFileName );
+		_transformEntryFile( transform, resolver, mappingsFileName, mappingsClassName );
 
 		var mappingsFile = new MappingsGenerator( resolver, id )
-			.generate( _options.libraryNames );
+			.generate( mappingsClassName, _options.libraryNames );
 
 		transform.addOutput(
 			new Asset.fromString( generatedAssetId, mappingsFile ) );
 	}
 
-	void _transformEntryFile( Transform transform, Resolver resolver, String mappingsFileName )
+	void _transformEntryFile( Transform transform, Resolver resolver, String mappingsFileName, String mappingsClassName )
 	{
 		AssetId id = transform.primaryInput.id;
 		var lib = resolver.getLibrary( id );
@@ -76,7 +80,6 @@ class MapGeneratorTransformer extends Transformer
 
 		var importParameters = _getImportParameters( unit );
 
-		var mappingsClassName = _getMappingsClassName( mappingsFileName );
 		transaction.edit(
 			importParameters.startPoint,
 			importParameters.startPoint,
@@ -104,16 +107,6 @@ class MapGeneratorTransformer extends Transformer
 		var printer = transaction.commit( );
 		printer.build( id.path );
 		transform.addOutput( new Asset.fromString( id, printer.text ) );
-	}
-
-	String _getMappingsClassName( String mappingsFileName )
-	{
-		return mappingsFileName
-			.replaceAll( ".dart", "" )
-			.split( "_" )
-			.map( ( str )
-				  => str[0].toUpperCase( ) + str.substring( 1 ) )
-			.join( );
 	}
 
 	EntryPointImportParameters _getImportParameters( dynamic unit )

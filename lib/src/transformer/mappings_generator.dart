@@ -1,5 +1,26 @@
 part of nomirrorsmap.transformer;
 
+class TransformerHelpers
+{
+	static String sanitizePathToUsableImport( String path )
+	{
+		return path
+			.replaceAll( "/", "_" )
+			.replaceAll( ".", "_" )
+			.replaceAll( ":", "_" );
+	}
+
+	static String sanitizePathToUsableClassName( String path )
+	{
+		var importName = sanitizePathToUsableImport( path );
+		return importName
+			.split( "_" )
+			.map( ( str )
+				  => str[0].toUpperCase( ) + str.substring( 1 ) )
+			.join( );
+	}
+}
+
 class MappingsGenerator
 {
 	final Resolver _resolver;
@@ -38,8 +59,7 @@ class MappingsGenerator
 																			   => enumeration.isPublic ) ) );
 				_typesToMap.addAll( library.units.expand( ( unit )
 														  => unit.types.where( ( type )
-																			   => type.isPublic && !type.isAbstract &&
-																				   type.typeParameters.length == 0 ) ) );
+																			   => type.isPublic && !type.isAbstract ) ) );
 			}
 		}
 
@@ -53,10 +73,7 @@ class MappingsGenerator
 			if ( !_libraryImportAliases.containsKey( type.library ) )
 			{
 				var libraryFullPath = type.library.definingCompilationUnit.source.assetId.path as String;
-				var libraryImportAlias = libraryFullPath
-					.replaceAll( "/", "_" )
-					.replaceAll( ".", "_" )
-					.replaceAll( ":", "_" );
+				var libraryImportAlias = TransformerHelpers.sanitizePathToUsableImport( libraryFullPath );
 				_libraryImportAliases[ type.library ] = libraryImportAlias;
 			}
 		}
@@ -87,10 +104,10 @@ class MappingsGenerator
 		return false;
 	}
 
-	String generate( List<String> libraryNamesToInclude )
+	String generate( String className, List<String> libraryNamesToInclude )
 	{
 		_addTypes( libraryNamesToInclude );
-		var output = _generateClassTop( );
+		var output = _generateClassTop( className );
 		output += "\n\n";
 		output += _generateProperties( );
 		output += "\n\n";
@@ -102,10 +119,10 @@ class MappingsGenerator
 		return output;
 	}
 
-	String _generateClassTop( )
+	String _generateClassTop( String className )
 	{
 		var stringBuilder = new StringBuffer( );
-		stringBuilder.writeln( "library TestProject.Mappings;\n" );
+		stringBuilder.writeln( "library $className;\n" );
 		stringBuilder.writeln( "import 'package:nomirrorsmap/nomirrorsmap.dart';" );
 
 		for ( var library in _libraryImportAliases.keys )
@@ -115,7 +132,7 @@ class MappingsGenerator
 		}
 
 		return '''${stringBuilder.toString( )}
-class TestProjectMappings
+class $className
 {
 	static void register( )
 	{
@@ -271,7 +288,11 @@ class TestProjectMappings
 			typeName = _libraryImportAliases[type.element.library] + "." + typeName;
 
 		if ( type.typeArguments.length > 0 )
-			typeName += "<${type.typeArguments.map( _getActualTypeText ).join( "," )}>";
+		{
+			var genericPart = "<${type.typeArguments.map( _getActualTypeText ).join( "," )}>";
+			if ( genericPart != "<dynamic>" )
+				typeName += genericPart;
+		}
 
 		return typeName;
 	}
