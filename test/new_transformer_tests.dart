@@ -27,20 +27,23 @@ String MAP_LIBRARY = '''
 		}
 	''';
 
-main( )
+List getPhases( [List<String> libraryNames = const []] )
 {
 	var resolvers = new Resolvers( dartSdkDirectory );
 
-	var phases = [
-		[new MapGeneratorTransformer( resolvers )]
+	return [
+		[new MapGeneratorTransformer( resolvers, new TransformerOptions.initialize( libraryNames ) )]
 	];
+}
 
+main( )
+{
 	group( "Main Modification", ( )
-	=> MainModificationTransformerTests.run( phases ) );
+	=> MainModificationTransformerTests.run( getPhases( ) ) );
 
 	test( "With empty type generates mappings", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -85,7 +88,7 @@ class TestProjectMappings
 
 	test( "With type with properties of native types generates mappings", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -135,7 +138,7 @@ class TestProjectMappings
 
 	test( "With type with properties of seen types", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -182,7 +185,7 @@ class TestProjectMappings
 
 	test( "With type in different package", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject1|lib/testProject1.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -232,7 +235,7 @@ class TestProjectMappings
 
 	test( "With type that is enum", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -280,7 +283,7 @@ class TestProjectMappings
 
 	test( "With type that has base types", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -342,7 +345,7 @@ class TestProjectMappings
 
 	test( "With type that has GenericBaseType", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -402,7 +405,7 @@ class TestProjectMappings
 
 	test( "With type that has List", ( )
 	{
-		return applyTransformers( phases, inputs: {
+		return applyTransformers( getPhases( ), inputs: {
 			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
 			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
@@ -438,6 +441,53 @@ class TestProjectMappings
 	{
 		NoMirrorsMapStore.registerClass( "Type1", web_main_dart.Type1, const TypeOf<List<web_main_dart.Type1>>().type, () => new web_main_dart.Type1(), {
 			'values': const TypeOf<List<web_main_dart.Type1>>().type
+		} );
+	}
+
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
+
+	test( "With library name specified reads all type form that library", ( )
+	{
+		return applyTransformers( getPhases( ["TestProject1"] ), inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'package:testProject1/testProject1.dart';
+
+main(){}
+''',
+			'testProject1|lib/testProject1.dart': '''library TestProject1;
+
+		class Class1 {}
+		class Class2 {}'''
+		}, results: {
+			'testProject|web/test_project_mappings.dart': '''library TestProject.Mappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'package:testProject1/testProject1.dart' as lib_testProject1_dart;
+
+class TestProjectMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "TestProject1.Class1", lib_testProject1_dart.Class1, const TypeOf<List<lib_testProject1_dart.Class1>>().type, () => new lib_testProject1_dart.Class1(), {
+		} );
+		NoMirrorsMapStore.registerClass( "TestProject1.Class2", lib_testProject1_dart.Class2, const TypeOf<List<lib_testProject1_dart.Class2>>().type, () => new lib_testProject1_dart.Class2(), {
 		} );
 	}
 

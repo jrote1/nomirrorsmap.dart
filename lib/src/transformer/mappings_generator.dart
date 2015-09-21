@@ -10,7 +10,7 @@ class MappingsGenerator
 
 	MappingsGenerator( this._resolver, this._assetId );
 
-	void _addTypes( )
+	void _addTypes( List<String> libraryNamesToInclude )
 	{
 		var allEnums = _resolver.libraries
 			.expand( ( lib )
@@ -25,6 +25,22 @@ class MappingsGenerator
 			.expand( ( compilationUnit )
 					 => compilationUnit.types ).toList( );
 		_typesToMap.addAll( allTypes.where( _shouldBeMapped ) );
+
+		for ( var libraryName in libraryNamesToInclude )
+		{
+			var library = _resolver.getLibraryByName( libraryName );
+			if ( library == null )
+				print( "nomirrorsmap: '$libraryName' was not found so will be ignored" );
+			else
+			{
+				_typesToMap.addAll( library.units.expand( ( unit )
+														  => unit.enums.where( ( enumeration )
+																			   => enumeration.isPublic ) ) );
+				_typesToMap.addAll( library.units.expand( ( unit )
+														  => unit.types.where( ( type )
+																			   => type.isPublic ) ) );
+			}
+		}
 
 		_generateLibraryAliases( );
 	}
@@ -70,9 +86,9 @@ class MappingsGenerator
 		return false;
 	}
 
-	String generate( )
+	String generate( List<String> libraryNamesToInclude )
 	{
-		_addTypes( );
+		_addTypes( libraryNamesToInclude );
 		var output = _generateClassTop( );
 		output += "\n\n";
 		output += _generateProperties( );

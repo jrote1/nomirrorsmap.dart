@@ -1,19 +1,23 @@
 import 'package:barback/barback.dart';
-import 'package:code_transformers/resolver.dart';
 import 'package:nomirrorsmap/src/transformer/transformer.dart';
+import 'package:code_transformers/resolver.dart';
 
-class MainTransformer implements TransformerGroup
+class MainTransformer extends TransformerGroup
 {
-	final Iterable<Iterable> phases;
+	MainTransformer._( phases ) : super( phases ) {
+	}
 
-	MainTransformer( )
-	: phases = _createPhases( );
-
-	MainTransformer.asPlugin( ): phases = _createPhases( );
-
-	static _createPhases( )
-	{
+	factory MainTransformer( TransformerOptions options ) {
 		var resolvers = new Resolvers( dartSdkDirectory );
-		return [[new MapGeneratorTransformer( resolvers )]];
+
+		var phases = [
+			[new MapGeneratorTransformer( resolvers, options )]
+		];
+
+		return new MainTransformer._( phases );
+	}
+
+	factory MainTransformer.asPlugin( BarbackSettings settings ) {
+		return new MainTransformer( new TransformerOptions( settings ) );
 	}
 }
