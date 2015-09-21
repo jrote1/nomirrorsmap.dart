@@ -10,5 +10,3 @@ dependencies:
   path: '>=1.0.0 <2.0.0'
 dev_dependencies:
   unittest: any
-transformers:
-- nomirrorsmap
