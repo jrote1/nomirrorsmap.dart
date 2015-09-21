@@ -497,6 +497,64 @@ class WebMainDartMappings
 }'''
 		} );
 	} );
+
+	test( "With type is generic ignores generic part", ( )
+	{
+		return applyTransformers( getPhases( ), inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'package:testProject1/testProject1.dart';
+
+main(){}
+
+@Mappable()
+class Class1<T>
+{
+	T val;
+}
+
+@Mappable()
+class Class2
+{
+	Class1 val;
+}
+'''
+		}, results: {
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class WebMainDartMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+		NoMirrorsMapStore.registerAccessor( "val", ( object, value ) => object.val = value, (object) => object.val );
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "Class1", web_main_dart.Class1, const TypeOf<List<web_main_dart.Class1>>().type, () => new web_main_dart.Class1(), {
+			'val': dynamic
+		} );
+		NoMirrorsMapStore.registerClass( "Class2", web_main_dart.Class2, const TypeOf<List<web_main_dart.Class2>>().type, () => new web_main_dart.Class2(), {
+			'val': web_main_dart.Class1
+		} );
+	}
+
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
 }
 
 class MainModificationTransformerTests

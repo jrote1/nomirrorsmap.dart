@@ -186,10 +186,10 @@ class $className
 			var fields = _getAllTypeFields( type ).toList( );
 			for ( var field in fields )
 			{
-				var typeName = _getActualTypeText( field.type );
-				if ( typeName.contains( "<" ) )
-					typeName = "const TypeOf<$typeName>().type";
-				stringBuilder.write( "\t\t\t'${field.name}': $typeName" );
+				var typeText = field.typeText;
+				if ( typeText.contains( "<" ) )
+					typeText = "const TypeOf<$typeText>().type";
+				stringBuilder.write( "\t\t\t'${field.name}': $typeText" );
 				if ( fields.last != field )
 					stringBuilder.writeln( "," );
 				else
@@ -213,7 +213,7 @@ class $className
 								{
 									return new _Field( )
 										..name = field.name
-										..type = field.type;
+										..typeText = field.type is TypeParameterTypeImpl ? "dynamic" : _getActualTypeText( field.type );
 								} );
 		if ( !isObject( type.supertype ) )
 		{
@@ -239,7 +239,7 @@ class $className
 
 					yield new _Field( )
 						..name = field.name
-						..type = type;
+						..typeText = _getActualTypeText( type );
 				}
 			}
 		}
@@ -280,16 +280,18 @@ class $className
 
 	String _getActualTypeText( InterfaceType type )
 	{
-		if ( type is DynamicTypeImpl )
-			return "dynamic";
-
 		var typeName = type.name;
 		if ( _libraryImportAliases.containsKey( type.element.library ) )
 			typeName = _libraryImportAliases[type.element.library] + "." + typeName;
 
 		if ( type.typeArguments.length > 0 )
 		{
-			var genericPart = "<${type.typeArguments.map( _getActualTypeText ).join( "," )}>";
+			var genericPart = "<${type.typeArguments.map( ( typeArgument )
+														  {
+															  if ( typeArgument is DynamicTypeImpl )
+																  return "dynamic";
+															  return _getActualTypeText( typeArgument );
+														  } ).join( "," )}>";
 			if ( genericPart != "<dynamic>" )
 				typeName += genericPart;
 		}
@@ -301,5 +303,5 @@ class $className
 class _Field
 {
 	String name;
-	InterfaceType type;
+	String typeText;
 }
