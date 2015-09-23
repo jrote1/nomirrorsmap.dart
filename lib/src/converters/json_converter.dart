@@ -120,7 +120,7 @@ class JsonConverter
 		if ( baseObjectData is NativeObjectData )
 		{
 			if ( baseObjectData.value is String )
-				stringBuffer.write( "\"" + baseObjectData.value.replaceAll( "\"", '\\"' ) + "\"" );
+				stringBuffer.write( "\"" + JSON.encode( baseObjectData.value ) );
 			else
 				stringBuffer.write( baseObjectData.value );
 		}
