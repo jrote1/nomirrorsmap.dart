@@ -1,8 +1,7 @@
 part of nomirrorsmap.converters;
 
-abstract class Converter
-{
-	BaseObjectData toBaseObjectData( dynamic value );
+abstract class Converter {
+  BaseObjectData toBaseObjectData(dynamic value);
 
-	dynamic fromBaseObjectData( BaseObjectData baseObjectData );
+  dynamic fromBaseObjectData(BaseObjectData baseObjectData);
 }

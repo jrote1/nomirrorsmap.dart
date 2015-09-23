@@ -1,11 +1,9 @@
 part of nomirrorsmap.conversion_objects;
 
-class ClassObjectData extends BaseObjectData
-{
-	bool get isNativeType
-	=> false;
+class ClassObjectData extends BaseObjectData {
+  bool get isNativeType => false;
 
-	String previousHashCode;
+  String previousHashCode;
 
-	Map<String, BaseObjectData> properties;
+  Map<String, BaseObjectData> properties;
 }

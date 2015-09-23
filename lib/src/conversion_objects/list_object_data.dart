@@ -1,10 +1,7 @@
 part of nomirrorsmap.conversion_objects;
 
-class ListObjectData extends BaseObjectData
-{
+class ListObjectData extends BaseObjectData {
+  bool get isNativeType => true;
 
-	bool get isNativeType
-	=> true;
-
-	List<BaseObjectData> values;
+  List<BaseObjectData> values;
 }

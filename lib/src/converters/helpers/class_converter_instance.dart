@@ -1,7 +1,6 @@
 part of nomirrorsmap.converters;
 
-class ClassConverterInstance
-{
-	dynamic instance;
-	bool filled;
+class ClassConverterInstance {
+  dynamic instance;
+  bool filled;
 }

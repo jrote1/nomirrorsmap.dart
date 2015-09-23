@@ -4,131 +4,129 @@ import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'dart:collection';
 
 @Mappable()
-enum TestEnum
-{
-	One,
-	Two
-}
+enum TestEnum { One, Two }
 
-abstract class TheAbstractClass
-{
-	List<TheAbstractClass> data;
+abstract class TheAbstractClass {
+  List<TheAbstractClass> data;
 }
 
 @Mappable()
-class InheritedClass extends TheAbstractClass
-{
+class InheritedClass extends TheAbstractClass {}
+
+@Mappable()
+class TypeWithNoProperties {}
+
+@Mappable()
+class SimpleTypeUsingDollarRef {
+  String name;
+  List<SimpleTypeUsingDollarRef> people;
 }
 
 @Mappable()
-class TypeWithNoProperties
-{
+class NewtonSoftTest {
+  int age;
+  String gender;
 }
 
 @Mappable()
-class SimpleTypeUsingDollarRef
-{
-	String name;
-	List<SimpleTypeUsingDollarRef> people;
+class Person {
+  int id;
+  List<Person> parents;
+  List<Person> children;
 }
 
 @Mappable()
-class NewtonSoftTest
-{
-	int age;
-	String gender;
-}
-
-@Mappable()
-class Person
-{
-	int id;
-	List<Person> parents;
-	List<Person> children;
-}
-
-@Mappable()
-class ClassWithDouble
-{
-	double val;
+class ClassWithDouble {
+  double val;
 }
 
 //{"1|Matthew"}
 
 @Mappable()
-class CustomConverterParentTest
-{
-	CustomConverterTest testProperty;
+class CustomConverterParentTest {
+  CustomConverterTest testProperty;
 }
 
 @Mappable()
-class CustomConverterTest
-{
-	int id;
-	String value;
+class CustomConverterTest {
+  int id;
+  String value;
 }
 
 @Mappable()
-class NoTypeTestClass
-{
-	int id;
-	String firstName;
-	NoTypeTestPropertyClass testProperty;
+class NoTypeTestClass {
+  int id;
+  String firstName;
+  NoTypeTestPropertyClass testProperty;
 }
 
 @Mappable()
-class NoTypeTestPropertyClass
-{
-	int id;
-	String name;
+class NoTypeTestPropertyClass {
+  int id;
+  String name;
 }
 
 @Mappable()
-class User
-{
-	int id;
-	String firstName;
-	String lastName;
-	String emailAddress;
-	String mobilePhone;
-	bool umpire;
+class User {
+  int id;
+  String firstName;
+  String lastName;
+  String emailAddress;
+  String mobilePhone;
+  bool umpire;
 
-	List<TeamMember> teamUsers;
-	SecurityRole securityRole;
+  List<TeamMember> teamUsers;
+  SecurityRole securityRole;
 }
 
 @Mappable()
-class TeamMember
-{
-	Role role;
-	User user;
+class TeamMember {
+  Role role;
+  User user;
 }
 
 @Mappable()
-class Role
-{
-	int id;
-	String name;
+class Role {
+  int id;
+  String name;
 }
 
 @Mappable()
-class SecurityRole
-{
-	int id;
-	String name;
-	String description;
-	AssociationLevel associationLevel;
+class SecurityRole {
+  int id;
+  String name;
+  String description;
+  AssociationLevel associationLevel;
 }
 
 @Mappable()
-class AssociationLevel
-{
-	int id;
-	String value;
+class AssociationLevel {
+  int id;
+  String value;
 }
 
 @Mappable()
-class ClassWithDateTime
+class ClassWithDateTime {
+  DateTime time;
+}
+
+@Mappable()
+class GenericBase<T>
 {
-	DateTime time;
+  T val;
+}
+
+@Mappable()
+class PersonGeneric extends GenericBase<Person>
+{
+
+}
+
+class TypeWithDuration
+{
+  Duration duration;
+}
+class GenericType<T>
+{
+  T id;
 }

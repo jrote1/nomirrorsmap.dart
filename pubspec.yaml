@@ -7,6 +7,7 @@ environment:
   sdk: '>=1.9.0 <2.0.0'
 dependencies:
   code_transformers: any
+  dart_style: any
   path: '>=1.0.0 <2.0.0'
 dev_dependencies:
   unittest: any

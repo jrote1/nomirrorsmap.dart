@@ -7,29 +7,20 @@ export 'src/shared/shared.dart';
 import 'src/converters/converters.dart';
 import 'src/manipulators/manipulators.dart';
 
-class NoMirrorsMap
-{
-	dynamic convert( dynamic value, Converter sourceConverter, Converter destinationConverter, [List<BaseObjectDataManipulator> manipulators] )
-	{
-		var convertedSource = sourceConverter.toBaseObjectData( value );
-		if(manipulators != null)
-			manipulators.forEach((m) => m.manipulate(convertedSource));
-		return destinationConverter.fromBaseObjectData( convertedSource );
-	}
-
+class NoMirrorsMap {
+  dynamic convert(dynamic value, Converter sourceConverter, Converter destinationConverter, [List<BaseObjectDataManipulator> manipulators]) {
+    var convertedSource = sourceConverter.toBaseObjectData(value);
+    if (manipulators != null) manipulators.forEach((m) => m.manipulate(convertedSource));
+    return destinationConverter.fromBaseObjectData(convertedSource);
+  }
 }
 
-class Mappable{
-	const Mappable();
+class Mappable {
+  const Mappable();
 }
 
-class TypeOf<T>
-{
-	const TypeOf();
+class TypeOf<T> {
+  const TypeOf();
 
-	Type get type => T;
+  Type get type => T;
 }
-
-
-
-
