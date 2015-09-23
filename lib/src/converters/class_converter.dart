@@ -97,7 +97,7 @@ class NoMirrorsMapStore
 		return _enumMappings.containsKey( type );
 	}
 
-	static getEnumGeneratedMap( Type type )
+	static List getEnumGeneratedMap( Type type )
 	{
 		return _enumMappings[type];
 	}
@@ -289,8 +289,7 @@ class ClassConverter
 		if ( _isTypeEnum( type ) )
 		{
 			return NoMirrorsMapStore
-				.getEnumGeneratedMap( type )
-				.values[nativeObjectValue];
+				.getEnumGeneratedMap( type )[nativeObjectValue];
 		}
 
 		if ( type == double && nativeObjectValue != null )
