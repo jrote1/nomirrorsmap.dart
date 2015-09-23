@@ -62,7 +62,9 @@ class JsonConverter
 
 	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
 	{
-		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
+		var stringBuffer = new StringBuffer();
+		_fromBaseObjectData( baseObjectData, stringBuffer );
+		return stringBuffer.toString();
 	}
 
 	void setMetaData( Map result, String hashcode, ClassObjectData classObjectData )
@@ -78,9 +80,8 @@ class JsonConverter
 			.fullName;
 	}
 
-	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )
+	void _fromBaseObjectData( BaseObjectData baseObjectData, StringBuffer stringBuffer )
 	{
-		/*
 		if ( baseObjectData is ClassObjectData )
 		{
 			stringBuffer.write( "{" );
@@ -122,8 +123,8 @@ class JsonConverter
 				stringBuffer.write( "\"" + baseObjectData.value.replaceAll( "\"", '\\"' ) + "\"" );
 			else
 				stringBuffer.write( baseObjectData.value );
-		}*/
-
+		}
+		/*
 		if ( baseObjectData is ClassObjectData )
 		{
 			var result = {
@@ -141,6 +142,7 @@ class JsonConverter
 											  => _fromBaseObjectData( v ) ).toList( );
 		}
 		return (baseObjectData as NativeObjectData).value;
+		*/
 	}
 }
 
