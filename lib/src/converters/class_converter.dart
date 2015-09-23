@@ -4,7 +4,7 @@ class NoMirrorsMapStore
 {
 	static List<_PropertyMapping> _propertyMappings = [];
 	static List<_ClassMapping> _classMappings = [];
-	static List<_EnumMapping> _enumMappings = [];
+	static Map<Type,List> _enumMappings = {};
 
 	static void registerAccessor( String propertyName, void setter( dynamic object, dynamic value ), dynamic getter( dynamic object ) )
 	{
@@ -18,31 +18,37 @@ class NoMirrorsMapStore
 
 	static _ClassMapping getClassGeneratedMap( Type type )
 	{
-		if ( !_classMappingsByType.containsKey( type ) )
+		var classMapping = _classMappingsByType[type];
+		if ( classMapping == null )
 		{
 			if ( _classMappings.any( ( m )
 									 => m.type == type ) )
 				return _classMappingsByType[type] = _classMappings.firstWhere( ( m )
 																			   => m.type == type );
 			else
-				return _classMappingsByType[type] = null;
+			{
+				throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
+			}
 		}
-
-		var classMapping = _classMappingsByType[type];
-		if ( classMapping != null )
-			return classMapping;
-		throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
+		return classMapping;
 	}
+
+	static Map<Type, _ClassMapping> _classMappingsByListType = {};
 
 	static _ClassMapping getClassGeneratedMapByListType( Type type )
 	{
-		if ( !type.toString( ).contains( "<" ) )
-			return null;
-		if ( _classMappings.any( ( m )
-								 => m.listType == type ) )
-			return _classMappings.firstWhere( ( m )
-											  => m.listType == type );
-		return null;
+		var classMapping = _classMappingsByListType[type];
+		if ( classMapping == null )
+		{
+			if ( !type.toString( ).contains( "<" ) )
+				return null;
+			if ( _classMappings.any( ( m )
+									 => m.listType == type ) )
+				return _classMappingsByListType[type] = _classMappings.firstWhere( ( m )
+																				   => m.listType == type );
+			throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
+		}
+		return classMapping;
 	}
 
 	static _ClassMapping getClassGeneratedMapByQualifiedName( String qualifiedName )
@@ -56,19 +62,26 @@ class NoMirrorsMapStore
 
 	static void registerClass( String fullName, Type type, Type listType, dynamic instantiate( ), Map<String, Type> properties )
 	{
+		var classProperties = [];
+		properties.forEach( ( k, v )
+							{
+								classProperties.add( new _ClassProperty( )
+														 ..type = v
+														 ..property = _propertyMappings.firstWhere( ( p )
+																									=> p.propertyName == k ) );
+							} );
+
 		_classMappings.add( new _ClassMapping( )
 								..type = type
 								..listType = listType
 								..fullName = fullName
 								..instantiate = instantiate
-								..properties = properties );
+								..properties = classProperties );
 	}
 
 	static void registerEnum( Type type, List values )
 	{
-		_enumMappings.add( new _EnumMapping( )
-							   ..type = type
-							   ..values = values );
+		_enumMappings[type] = values;
 	}
 
 	static Function getPropertySetter( String name )
@@ -81,14 +94,12 @@ class NoMirrorsMapStore
 
 	static bool containsEnumGeneratedMap( Type type )
 	{
-		return _enumMappings.any( ( e )
-								  => e.type == type );
+		return _enumMappings.containsKey( type );
 	}
 
 	static getEnumGeneratedMap( Type type )
 	{
-		return _enumMappings.firstWhere( ( e )
-										 => e.type == type );
+		return _enumMappings[type];
 	}
 
 	static Function getPropertyGetter( String name )
@@ -106,7 +117,13 @@ class _ClassMapping
 	Type type;
 	Type listType;
 	Function instantiate;
-	Map<String, Type> properties;
+	List<_ClassProperty> properties;
+}
+
+class _ClassProperty
+{
+	Type type;
+	_PropertyMapping property;
 }
 
 class _PropertyMapping
@@ -132,25 +149,10 @@ class ClassConverter
 	static Map<Type, CustomClassConverter> converters = {
 	};
 
-	List<int> seenHashCodes = new List<int>( );
+	Set<int> seenHashCodes = new Set<int>( );
 
 	BaseObjectData toBaseObjectData( Object value )
 	{
-		var valueType = value.runtimeType;
-		if ( converters.containsKey( valueType ) )
-			value = converters[valueType].from( value );
-
-		if ( _isPrimitive( value ) )
-			return new NativeObjectData( )
-				..objectType = valueType
-				..value = value;
-		if ( _isEnum( value ) )
-		{
-			return new NativeObjectData( )
-				..objectType = int
-				..value = (value as dynamic).index;
-		}
-
 		if ( value is List )
 		{
 			return new ListObjectData( )
@@ -158,25 +160,43 @@ class ClassConverter
 									  => toBaseObjectData( v ) ).toList( );
 		}
 
+		var valueType = value.runtimeType;
+		//if ( converters.containsKey( valueType ) )
+		//	value = converters[valueType].from( value );
+
+		if ( _isPrimitive( value ) )
+			return new NativeObjectData( )
+				..objectType = valueType
+				..value = value;
+
+		if ( _isEnum( value ) )
+		{
+			return new NativeObjectData( )
+				..objectType = int
+				..value = (value as dynamic).index;
+		}
+
 		var hashCode = value.hashCode;
 		if ( seenHashCodes.contains( hashCode ) )
 			return new ClassObjectData( )
 				..objectType = valueType
-				..previousHashCode = hashCode.toString()
+				..previousHashCode = hashCode.toString( )
 				..properties = {
 				};
 		seenHashCodes.add( hashCode );
 
-		var generatedMap = NoMirrorsMapStore.getClassGeneratedMap( value.runtimeType );
+		var generatedMap = NoMirrorsMapStore.getClassGeneratedMap( valueType );
 
 		var properties = {
 		};
 
-		generatedMap.properties.forEach( ( name, propertyType )
-										 {
-											 var getter = NoMirrorsMapStore.getPropertyGetter( name );
-											 properties[name] = toBaseObjectData( getter( value ) );
-										 } );
+		//Faster than foreach loop
+		for ( var i = 0; i < generatedMap.properties.length; i++ )
+		{
+			var property = generatedMap.properties[i];
+			var getter = property.property.getter;
+			properties[property.property.propertyName] = toBaseObjectData( getter( value ) );
+		}
 
 		return new ClassObjectData( )
 			..objectType = valueType
@@ -222,28 +242,28 @@ class ClassConverter
 			}
 			if ( !classConverterInstance.filled && baseObjectData.properties.length > 0 )
 			{
-				generatedMap.properties.forEach( ( name, propType )
-												 {
-													 if ( baseObjectData.properties.containsKey( name ) )
-													 {
-														 var setter = NoMirrorsMapStore.getPropertySetter( name );
+				for ( var property in generatedMap.properties )
+				{
+					if ( baseObjectData.properties.containsKey( property.property.propertyName ) )
+					{
+						var setter = property.property.setter;
 
-														 var propertyObjectData = baseObjectData.properties[name];
-														 var propertyType = propertyObjectData.objectType == null
-															 ? propType
-															 : propertyObjectData.objectType;
-														 var value = _fromBaseObjectData( propertyObjectData, propertyType );
-														 if ( converters.containsKey( propertyType ) )
-															 value = converters[propertyType].to( value );
-														 if ( value is List )
-														 {
-															 var list = [];
-															 list.addAll( value );
-															 value = list;
-														 }
-														 setter( classConverterInstance.instance, value );
-													 }
-												 } );
+						var propertyObjectData = baseObjectData.properties[property.property.propertyName];
+						var propertyType = propertyObjectData.objectType == null
+							? property.type
+							: propertyObjectData.objectType;
+						var value = _fromBaseObjectData( propertyObjectData, propertyType );
+						if ( converters.containsKey( propertyType ) )
+							value = converters[propertyType].to( value );
+						if ( value is List )
+						{
+							var list = [];
+							list.addAll( value );
+							value = list;
+						}
+						setter( classConverterInstance.instance, value );
+					}
+				}
 				classConverterInstance.filled = true;
 			}
 			return classConverterInstance.instance;

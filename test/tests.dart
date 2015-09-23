@@ -55,13 +55,13 @@ main()
 							  ..parents = []
 						  ] );
 
-		var objects = new ClassConverter().toBaseObjectData( list );
+
 
 		var stopwatch = new Stopwatch( )
 			..start( );
 
-
-		new NewtonSoftJsonConverter( ).fromBaseObjectData( objects );
+		var objects = new ClassConverter().toBaseObjectData( list );
+		//new NewtonSoftJsonConverter( ).fromBaseObjectData( objects );
 		stopwatch.stop( );
 		print( "Took: ${stopwatch.elapsedMilliseconds}" );
 	});

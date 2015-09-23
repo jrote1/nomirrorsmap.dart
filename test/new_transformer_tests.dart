@@ -606,6 +606,60 @@ class WebMainDartMappings
 }'''
 		} );
 	} );
+
+	test( "Does not add constructor for abstract type", ( )
+	{
+		return applyTransformers( getPhases( ), inputs: {
+			'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+			'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+class ClassWithListOfAbstract
+{
+	List<Class1> val;
+}
+
+abstract class Class1
+{
+
+}
+'''
+		}, results: {
+			'testProject|web/web_main_dart_mappings.dart': '''library WebMainDartMappings;
+
+import 'package:nomirrorsmap/nomirrorsmap.dart';
+import 'main.dart' as web_main_dart;
+
+class WebMainDartMappings
+{
+	static void register( )
+	{
+		_registerAccessors( );
+		_registerClasses( );
+		_registerEnums( );
+	}
+
+	static void _registerAccessors()
+	{
+		NoMirrorsMapStore.registerAccessor( "val", ( object, value ) => object.val = value, (object) => object.val );
+	}
+
+	static void _registerClasses()
+	{
+		NoMirrorsMapStore.registerClass( "ClassWithListOfAbstract", web_main_dart.ClassWithListOfAbstract, const TypeOf<List<web_main_dart.ClassWithListOfAbstract>>().type, () => new web_main_dart.ClassWithListOfAbstract(), {
+		} );
+		NoMirrorsMapStore.registerClass( "Class1", web_main_dart.Class1, const TypeOf<List<web_main_dart.Class1>>().type, null, {
+		} );
+	}
+
+	static void _registerEnums()
+	{
+	}
+}'''
+		} );
+	} );
 }
 
 class MainModificationTransformerTests
