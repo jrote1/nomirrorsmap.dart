@@ -1,6 +1,6 @@
 part of nomirrorsmap.transformer;
 
-class EnumsGenerator implements _Generator {
+class _EnumsGenerator implements _Generator {
   @override
   String generate(_GeneratorParameters parameters) {
     var stringBuilder = new StringBuffer();

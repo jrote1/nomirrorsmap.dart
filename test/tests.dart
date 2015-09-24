@@ -6,25 +6,12 @@ import 'package:unittest/unittest.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 import 'package:nomirrorsmap/src/shared/shared.dart';
-import 'package:nomirrorsmap/src/transformer/transformer.dart';
-import 'dart:collection';
-import 'package:code_transformers/tests.dart' as codeTransformerTests;
-
-import 'package:barback/barback.dart';
-import 'package:code_transformers/resolver.dart';
-import 'package:code_transformers/tests.dart';
-import 'package:code_transformers/src/dart_sdk.dart';
-
-import 'dart:async';
 
 import 'test_mappings.dart' as test_mappings;
 
-//import 'nomirrorsmap_generated_maps.dart';
 import 'type_to_type_objects.dart' as objects;
-import 'package:code_transformers/src/test_harness.dart';
-import 'dart:io';
 import 'test_objects.dart';
-import 'package:test/src/backend/invoker.dart';
+import 'new_transformer_tests.dart';
 
 part 'type_to_type_tests.dart';
 
@@ -32,45 +19,12 @@ String getFileContent(String fileName) {
   return new io.File.fromUri(new Uri.file(fileName)).readAsStringSync();
 }
 
-/*
-main() {
-  test_mappings.TestProjectMappings.register();
-
-  test("Performance test", () {
-    //218
-    var list = [];
-    for (int i = 0; i < 1000; i++) list.add(new Person()
-      ..id = i
-      ..children = [
-        new Person()
-          ..id = i
-          ..children = []
-          ..parents = []
-      ]
-      ..parents = [
-        new Person()
-          ..id = i
-          ..children = []
-          ..parents = []
-      ]);
-
-    var stopwatch = new Stopwatch()..start();
-
-    var objects = new ClassConverter().toBaseObjectData(list);
-    //new NewtonSoftJsonConverter( ).fromBaseObjectData( objects );
-    stopwatch.stop();
-    print("Took: ${stopwatch.elapsedMilliseconds}");
-  });
-}
-*/
-
 main() async {
-  //buildMappingsFile( );
   test_mappings.TestProjectMappings.register();
-  //GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());
 
-  //TransformerTests.run();
-  //TypeToTypeTests.run( );
+  group("Type to Type", () => TypeToTypeTests.run());
+  group("Transformer Main Modification", () => MainModificationTransformerTests.run(getPhases()));
+  group("Transformer", () => TransformerTests.run());
 
   group("Serialization Tests", () {
     test("Can serialize an object that is null", () {
@@ -373,8 +327,8 @@ main() async {
 
     test("Can deserialize generic", () {
       var json = '''{ "id": 1 }''';
-      var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: const TypeOf<GenericType>().type))
-          as GenericType<int>;
+      var result =
+          new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: const TypeOf<GenericType>().type)) as GenericType<int>;
       expect(result.id, 1);
     });
   });

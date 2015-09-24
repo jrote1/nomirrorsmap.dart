@@ -1,7 +1,8 @@
 library TestProject.Mappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
-import '../test/test_objects.dart' as test_test_objects_dart;
+import 'test_objects.dart' as test_test_objects_dart;
+import 'type_to_type_objects.dart' as test_type_to_type_objects_dart;
 
 class TestProjectMappings {
   static void register() {
@@ -36,6 +37,15 @@ class TestProjectMappings {
     NoMirrorsMapStore.registerAccessor("associationLevel", (object, value) => object.associationLevel = value, (object) => object.associationLevel);
     NoMirrorsMapStore.registerAccessor("time", (object, value) => object.time = value, (object) => object.time);
     NoMirrorsMapStore.registerAccessor("duration", (object, value) => object.duration = value, (object) => object.duration);
+    NoMirrorsMapStore.registerAccessor("stringProperty", (object, value) => object.stringProperty = value, (object) => object.stringProperty);
+    NoMirrorsMapStore.registerAccessor("intProperty", (object, value) => object.intProperty = value, (object) => object.intProperty);
+    NoMirrorsMapStore.registerAccessor("dateTimeProperty", (object, value) => object.dateTimeProperty = value, (object) => object.dateTimeProperty);
+    NoMirrorsMapStore.registerAccessor("doubleProperty", (object, value) => object.doubleProperty = value, (object) => object.doubleProperty);
+    NoMirrorsMapStore.registerAccessor("boolProperty", (object, value) => object.boolProperty = value, (object) => object.boolProperty);
+    NoMirrorsMapStore.registerAccessor("numProperty", (object, value) => object.numProperty = value, (object) => object.numProperty);
+    NoMirrorsMapStore.registerAccessor("test", (object, value) => object.test = value, (object) => object.test);
+    NoMirrorsMapStore.registerAccessor("list", (object, value) => object.list = value, (object) => object.list);
+    NoMirrorsMapStore.registerAccessor("extraProperty", (object, value) => object.extraProperty = value, (object) => object.extraProperty);
   }
 
   static void _registerClasses() {
@@ -134,20 +144,107 @@ class TestProjectMappings {
         const TypeOf<List<test_test_objects_dart.PersonGeneric>>().type,
         () => new test_test_objects_dart.PersonGeneric(),
         const {'val': test_test_objects_dart.Person});
-
     NoMirrorsMapStore.registerClass(
         "nomirrorsmap.tests.TypeWithDuration",
         test_test_objects_dart.TypeWithDuration,
         const TypeOf<List<test_test_objects_dart.TypeWithDuration>>().type,
         () => new test_test_objects_dart.TypeWithDuration(),
         const {'duration': Duration});
-
+    NoMirrorsMapStore.registerClass("nomirrorsmap.tests.GenericType", test_test_objects_dart.GenericType,
+        const TypeOf<List<test_test_objects_dart.GenericType>>().type, () => new test_test_objects_dart.GenericType(), const {'id': dynamic});
+    NoMirrorsMapStore.registerClass("nomirrorsmap.tests.TestEntity", test_type_to_type_objects_dart.TestEntity,
+        const TypeOf<List<test_type_to_type_objects_dart.TestEntity>>().type, () => new test_type_to_type_objects_dart.TestEntity(), const {
+      'stringProperty': String,
+      'intProperty': int,
+      'dateTimeProperty': DateTime,
+      'doubleProperty': double,
+      'boolProperty': bool,
+      'numProperty': num
+    });
+    NoMirrorsMapStore.registerClass("nomirrorsmap.tests.TestDto", test_type_to_type_objects_dart.TestDto,
+        const TypeOf<List<test_type_to_type_objects_dart.TestDto>>().type, () => new test_type_to_type_objects_dart.TestDto(), const {
+      'stringProperty': String,
+      'intProperty': int,
+      'dateTimeProperty': DateTime,
+      'doubleProperty': double,
+      'boolProperty': bool,
+      'numProperty': num
+    });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.GenericType",
-        test_test_objects_dart.GenericType,
-        const TypeOf<List<test_test_objects_dart.GenericType>>().type,
-        () => new test_test_objects_dart.GenericType(),
-        const {'id': dynamic});
+        "nomirrorsmap.tests.TestEntity2",
+        test_type_to_type_objects_dart.TestEntity2,
+        const TypeOf<List<test_type_to_type_objects_dart.TestEntity2>>().type,
+        () => new test_type_to_type_objects_dart.TestEntity2(),
+        const {'test': test_type_to_type_objects_dart.TestEntity});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.TestDto2",
+        test_type_to_type_objects_dart.TestDto2,
+        const TypeOf<List<test_type_to_type_objects_dart.TestDto2>>().type,
+        () => new test_type_to_type_objects_dart.TestDto2(),
+        const {'test': test_type_to_type_objects_dart.TestDto});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.ListEntity",
+        test_type_to_type_objects_dart.ListEntity,
+        const TypeOf<List<test_type_to_type_objects_dart.ListEntity>>().type,
+        () => new test_type_to_type_objects_dart.ListEntity(),
+        {'list': const TypeOf<List<String>>().type});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.ListDto",
+        test_type_to_type_objects_dart.ListDto,
+        const TypeOf<List<test_type_to_type_objects_dart.ListDto>>().type,
+        () => new test_type_to_type_objects_dart.ListDto(),
+        {'list': const TypeOf<List<String>>().type});
+    NoMirrorsMapStore.registerClass("dart.core.String", String, const TypeOf<List<String>>().type, null, {});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.NonPrimitiveListEntity",
+        test_type_to_type_objects_dart.NonPrimitiveListEntity,
+        const TypeOf<List<test_type_to_type_objects_dart.NonPrimitiveListEntity>>().type,
+        () => new test_type_to_type_objects_dart.NonPrimitiveListEntity(),
+        {'list': const TypeOf<List<test_type_to_type_objects_dart.TestEntity>>().type});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.NonPrimitiveListDto",
+        test_type_to_type_objects_dart.NonPrimitiveListDto,
+        const TypeOf<List<test_type_to_type_objects_dart.NonPrimitiveListDto>>().type,
+        () => new test_type_to_type_objects_dart.NonPrimitiveListDto(),
+        {'list': const TypeOf<List<test_type_to_type_objects_dart.TestDto>>().type});
+    NoMirrorsMapStore.registerClass("nomirrorsmap.tests.InheritedDto", test_type_to_type_objects_dart.InheritedDto,
+        const TypeOf<List<test_type_to_type_objects_dart.InheritedDto>>().type, () => new test_type_to_type_objects_dart.InheritedDto(), {
+      'extraProperty': int,
+      'stringProperty': String,
+      'intProperty': int,
+      'dateTimeProperty': DateTime,
+      'doubleProperty': double,
+      'boolProperty': bool,
+      'numProperty': num
+    });
+    NoMirrorsMapStore.registerClass("nomirrorsmap.tests.InheritedEntity", test_type_to_type_objects_dart.InheritedEntity,
+        const TypeOf<List<test_type_to_type_objects_dart.InheritedEntity>>().type, () => new test_type_to_type_objects_dart.InheritedEntity(), {
+      'extraProperty': int,
+      'stringProperty': String,
+      'intProperty': int,
+      'dateTimeProperty': DateTime,
+      'doubleProperty': double,
+      'boolProperty': bool,
+      'numProperty': num
+    });
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.ConcreteEntity",
+        test_type_to_type_objects_dart.ConcreteEntity,
+        const TypeOf<List<test_type_to_type_objects_dart.ConcreteEntity>>().type,
+        () => new test_type_to_type_objects_dart.ConcreteEntity(),
+        {'id': int, 'name': String});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.ConcreteDto",
+        test_type_to_type_objects_dart.ConcreteDto,
+        const TypeOf<List<test_type_to_type_objects_dart.ConcreteDto>>().type,
+        () => new test_type_to_type_objects_dart.ConcreteDto(),
+        {'id': int, 'name': String});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.ConcreteWithNoMapEntity",
+        test_type_to_type_objects_dart.ConcreteWithNoMapEntity,
+        const TypeOf<List<test_type_to_type_objects_dart.ConcreteWithNoMapEntity>>().type,
+        () => new test_type_to_type_objects_dart.ConcreteWithNoMapEntity(),
+        {'id': int, 'name': String});
   }
 
   static void _registerEnums() {

@@ -9,6 +9,7 @@ import 'dart:collection';
 import 'package:dart_style/dart_style.dart';
 
 part 'map_generator_transformer.dart';
+part 'transformer_options.dart';
 
 part 'mappings_generator.dart';
 part 'transformer_helpers.dart';

@@ -46,23 +46,23 @@ class JsonConverter implements Converter {
     return stringBuffer.toString();
   }
 
-  void setMetaData(Map result, String hashcode, ClassObjectData classObjectData) {
-    result[_hashcodeName] = hashcode;
-    setTypeFromObjectType(result, classObjectData);
+  void setMetaData(StringBuffer stringBuffer, ClassObjectData classObjectData) {
+    stringBuffer.write("\"$_hashcodeName\":\"${classObjectData.previousHashCode}\",");
+
+    setTypeFromObjectType(stringBuffer, classObjectData);
   }
 
-  void setTypeFromObjectType(Map json, ClassObjectData classObjectData) {
-    json["\$type"] = NoMirrorsMapStore.getClassGeneratedMap(classObjectData.objectType).fullName;
+  void setTypeFromObjectType(StringBuffer stringBuffer, ClassObjectData classObjectData) {
+    stringBuffer.write("\"\$type\":\"${NoMirrorsMapStore
+        .getClassGeneratedMap( classObjectData.objectType )
+        .fullName}\",");
   }
 
   void _fromBaseObjectData(BaseObjectData baseObjectData, StringBuffer stringBuffer) {
     if (baseObjectData is ClassObjectData) {
       stringBuffer.write("{");
 
-      stringBuffer.write("\"$_hashcodeName\":\"${baseObjectData.previousHashCode}\",");
-      stringBuffer.write("\"\$type\":\"${NoMirrorsMapStore
-					.getClassGeneratedMap( baseObjectData.objectType )
-					.fullName}\",");
+      setMetaData(stringBuffer, baseObjectData);
 
       for (var key in baseObjectData.properties.keys) {
         stringBuffer.write("\"$key\":");

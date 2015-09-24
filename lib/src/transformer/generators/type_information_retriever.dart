@@ -1,6 +1,6 @@
 part of nomirrorsmap.transformer;
 
-class TypeInformationRetriever {
+class _TypeInformationRetriever {
   Iterable<_Field> _getAllTypeFields(ClassElement type, _GeneratorParameters parameters) sync* {
     bool isObject(InterfaceType type) => type == null || type.isObject || type.displayName == "Object";
 

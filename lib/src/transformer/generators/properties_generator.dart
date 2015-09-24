@@ -1,6 +1,6 @@
 part of nomirrorsmap.transformer;
 
-class PropertiesGenerator extends _Generator with TypeInformationRetriever {
+class _PropertiesGenerator extends _Generator with _TypeInformationRetriever {
   @override
   String generate(_GeneratorParameters parameters) {
     var stringBuilder = new StringBuffer();

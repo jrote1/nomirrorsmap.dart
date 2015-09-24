@@ -55,16 +55,6 @@ class TypeToTypeTests {
         expect(result.list[0].stringProperty, "Hello");
       });
 
-      test('Mapping an object with a list maps to custom list', () {
-        var customListEntity = new objects.CustomListEntity()
-          ..list = (new objects.CustomList<objects.TestEntity>()
-            ..addAll([new objects.TestEntity()..stringProperty = "Hello", new objects.TestEntity()..stringProperty = "World"]));
-
-        var result = map(customListEntity, objects.CustomListDto);
-        expect(result.list, new isInstanceOf<objects.CustomList<objects.TestDto>>());
-        expect(result.list[0].stringProperty, "Hello");
-      });
-
       test('Mapping from one inherited type to another with only primitive properties correctly copies base and extended properties', () {
         var dateTime = new DateTime.now();
         var testEntity = new objects.InheritedEntity()
@@ -89,7 +79,6 @@ class TypeToTypeTests {
 
       test('Mapping from a specific type to a list of works when a type mapping has been declared', () {
         var concreteEntity = new objects.ConcreteEntity();
-        //TODO: Add type mappings here:
 
         var testDto = map(concreteEntity, objects.BaseDto, {objects.ConcreteEntity: objects.ConcreteDto});
 
@@ -98,14 +87,15 @@ class TypeToTypeTests {
 
       test('Mapping from a specific type to an abstract type throws use exception if no map exists', () {
         var concreteEntity = new objects.ConcreteWithNoMapEntity();
-        //TODO: Add type mappings here:
 
         try {
           map(concreteEntity, objects.BaseDto);
           throw "Should throw exception about map";
         } catch (ex) {
-          expect(ex,
-              "Are you missing a type map from \"class ${(objects.ConcreteWithNoMapEntity).toString( )}\" to \"abstract class ${(objects.BaseDto).toString( )}\"");
+          expect(
+              ex,
+              contains(
+                  "Are you missing a type map from \"class ${(objects.ConcreteWithNoMapEntity).toString( )}\" to \"abstract class ${(objects.BaseDto).toString( )}\""));
         }
       });
     });

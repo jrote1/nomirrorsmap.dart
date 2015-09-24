@@ -1,9 +1,9 @@
 part of nomirrorsmap.transformer;
 
-class ClassTopGenerator implements _Generator {
+class _ClassTopGenerator implements _Generator {
   final Resolver _resolver;
 
-  ClassTopGenerator(this._resolver);
+  _ClassTopGenerator(this._resolver);
 
   @override
   String generate(_GeneratorParameters parameters) {

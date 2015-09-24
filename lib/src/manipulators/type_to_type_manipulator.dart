@@ -15,9 +15,9 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
   void _manipulate(Type toType, BaseObjectData baseObjectData) {
     toType = _getMappedType(baseObjectData, toType);
     if (baseObjectData is ClassObjectData) {
-      var classGeneratedMap = GeneratedMapProvider.getClassGeneratedMap(toType);
-      if (classGeneratedMap.isAbstract) {
-        throw 'Are you missing a type map from "class ${baseObjectData.objectType}" to "abstract class $toType"';
+      var classGeneratedMap = NoMirrorsMapStore.getClassGeneratedMapWithNoCheck(toType);
+      if (classGeneratedMap == null || classGeneratedMap.instantiate == null) {
+        throw 'Are you missing a type map from "class ${baseObjectData.objectType}" to "abstract class $toType" or a @Mappable() attribute on "class ${baseObjectData.objectType}"';
       }
 
       ClassObjectData classObjectData = baseObjectData;
@@ -25,13 +25,13 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
       classObjectData.objectType = toType;
 
       classObjectData.properties.forEach((k, v) {
-        _manipulate(classGeneratedMap.properties[k].type, v);
+        _manipulate(classGeneratedMap.properties.firstWhere((p) => p.property.propertyName == k).type, v);
       });
     }
     if (baseObjectData is ListObjectData) {
-      var listGeneratedMap = GeneratedMapProvider.getListGeneratedMap(toType);
+      var listGeneratedMap = NoMirrorsMapStore.getClassGeneratedMapByListType(toType);
       for (var value in baseObjectData.values) {
-        _manipulate(listGeneratedMap.innerType, value);
+        _manipulate(listGeneratedMap.type, value);
       }
     }
   }

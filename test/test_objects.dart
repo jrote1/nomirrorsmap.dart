@@ -111,22 +111,17 @@ class ClassWithDateTime {
 }
 
 @Mappable()
-class GenericBase<T>
-{
+class GenericBase<T> {
   T val;
 }
 
 @Mappable()
-class PersonGeneric extends GenericBase<Person>
-{
+class PersonGeneric extends GenericBase<Person> {}
 
-}
-
-class TypeWithDuration
-{
+class TypeWithDuration {
   Duration duration;
 }
-class GenericType<T>
-{
+
+class GenericType<T> {
   T id;
 }

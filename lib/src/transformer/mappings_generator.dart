@@ -24,7 +24,7 @@ class MappingsGenerator {
         _typesToMap.addAll(library.units.expand((unit) => unit.types.where((type) => type.isPublic && !type.isAbstract)));
       }
     }
-    _typesToMap.addAll( _getListTypesFromPropertiesThatAreNotAlreadyMapped( ) );
+    _typesToMap.addAll(_getListTypesFromPropertiesThatAreNotAlreadyMapped());
 
     _generateLibraryAliases();
   }
@@ -69,11 +69,11 @@ class MappingsGenerator {
     _addTypes(libraryNamesToInclude);
 
     var generators = <_Generator>[
-      new ClassTopGenerator(_resolver),
-      new PropertiesGenerator(),
-      new ClassGenerator(),
-      new EnumsGenerator(),
-      new ClassBottomGenerator()
+      new _ClassTopGenerator(_resolver),
+      new _PropertiesGenerator(),
+      new _ClassGenerator(),
+      new _EnumsGenerator(),
+      new _ClassBottomGenerator()
     ];
 
     var parameters = new _GeneratorParameters(className, _assetId, _typesToMap, _libraryImportAliases);
@@ -90,7 +90,7 @@ class MappingsGenerator {
     return _typesToMap
         .where((type) => !type.isEnum)
         .expand((type) => type.fields)
-        .where((FieldElement field) => field.type.name == #List)
+        .where((FieldElement field) => field.type.name == "List")
         .map((field) => field.type)
         .where((InterfaceType type) => type is InterfaceType && type.typeArguments.length > 0)
         .map((type) => type.typeArguments.first.element)

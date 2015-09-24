@@ -44,37 +44,6 @@ class NonPrimitiveListDto {
   List<TestDto> list;
 }
 
-class CustomListEntity {
-  CustomList<TestEntity> list;
-}
-
-class CustomListDto {
-  CustomList<TestDto> list;
-}
-
-class CustomList<E> extends ListBase<E> {
-  var innerList = new List<E>();
-
-  int get length => innerList.length;
-
-  void set length(int length) {
-    innerList.length = length;
-  }
-
-  void operator []=(int index, E value) {
-    innerList[index] = value;
-  }
-
-  E operator [](int index) => innerList[index];
-
-  // Though not strictly necessary, for performance reasons
-  // you should implement add and addAll.
-
-  void add(E value) => innerList.add(value);
-
-  void addAll(Iterable<E> all) => innerList.addAll(all);
-}
-
 class InheritedDto extends TestDto {
   int extraProperty;
 }
