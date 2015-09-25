@@ -442,6 +442,28 @@ class ClassWithOnlyGetOrSet
             ], [])
         });
     });
+
+    test("Does not property map where is not public", () {
+        return applyTransformers(getPhases(), inputs: {
+            'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+            'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+class ClassWithOnlyGetOrSet
+{
+	int _prop;
+}
+'''
+        }, results: {
+            'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+                                                                                      "import 'main.dart' as web_main_dart;"
+                                                                                  ], [], [
+                '''NoMirrorsMapStore.registerClass( "ClassWithOnlyGetOrSet", web_main_dart.ClassWithOnlyGetOrSet, const TypeOf<List<web_main_dart.ClassWithOnlyGetOrSet>>().type, () => new web_main_dart.ClassWithOnlyGetOrSet(), {} );'''
+            ], [])
+        });
+    });
   }
 }
 
