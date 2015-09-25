@@ -27,6 +27,11 @@ To convert an object to Json, changing the casing of the properties to PascalCas
 var json = new NoMirrorsMap().convert(objectToMap, new ClassConverter(), new JsonConverter(), [ new PascalCaseManipulator() ]);
 ```
 
+Other manipulators include:
+- PascalCaseManipulator
+- CamelCaseManipulator
+- TypeToTypeManipulator
+
 We recommend creating static methods for doing common mappings.  For example you might create the following static methods for encoding and decoding json:
 
 ```
@@ -35,8 +40,8 @@ class Json {
     	return new NoMirrorsMap().convert( obj, new ClassConverter(), new JsonConverter() );
     }
 
-    static String decode( string json ) {
-    	return new NoMirrorsMap().convert( json, new JsonConverter(), new ClassConverter() );
+    static String decode( string json, Type type ) {
+    	return new NoMirrorsMap().convert( json, new JsonConverter(), new ClassConverter( startType: type ) );
     }
 }
 ```
