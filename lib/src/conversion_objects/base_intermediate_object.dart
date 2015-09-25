@@ -1,7 +1,5 @@
 part of nomirrorsmap.conversion_objects;
 
-class BaseObjectData {
+class BaseIntermediateObject {
   Type objectType;
-
-  bool get isNativeType => false;
 }

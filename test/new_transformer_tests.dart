@@ -35,13 +35,13 @@ class WebMainDartMappings
 {
 	static void register( )
 	{
-		_registerAccessors( );
+		_registerFields( );
 		_registerClasses( );
 		_registerEnums( );
 	}
-	static void _registerAccessors()
+	static void _registerFields()
 	{
-		${propertyMaps.map((name)=>'''NoMirrorsMapStore.registerAccessor( "$name", ( object, value ) => object.$name = value, (object) => object.$name );''').join("\n")}
+		${propertyMaps.map((name)=>'''NoMirrorsMapStore.registerField( "$name", ( object, value ) => object.$name = value, (object) => object.$name );''').join("\n")}
 	}
 	static void _registerClasses()
 	{

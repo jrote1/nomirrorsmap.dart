@@ -67,3 +67,12 @@ class ConcreteEntity extends BaseEntity {}
 class ConcreteDto extends BaseDto {}
 
 class ConcreteWithNoMapEntity extends BaseEntity {}
+
+class SourceType {
+  int intProperty;
+  String stringProperty;
+}
+
+class DestType {
+  int intProperty;
+}

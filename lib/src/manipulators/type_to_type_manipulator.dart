@@ -8,27 +8,28 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
     this.typeMaps = typeMaps == null ? {} : typeMaps;
   }
 
-  void manipulate(BaseObjectData baseObjectData) {
+  void manipulate(BaseIntermediateObject baseObjectData) {
     _manipulate(startType, baseObjectData);
   }
 
-  void _manipulate(Type toType, BaseObjectData baseObjectData) {
+  void _manipulate(Type toType, BaseIntermediateObject baseObjectData) {
     toType = _getMappedType(baseObjectData, toType);
-    if (baseObjectData is ClassObjectData) {
+    if (baseObjectData is ClassIntermediateObject) {
       var classGeneratedMap = NoMirrorsMapStore.getClassGeneratedMapWithNoCheck(toType);
       if (classGeneratedMap == null || classGeneratedMap.instantiate == null) {
         throw 'Are you missing a type map from "class ${baseObjectData.objectType}" to "abstract class $toType" or a @Mappable() attribute on "class ${baseObjectData.objectType}"';
       }
 
-      ClassObjectData classObjectData = baseObjectData;
+      ClassIntermediateObject classObjectData = baseObjectData;
 
       classObjectData.objectType = toType;
 
       classObjectData.properties.forEach((k, v) {
-        _manipulate(classGeneratedMap.properties.firstWhere((p) => p.property.propertyName == k).type, v);
+        if (classGeneratedMap.fields
+            .any((p) => p.fieldMapping.name == k)) _manipulate(classGeneratedMap.fields.firstWhere((p) => p.fieldMapping.name == k).type, v);
       });
     }
-    if (baseObjectData is ListObjectData) {
+    if (baseObjectData is ListIntermediateObject) {
       var listGeneratedMap = NoMirrorsMapStore.getClassGeneratedMapByListType(toType);
       for (var value in baseObjectData.values) {
         _manipulate(listGeneratedMap.type, value);
@@ -36,7 +37,7 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
     }
   }
 
-  Type _getMappedType(BaseObjectData baseObjectData, Type type) {
+  Type _getMappedType(BaseIntermediateObject baseObjectData, Type type) {
     if (typeMaps.containsKey(baseObjectData.objectType)) return typeMaps[baseObjectData.objectType];
     return type;
   }

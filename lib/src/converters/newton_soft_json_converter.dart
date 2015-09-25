@@ -5,7 +5,7 @@ class NewtonSoftJsonConverter extends JsonConverter {
   List<String> toJsonSeenHashcodes = new List<String>();
 
   @override
-  void setMetaData(StringBuffer stringBuffer, ClassObjectData classObjectData) {
+  void setMetaData(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
     if (toJsonSeenHashcodes.contains(classObjectData.previousHashCode)) stringBuffer.write("\"\$ref\":\"${classObjectData.previousHashCode}\"");
     else {
       toJsonSeenHashcodes.add(classObjectData.previousHashCode);
@@ -34,7 +34,7 @@ class NewtonSoftJsonConverter extends JsonConverter {
   }
 
   @override
-  void afterCreatingClassObjectData(ClassObjectData classObjectData) {
+  void afterCreatingClassObjectData(ClassIntermediateObject classObjectData) {
     if (!fromJsonHashCodesAndTypes.containsKey(classObjectData.previousHashCode) && classObjectData.objectType != null) fromJsonHashCodesAndTypes[
         classObjectData.previousHashCode] = classObjectData.objectType;
   }

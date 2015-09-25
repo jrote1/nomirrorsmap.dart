@@ -9,9 +9,9 @@ import 'src/manipulators/manipulators.dart';
 
 class NoMirrorsMap {
   dynamic convert(dynamic value, Converter sourceConverter, Converter destinationConverter, [List<BaseObjectDataManipulator> manipulators]) {
-    var convertedSource = sourceConverter.toBaseObjectData(value);
+    var convertedSource = sourceConverter.toBaseIntermediateObject(value);
     if (manipulators != null) manipulators.forEach((m) => m.manipulate(convertedSource));
-    return destinationConverter.fromBaseObjectData(convertedSource);
+    return destinationConverter.fromBaseIntermediateObject(convertedSource);
   }
 }
 

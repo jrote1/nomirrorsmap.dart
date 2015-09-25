@@ -5,7 +5,7 @@ import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 class CustomClassConverter<TActualType> {
   Function _fromFunc;
 
-  set from(BaseObjectData func(TActualType val)) {
+  set from(BaseIntermediateObject func(TActualType val)) {
     _fromFunc = func;
   }
 
@@ -13,7 +13,7 @@ class CustomClassConverter<TActualType> {
 
   Function _toFunc;
 
-  set to(TActualType func(BaseObjectData val)) {
+  set to(TActualType func(BaseIntermediateObject val)) {
     _toFunc = func;
   }
 

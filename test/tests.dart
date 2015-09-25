@@ -72,8 +72,8 @@ main() async {
 
     test("Can deserialize to object", () {
       ClassConverter.converters[Duration] = new CustomClassConverter<Duration>()
-        ..to = ((BaseObjectData input) {
-          var classObjectData = input as ClassObjectData;
+        ..to = ((BaseIntermediateObject input) {
+          var classObjectData = input as ClassIntermediateObject;
           return new Duration(minutes: classObjectData.properties["minutes"].value, seconds: classObjectData.properties["seconds"].value);
         })
         ..from = ((Duration duration) {
@@ -180,14 +180,14 @@ main() async {
   group("ClassConverter test", () {
     setUp(() {
       ClassConverter.converters[CustomConverterTest] = new CustomClassConverter<CustomConverterTest>()
-        ..to = ((NativeObjectData val) {
+        ..to = ((NativeIntermediateObject val) {
           var values = val.value.split("|");
           var result = new CustomConverterTest()
             ..id = int.parse(values[0])
             ..value = values[1];
           return result;
         })
-        ..from = (CustomConverterTest val) => (new NativeObjectData()
+        ..from = (CustomConverterTest val) => (new NativeIntermediateObject()
           ..value = "${val.id}|${val.value}"
           ..objectType = String);
     });
@@ -197,20 +197,20 @@ main() async {
         ..value = "Matthew");
 
       var classConverter = new ClassConverter();
-      ClassObjectData baseObject = classConverter.toBaseObjectData(object);
+      ClassIntermediateObject baseObject = classConverter.toBaseIntermediateObject(object);
       var result = baseObject.properties["testProperty"];
 
       expect(result.value, "1|Matthew");
     });
 
     test("When a custom converter is specified for a type, the convert is used when converting from baseObject", () {
-      var classObjectData = new ClassObjectData()..properties = {};
-      classObjectData.properties["testProperty"] = new NativeObjectData()..value = "1|Matthew";
+      var classObjectData = new ClassIntermediateObject()..properties = {};
+      classObjectData.properties["testProperty"] = new NativeIntermediateObject()..value = "1|Matthew";
       classObjectData.previousHashCode = "1";
       classObjectData.objectType = CustomConverterParentTest;
 
       var classConverter = new ClassConverter();
-      CustomConverterParentTest result = classConverter.fromBaseObjectData(classObjectData);
+      CustomConverterParentTest result = classConverter.fromBaseIntermediateObject(classObjectData);
 
       expect(result.testProperty.value, "Matthew");
       expect(result.testProperty.id, 1);
@@ -223,14 +223,14 @@ main() async {
     });
 
     test("With json with int value and setting double does not explode", () {
-      var objectData = new NativeObjectData()..value = 1;
-      var objectd = new ClassObjectData()
+      var objectData = new NativeIntermediateObject()..value = 1;
+      var objectd = new ClassIntermediateObject()
         ..objectType = ClassWithDouble
         ..properties = {"val": objectData};
 
       var classConverter = new ClassConverter(startType: ClassWithDouble);
 
-      var result = classConverter.fromBaseObjectData(objectd);
+      var result = classConverter.fromBaseIntermediateObject(objectd);
 
       expect(result.val, 1.0);
     });
@@ -241,13 +241,13 @@ main() async {
       const String hashcode = "1234";
       const String jsonHashcodeName = "\$ref";
 
-      var data = new ClassObjectData()
+      var data = new ClassIntermediateObject()
         ..properties = {}
         ..previousHashCode = hashcode
         ..objectType = CustomConverterTest;
 
       var converter = new JsonConverter(jsonHashcodeName);
-      String jsonResult = converter.fromBaseObjectData(data);
+      String jsonResult = converter.fromBaseIntermediateObject(data);
 
       var expected = "\"$jsonHashcodeName\":\"$hashcode\"";
       expect(jsonResult, contains(expected));
@@ -259,7 +259,7 @@ main() async {
 
       var converter = new JsonConverter(jsonHashcodeName);
       var json = '{ "\$type": "nomirrorsmap.tests.CustomConverterTest",\"$jsonHashcodeName\": \"$hashcode\"}';
-      var baseObjectData = converter.toBaseObjectData(json) as ClassObjectData;
+      var baseObjectData = converter.toBaseIntermediateObject(json) as ClassIntermediateObject;
 
       expect(baseObjectData.previousHashCode, hashcode);
       expect(baseObjectData.properties.containsKey(jsonHashcodeName), true);
@@ -270,32 +270,32 @@ main() async {
     test(
         "For fromBaseObjectData, When called with two objects with same reference, Then returned json should have \$id in first object and  \$ref in second object",
         () {
-      var list = new ListObjectData();
-      var klass1 = new ClassObjectData();
-      var klass2 = new ClassObjectData();
+      var list = new ListIntermediateObject();
+      var klass1 = new ClassIntermediateObject();
+      var klass2 = new ClassIntermediateObject();
 
       klass1.objectType = klass2.objectType = NewtonSoftTest;
       klass1.previousHashCode = klass2.previousHashCode = "1";
       klass1.properties = {};
-      klass1.properties["age"] = new NativeObjectData()..value = 14;
-      klass1.properties["gender"] = new NativeObjectData()..value = "m";
+      klass1.properties["age"] = new NativeIntermediateObject()..value = 14;
+      klass1.properties["gender"] = new NativeIntermediateObject()..value = "m";
 
       klass2.properties = {};
 
       list.values = [klass1, klass2];
 
       var converter = new NewtonSoftJsonConverter();
-      String json = converter.fromBaseObjectData(list);
+      String json = converter.fromBaseIntermediateObject(list);
 
       expect(json, contains(getFileContent("test\\test_json\\newtonsoft_test.json")));
     });
 
     test("For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references", () {
       var converter = new NewtonSoftJsonConverter();
-      ListObjectData json = converter.toBaseObjectData(getFileContent("test\\test_json\\newtonsoft_test.json"));
+      ListIntermediateObject json = converter.toBaseIntermediateObject(getFileContent("test\\test_json\\newtonsoft_test.json"));
 
-      expect((json.values[0] as ClassObjectData).previousHashCode, "1");
-      expect((json.values[0] as ClassObjectData).previousHashCode, (json.values[1] as ClassObjectData).previousHashCode);
+      expect((json.values[0] as ClassIntermediateObject).previousHashCode, "1");
+      expect((json.values[0] as ClassIntermediateObject).previousHashCode, (json.values[1] as ClassIntermediateObject).previousHashCode);
     });
 
     test("can deserialize using dollar ref property only", () {
@@ -320,7 +320,7 @@ main() async {
     test("Can deserialize", () {
       var converter = new NewtonSoftJsonConverter();
       var jsonText = getFileContent("test\\test_json\\abstract_class_and_inheritence.json");
-      BaseObjectData result = converter.toBaseObjectData(jsonText);
+      BaseIntermediateObject result = converter.toBaseIntermediateObject(jsonText);
 
       assertClassObjectDataTypeNotNull(result);
     });
@@ -371,17 +371,17 @@ void buildMappingsFile() {
 }
 */
 
-void assertClassObjectDataTypeNotNull(BaseObjectData objectData) {
-  if (objectData is ClassObjectData) {
-    var classObjectData = objectData as ClassObjectData;
+void assertClassObjectDataTypeNotNull(BaseIntermediateObject objectData) {
+  if (objectData is ClassIntermediateObject) {
+    var classObjectData = objectData as ClassIntermediateObject;
     if (classObjectData.objectType == null) {
       expect(classObjectData.objectType, isNotNull);
     }
     classObjectData.properties.forEach((k, v) {
       assertClassObjectDataTypeNotNull(v);
     });
-  } else if (objectData is ListObjectData) {
-    var listObjectData = objectData as ListObjectData;
+  } else if (objectData is ListIntermediateObject) {
+    var listObjectData = objectData as ListIntermediateObject;
     listObjectData.values.forEach((v) {
       assertClassObjectDataTypeNotNull(v);
     });

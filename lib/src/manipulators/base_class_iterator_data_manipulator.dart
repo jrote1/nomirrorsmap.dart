@@ -1,9 +1,9 @@
 part of nomirrorsmap.manipulators;
 
 abstract class BaseClassIteratorDataManipulator implements BaseObjectDataManipulator {
-  void manipulate(BaseObjectData baseObjectData) {
-    if (baseObjectData is ClassObjectData) {
-      ClassObjectData classObjectData = baseObjectData;
+  void manipulate(BaseIntermediateObject baseObjectData) {
+    if (baseObjectData is ClassIntermediateObject) {
+      ClassIntermediateObject classObjectData = baseObjectData;
 
       var newProperties = {};
 
@@ -14,7 +14,7 @@ abstract class BaseClassIteratorDataManipulator implements BaseObjectDataManipul
 
       classObjectData.properties = newProperties;
     }
-    if (baseObjectData is ListObjectData) {
+    if (baseObjectData is ListIntermediateObject) {
       for (var value in baseObjectData.values) {
         manipulate(value);
       }

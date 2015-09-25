@@ -8,10 +8,10 @@ class TransformerOptions {
   TransformerOptions.initialize(this.libraryNames);
 
   factory TransformerOptions(BarbackSettings settings) {
-    return new TransformerOptions.initialize(_readFileList(settings.configuration, LIBRARY_NAMES_PARAM));
+    return new TransformerOptions.initialize(_readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM));
   }
 
-  static List<String> _readFileList(Map config, String paramName) {
+  static List<String> _readLibraryList(Map config, String paramName) {
     var value = config[paramName];
     if (value == null) return null;
     var files = [];
@@ -26,7 +26,7 @@ class TransformerOptions {
       error = true;
     }
     if (error) {
-      print('Invalid value for "$paramName" in the Angular 2 transformer.');
+      print('Invalid value for "$paramName" in the nomirrorsmap transformer.');
     }
     return files;
   }

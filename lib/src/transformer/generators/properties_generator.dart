@@ -1,28 +1,28 @@
 part of nomirrorsmap.transformer;
 
-class _PropertiesGenerator extends _Generator with _TypeInformationRetriever {
+class _FieldsGenerator extends _Generator with _TypeInformationRetriever {
   @override
   String generate(_GeneratorParameters parameters) {
     var stringBuilder = new StringBuffer();
-    stringBuilder.write('''static void _registerAccessors()
+    stringBuilder.write('''static void _registerFields()
 	{''');
 
-    var propertyNames = parameters.typesToMap
+    var fieldNames = parameters.typesToMap
         .where((type) => !type.isEnum && _typeHasConstructor(type))
         .expand((type) => _getAllTypeFields(type, parameters))
         .map((field) => field.name)
         .toList();
 
-    for (var property in _uniqifyList(propertyNames)) {
-      stringBuilder.writeln(
-          '''NoMirrorsMapStore.registerAccessor( "$property", ( object, value ) => object.$property = value, (object) => object.$property );''');
+    for (var field in _uniquifyList(fieldNames)) {
+      stringBuilder
+          .writeln('''NoMirrorsMapStore.registerField( "$field", ( object, value ) => object.$field = value, (object) => object.$field );''');
     }
 
     stringBuilder.write("\t}");
     return stringBuilder.toString();
   }
 
-  List<String> _uniqifyList(List<String> list) {
+  List<String> _uniquifyList(List<String> list) {
     var result = new List<String>();
 
     for (var element in list) if (!result.contains(element)) result.add(element);

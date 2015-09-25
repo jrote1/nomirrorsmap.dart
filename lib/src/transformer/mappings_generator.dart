@@ -10,27 +10,24 @@ class MappingsGenerator {
   MappingsGenerator(this._resolver, this._assetId);
 
   void _addTypes(List<String> libraryNamesToInclude) {
-    var allEnums = _expandCompilationUnitsWhereShouldBeMapped((compilationUnit) => compilationUnit.enums);
-    _typesToMap.addAll(allEnums);
-
-    var allTypes = _expandCompilationUnitsWhereShouldBeMapped((compilationUnit) => compilationUnit.types).where((type) => !type.isAbstract);
-    _typesToMap.addAll(allTypes);
-
+    var libraries = <LibraryElement>[];
     for (var libraryName in libraryNamesToInclude) {
       var library = _resolver.getLibraryByName(libraryName);
       if (library == null) print("nomirrorsmap: '$libraryName' was not found so will be ignored");
-      else {
-        _typesToMap.addAll(library.units.expand((unit) => unit.enums.where((enumeration) => enumeration.isPublic)));
-        _typesToMap.addAll(library.units.expand((unit) => unit.types.where((type) => type.isPublic && !type.isAbstract)));
-      }
+      else libraries.add(library);
     }
+
+    var allTypes = _expandCompilationUnitsWhereShouldBeMapped((compilationUnit) => compilationUnit.enums);
+    allTypes.addAll(_expandCompilationUnitsWhereShouldBeMapped((compilationUnit) => compilationUnit.types).where((type) => !type.isAbstract));
+
+    _typesToMap.addAll(_getTypesThatShouldBeMapped(allTypes, libraries));
     _typesToMap.addAll(_getListTypesFromPropertiesThatAreNotAlreadyMapped());
 
     _generateLibraryAliases();
   }
 
   List<ClassElement> _expandCompilationUnitsWhereShouldBeMapped(Iterable<ClassElement> expand(CompilationUnitElement unit)) {
-    return _resolver.libraries.expand((lib) => lib.units).expand((compilationUnit) => expand(compilationUnit)).where(_shouldBeMapped).toList();
+    return _resolver.libraries.expand((lib) => lib.units).expand((compilationUnit) => expand(compilationUnit)).toList();
   }
 
   void _generateLibraryAliases() {
@@ -46,23 +43,25 @@ class MappingsGenerator {
     }
   }
 
-  bool _shouldBeMapped(ClassElement type) {
+  Iterable<ClassElement> _getTypesThatShouldBeMapped(List<ClassElement> types, List<LibraryElement> libraries) sync* {
     var mappableMetadataType = _resolver.getType("nomirrorsmap.Mappable");
-    if (mappableMetadataType == null) return false;
+    for (var type in types) {
+      if (libraries.contains(type.library)) yield type;
+      if (mappableMetadataType != null) {
+        var metadata = type.metadata.map((meta) => meta.element).where((element) => element is ConstructorElement);
 
-    var metadata = type.metadata.map((meta) => meta.element).where((element) => element is ConstructorElement);
-
-    for (ConstructorElement meta in metadata) {
-      DartType metaType = meta.enclosingElement.type;
-      if (metaType.isAssignableTo(mappableMetadataType.type)) {
-        if (!type.isEnum &&
-            (type.unnamedConstructor == null ||
-                type.unnamedConstructor.parameters.length >
-                    0)) throw "The type '${type.displayName}' has a @Mappable() annotation but no DefaultConstructor";
-        return true;
+        for (ConstructorElement meta in metadata) {
+          DartType metaType = meta.enclosingElement.type;
+          if (metaType.isAssignableTo(mappableMetadataType.type)) {
+            if (!type.isEnum &&
+                (type.unnamedConstructor == null ||
+                    type.unnamedConstructor.parameters.length >
+                        0)) throw "The type '${type.displayName}' has a @Mappable() annotation but no DefaultConstructor";
+            yield type;
+          }
+        }
       }
     }
-    return false;
   }
 
   String generate(String className, List<String> libraryNamesToInclude) {
@@ -70,7 +69,7 @@ class MappingsGenerator {
 
     var generators = <_Generator>[
       new _ClassTopGenerator(_resolver),
-      new _PropertiesGenerator(),
+      new _FieldsGenerator(),
       new _ClassGenerator(),
       new _EnumsGenerator(),
       new _ClassBottomGenerator()

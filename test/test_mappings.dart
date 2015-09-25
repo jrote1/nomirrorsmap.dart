@@ -12,40 +12,40 @@ class TestProjectMappings {
   }
 
   static void _registerAccessors() {
-    NoMirrorsMapStore.registerAccessor("data", (object, value) => object.data = value, (object) => object.data);
-    NoMirrorsMapStore.registerAccessor("name", (object, value) => object.name = value, (object) => object.name);
-    NoMirrorsMapStore.registerAccessor("people", (object, value) => object.people = value, (object) => object.people);
-    NoMirrorsMapStore.registerAccessor("age", (object, value) => object.age = value, (object) => object.age);
-    NoMirrorsMapStore.registerAccessor("gender", (object, value) => object.gender = value, (object) => object.gender);
-    NoMirrorsMapStore.registerAccessor("id", (object, value) => object.id = value, (object) => object.id);
-    NoMirrorsMapStore.registerAccessor("parents", (object, value) => object.parents = value, (object) => object.parents);
-    NoMirrorsMapStore.registerAccessor("children", (object, value) => object.children = value, (object) => object.children);
-    NoMirrorsMapStore.registerAccessor("val", (object, value) => object.val = value, (object) => object.val);
-    NoMirrorsMapStore.registerAccessor("testProperty", (object, value) => object.testProperty = value, (object) => object.testProperty);
-    NoMirrorsMapStore.registerAccessor("value", (object, value) => object.value = value, (object) => object.value);
-    NoMirrorsMapStore.registerAccessor("customList", (object, value) => object.customList = value, (object) => object.customList);
-    NoMirrorsMapStore.registerAccessor("firstName", (object, value) => object.firstName = value, (object) => object.firstName);
-    NoMirrorsMapStore.registerAccessor("lastName", (object, value) => object.lastName = value, (object) => object.lastName);
-    NoMirrorsMapStore.registerAccessor("emailAddress", (object, value) => object.emailAddress = value, (object) => object.emailAddress);
-    NoMirrorsMapStore.registerAccessor("mobilePhone", (object, value) => object.mobilePhone = value, (object) => object.mobilePhone);
-    NoMirrorsMapStore.registerAccessor("umpire", (object, value) => object.umpire = value, (object) => object.umpire);
-    NoMirrorsMapStore.registerAccessor("teamUsers", (object, value) => object.teamUsers = value, (object) => object.teamUsers);
-    NoMirrorsMapStore.registerAccessor("securityRole", (object, value) => object.securityRole = value, (object) => object.securityRole);
-    NoMirrorsMapStore.registerAccessor("role", (object, value) => object.role = value, (object) => object.role);
-    NoMirrorsMapStore.registerAccessor("user", (object, value) => object.user = value, (object) => object.user);
-    NoMirrorsMapStore.registerAccessor("description", (object, value) => object.description = value, (object) => object.description);
-    NoMirrorsMapStore.registerAccessor("associationLevel", (object, value) => object.associationLevel = value, (object) => object.associationLevel);
-    NoMirrorsMapStore.registerAccessor("time", (object, value) => object.time = value, (object) => object.time);
-    NoMirrorsMapStore.registerAccessor("duration", (object, value) => object.duration = value, (object) => object.duration);
-    NoMirrorsMapStore.registerAccessor("stringProperty", (object, value) => object.stringProperty = value, (object) => object.stringProperty);
-    NoMirrorsMapStore.registerAccessor("intProperty", (object, value) => object.intProperty = value, (object) => object.intProperty);
-    NoMirrorsMapStore.registerAccessor("dateTimeProperty", (object, value) => object.dateTimeProperty = value, (object) => object.dateTimeProperty);
-    NoMirrorsMapStore.registerAccessor("doubleProperty", (object, value) => object.doubleProperty = value, (object) => object.doubleProperty);
-    NoMirrorsMapStore.registerAccessor("boolProperty", (object, value) => object.boolProperty = value, (object) => object.boolProperty);
-    NoMirrorsMapStore.registerAccessor("numProperty", (object, value) => object.numProperty = value, (object) => object.numProperty);
-    NoMirrorsMapStore.registerAccessor("test", (object, value) => object.test = value, (object) => object.test);
-    NoMirrorsMapStore.registerAccessor("list", (object, value) => object.list = value, (object) => object.list);
-    NoMirrorsMapStore.registerAccessor("extraProperty", (object, value) => object.extraProperty = value, (object) => object.extraProperty);
+    NoMirrorsMapStore.registerField("data", (object, value) => object.data = value, (object) => object.data);
+    NoMirrorsMapStore.registerField("name", (object, value) => object.name = value, (object) => object.name);
+    NoMirrorsMapStore.registerField("people", (object, value) => object.people = value, (object) => object.people);
+    NoMirrorsMapStore.registerField("age", (object, value) => object.age = value, (object) => object.age);
+    NoMirrorsMapStore.registerField("gender", (object, value) => object.gender = value, (object) => object.gender);
+    NoMirrorsMapStore.registerField("id", (object, value) => object.id = value, (object) => object.id);
+    NoMirrorsMapStore.registerField("parents", (object, value) => object.parents = value, (object) => object.parents);
+    NoMirrorsMapStore.registerField("children", (object, value) => object.children = value, (object) => object.children);
+    NoMirrorsMapStore.registerField("val", (object, value) => object.val = value, (object) => object.val);
+    NoMirrorsMapStore.registerField("testProperty", (object, value) => object.testProperty = value, (object) => object.testProperty);
+    NoMirrorsMapStore.registerField("value", (object, value) => object.value = value, (object) => object.value);
+    NoMirrorsMapStore.registerField("customList", (object, value) => object.customList = value, (object) => object.customList);
+    NoMirrorsMapStore.registerField("firstName", (object, value) => object.firstName = value, (object) => object.firstName);
+    NoMirrorsMapStore.registerField("lastName", (object, value) => object.lastName = value, (object) => object.lastName);
+    NoMirrorsMapStore.registerField("emailAddress", (object, value) => object.emailAddress = value, (object) => object.emailAddress);
+    NoMirrorsMapStore.registerField("mobilePhone", (object, value) => object.mobilePhone = value, (object) => object.mobilePhone);
+    NoMirrorsMapStore.registerField("umpire", (object, value) => object.umpire = value, (object) => object.umpire);
+    NoMirrorsMapStore.registerField("teamUsers", (object, value) => object.teamUsers = value, (object) => object.teamUsers);
+    NoMirrorsMapStore.registerField("securityRole", (object, value) => object.securityRole = value, (object) => object.securityRole);
+    NoMirrorsMapStore.registerField("role", (object, value) => object.role = value, (object) => object.role);
+    NoMirrorsMapStore.registerField("user", (object, value) => object.user = value, (object) => object.user);
+    NoMirrorsMapStore.registerField("description", (object, value) => object.description = value, (object) => object.description);
+    NoMirrorsMapStore.registerField("associationLevel", (object, value) => object.associationLevel = value, (object) => object.associationLevel);
+    NoMirrorsMapStore.registerField("time", (object, value) => object.time = value, (object) => object.time);
+    NoMirrorsMapStore.registerField("duration", (object, value) => object.duration = value, (object) => object.duration);
+    NoMirrorsMapStore.registerField("stringProperty", (object, value) => object.stringProperty = value, (object) => object.stringProperty);
+    NoMirrorsMapStore.registerField("intProperty", (object, value) => object.intProperty = value, (object) => object.intProperty);
+    NoMirrorsMapStore.registerField("dateTimeProperty", (object, value) => object.dateTimeProperty = value, (object) => object.dateTimeProperty);
+    NoMirrorsMapStore.registerField("doubleProperty", (object, value) => object.doubleProperty = value, (object) => object.doubleProperty);
+    NoMirrorsMapStore.registerField("boolProperty", (object, value) => object.boolProperty = value, (object) => object.boolProperty);
+    NoMirrorsMapStore.registerField("numProperty", (object, value) => object.numProperty = value, (object) => object.numProperty);
+    NoMirrorsMapStore.registerField("test", (object, value) => object.test = value, (object) => object.test);
+    NoMirrorsMapStore.registerField("list", (object, value) => object.list = value, (object) => object.list);
+    NoMirrorsMapStore.registerField("extraProperty", (object, value) => object.extraProperty = value, (object) => object.extraProperty);
   }
 
   static void _registerClasses() {
@@ -245,6 +245,19 @@ class TestProjectMappings {
         const TypeOf<List<test_type_to_type_objects_dart.ConcreteWithNoMapEntity>>().type,
         () => new test_type_to_type_objects_dart.ConcreteWithNoMapEntity(),
         {'id': int, 'name': String});
+
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.SourceType",
+        test_type_to_type_objects_dart.SourceType,
+        const TypeOf<List<test_type_to_type_objects_dart.SourceType>>().type,
+        () => new test_type_to_type_objects_dart.SourceType(),
+        {'intProperty': int, 'stringProperty': String});
+    NoMirrorsMapStore.registerClass(
+        "nomirrorsmap.tests.DestType",
+        test_type_to_type_objects_dart.DestType,
+        const TypeOf<List<test_type_to_type_objects_dart.DestType>>().type,
+        () => new test_type_to_type_objects_dart.DestType(),
+        {'intProperty': int});
   }
 
   static void _registerEnums() {

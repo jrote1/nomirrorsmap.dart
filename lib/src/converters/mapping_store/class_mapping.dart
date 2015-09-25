@@ -5,5 +5,5 @@ class _ClassMapping {
   Type type;
   Type listType;
   Function instantiate;
-  List<_ClassProperty> properties;
+  List<_ClassField> fields;
 }

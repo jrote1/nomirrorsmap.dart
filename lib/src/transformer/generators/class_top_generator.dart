@@ -21,7 +21,7 @@ class ${parameters.mappingsClassName}
 {
 	static void register( )
 	{
-		_registerAccessors( );
+		_registerFields( );
 		_registerClasses( );
 		_registerEnums( );
 	}''';

@@ -1,15 +1,15 @@
 part of nomirrorsmap.converters;
 
 class NoMirrorsMapStore {
-  static List<_PropertyMapping> _propertyMappings = [];
+  static List<_FieldMapping> _fieldMappings = [];
   static List<_ClassMapping> _classMappings = [];
   static Map<Type, List> _enumMappings = {};
 
-  static void registerAccessor(String propertyName, void setter(dynamic object, dynamic value), dynamic getter(dynamic object)) {
-    _propertyMappings.add(new _PropertyMapping()
+  static void registerField(String fieldName, void setter(dynamic object, dynamic value), dynamic getter(dynamic object)) {
+    _fieldMappings.add(new _FieldMapping()
       ..getter = getter
       ..setter = setter
-      ..propertyName = propertyName);
+      ..name = fieldName);
   }
 
   static Map<Type, _ClassMapping> _classMappingsByType = {};
@@ -51,12 +51,12 @@ class NoMirrorsMapStore {
     throw "Can't find map for type '$qualifiedName' is it missing the @Mappable() annotation ";
   }
 
-  static void registerClass(String fullName, Type type, Type listType, dynamic instantiate(), Map<String, Type> properties) {
-    var classProperties = [];
-    properties.forEach((k, v) {
-      classProperties.add(new _ClassProperty()
+  static void registerClass(String fullName, Type type, Type listType, dynamic instantiate(), Map<String, Type> fields) {
+    var classFields = [];
+    fields.forEach((k, v) {
+      classFields.add(new _ClassField()
         ..type = v
-        ..property = _propertyMappings.firstWhere((p) => p.propertyName == k));
+        ..fieldMapping = _fieldMappings.firstWhere((p) => p.name == k));
     });
 
     _classMappings.add(new _ClassMapping()
@@ -64,7 +64,7 @@ class NoMirrorsMapStore {
       ..listType = listType
       ..fullName = fullName
       ..instantiate = instantiate
-      ..properties = classProperties);
+      ..fields = classFields);
   }
 
   static void registerEnum(Type type, List values) {

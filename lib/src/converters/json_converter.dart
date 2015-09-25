@@ -7,7 +7,7 @@ class JsonConverter implements Converter {
     _hashcodeName = hashcodeName;
   }
 
-  BaseObjectData toBaseObjectData(dynamic value) {
+  BaseIntermediateObject toBaseIntermediateObject(dynamic value) {
     if (!(value is String)) throw new Exception("value is not a String");
     var json = JSON.decode(value);
     return _jsonToBaseObjectData(json);
@@ -19,16 +19,16 @@ class JsonConverter implements Converter {
     return json.containsKey("\$type") ? NoMirrorsMapStore.getClassGeneratedMapByQualifiedName(json["\$type"]).type : null;
   }
 
-  void afterCreatingClassObjectData(ClassObjectData classObjectData) {}
+  void afterCreatingClassObjectData(ClassIntermediateObject classObjectData) {}
 
-  BaseObjectData _jsonToBaseObjectData(dynamic json) {
+  BaseIntermediateObject _jsonToBaseObjectData(dynamic json) {
     if (json is Map) {
-      var classObjectData = new ClassObjectData();
+      var classObjectData = new ClassIntermediateObject();
       classObjectData.previousHashCode = getPreviousHashcode(json);
       classObjectData.objectType = findObjectType(json);
 
       afterCreatingClassObjectData(classObjectData);
-      Map<String, BaseObjectData> properties = {};
+      Map<String, BaseIntermediateObject> properties = {};
       (json as Map).forEach((key, value) {
         properties[key] = _jsonToBaseObjectData(value);
       });
@@ -36,30 +36,30 @@ class JsonConverter implements Converter {
       classObjectData.properties = properties;
 
       return classObjectData;
-    } else if (json is List) return new ListObjectData()..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
-    return new NativeObjectData()..value = json;
+    } else if (json is List) return new ListIntermediateObject()..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
+    return new NativeIntermediateObject()..value = json;
   }
 
-  dynamic fromBaseObjectData(BaseObjectData baseObjectData) {
+  dynamic fromBaseIntermediateObject(BaseIntermediateObject baseObjectData) {
     var stringBuffer = new StringBuffer();
     _fromBaseObjectData(baseObjectData, stringBuffer);
     return stringBuffer.toString();
   }
 
-  void setMetaData(StringBuffer stringBuffer, ClassObjectData classObjectData) {
+  void setMetaData(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
     stringBuffer.write("\"$_hashcodeName\":\"${classObjectData.previousHashCode}\",");
 
     setTypeFromObjectType(stringBuffer, classObjectData);
   }
 
-  void setTypeFromObjectType(StringBuffer stringBuffer, ClassObjectData classObjectData) {
+  void setTypeFromObjectType(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
     stringBuffer.write("\"\$type\":\"${NoMirrorsMapStore
         .getClassGeneratedMap( classObjectData.objectType )
         .fullName}\",");
   }
 
-  void _fromBaseObjectData(BaseObjectData baseObjectData, StringBuffer stringBuffer) {
-    if (baseObjectData is ClassObjectData) {
+  void _fromBaseObjectData(BaseIntermediateObject baseObjectData, StringBuffer stringBuffer) {
+    if (baseObjectData is ClassIntermediateObject) {
       stringBuffer.write("{");
 
       setMetaData(stringBuffer, baseObjectData);
@@ -72,7 +72,7 @@ class JsonConverter implements Converter {
 
       stringBuffer.write("}");
     }
-    if (baseObjectData is ListObjectData) {
+    if (baseObjectData is ListIntermediateObject) {
       stringBuffer.write("[");
       for (var i = 0; i < baseObjectData.values.length; i++) {
         var value = baseObjectData.values[i];
@@ -82,7 +82,7 @@ class JsonConverter implements Converter {
       stringBuffer.write("]");
     }
 
-    if (baseObjectData is NativeObjectData) {
+    if (baseObjectData is NativeIntermediateObject) {
       if (baseObjectData.value is String) stringBuffer.write("\"" + baseObjectData.value.replaceAll(r"\", r'\\').replaceAll("\"", '\\"') + "\"");
       else stringBuffer.write(baseObjectData.value);
     }

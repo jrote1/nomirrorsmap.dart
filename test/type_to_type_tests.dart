@@ -98,6 +98,16 @@ class TypeToTypeTests {
                   "Are you missing a type map from \"class ${(objects.ConcreteWithNoMapEntity).toString( )}\" to \"abstract class ${(objects.BaseDto).toString( )}\""));
         }
       });
+
+      test('Mapping from one type to another type that dosent have dest property', () {
+        var source = new objects.SourceType()
+          ..intProperty = 1
+          ..stringProperty = "2";
+
+        var result = map(source, objects.DestType);
+
+        expect(result.intProperty, 1);
+      });
     });
   }
 }
