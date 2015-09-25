@@ -135,16 +135,37 @@ class TestClass
 
     test("With type in different package", () {
       return applyTransformers(getPhases(), inputs: {
-        'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject1|lib/testProject1.dart': mappingsClassGenerator([
+          'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+          'testProject|web/main.dart': '''import 'package:testProject1/testProject1.dart';
+
+        main() {}''',
+          'testProject1|lib/testProject1.dart': '''library TestProject1;
+
+          import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+          part 'test_class.dart';''',
+           'testProject1|lib/test_class.dart': '''part of TestProject1;
+
+          @Mappable()
+          class TestClass
+          {
+            TestClass testClass;
+          }
+
+          @Mappable()
+          enum TestEnum {
+            One
+          }'''
+      },results:{
+        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
           "import 'package:testProject1/testProject1.dart' as lib_testProject1_dart;"
         ], [
           "testClass"
         ], [
-          '''NoMirrorsMapStore.registerClass( "TestClass", lib_testProject1_dart.TestClass, const TypeOf<List<lib_testProject1_dart.TestClass>>().type, () => new lib_testProject1_dart.TestClass(), {
+          '''NoMirrorsMapStore.registerClass( "TestProject1.TestClass", lib_testProject1_dart.TestClass, const TypeOf<List<lib_testProject1_dart.TestClass>>().type, () => new lib_testProject1_dart.TestClass(), {
 			'testClass': lib_testProject1_dart.TestClass
 		} );'''
-        ], [])
+        ], ["NoMirrorsMapStore.registerEnum( lib_testProject1_dart.TestEnum, lib_testProject1_dart.TestEnum.values );"])
       });
     });
 
@@ -394,6 +415,32 @@ abstract class Class1
 		} );'''
         ], [])
       });
+    });
+
+    test("Does not property map where does not have set/get", () {
+        return applyTransformers(getPhases(), inputs: {
+            'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+            'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+@Mappable()
+class ClassWithOnlyGetOrSet
+{
+	int get prop1 => 1;
+
+	set prop2 (int val){
+
+	}
+}
+'''
+        }, results: {
+            'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+                                                                                      "import 'main.dart' as web_main_dart;"
+                                                                                  ], [], [
+                '''NoMirrorsMapStore.registerClass( "ClassWithOnlyGetOrSet", web_main_dart.ClassWithOnlyGetOrSet, const TypeOf<List<web_main_dart.ClassWithOnlyGetOrSet>>().type, () => new web_main_dart.ClassWithOnlyGetOrSet(), {} );'''
+            ], [])
+        });
     });
   }
 }

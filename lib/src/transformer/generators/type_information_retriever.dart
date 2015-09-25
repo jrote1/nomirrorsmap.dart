@@ -4,7 +4,7 @@ class _TypeInformationRetriever {
   Iterable<_Field> _getAllTypeFields(ClassElement type, _GeneratorParameters parameters) sync* {
     bool isObject(InterfaceType type) => type == null || type.isObject || type.displayName == "Object";
 
-    yield* type.fields.map((field) {
+    yield* _getOnlySettableAndGettableFields(type.fields).map((field) {
       return new _Field()
         ..name = field.name
         ..typeText = field.type is TypeParameterTypeImpl ? "dynamic" : _getActualTypeText(field.type, parameters);
@@ -19,7 +19,7 @@ class _TypeInformationRetriever {
           }
         }
 
-        for (var field in currentType.element.fields) {
+        for (var field in _getOnlySettableAndGettableFields(currentType.element.fields)) {
           var type = field.type;
           if (type is TypeParameterType) type = genericParameters[type.element];
           if (type is InterfaceTypeImpl) type = type;
@@ -30,6 +30,10 @@ class _TypeInformationRetriever {
         }
       }
     }
+  }
+
+  List<FieldElement> _getOnlySettableAndGettableFields(List<FieldElement> fields) {
+    return fields.where((field) => field.setter != null && field.getter != null).toList();
   }
 
   String _getActualTypeText(InterfaceType type, _GeneratorParameters parameters) {
