@@ -1,75 +1,82 @@
 part of nomirrorsmap.transformer;
 
-class MapGeneratorTransformer extends Transformer with ResolverTransformer
-{
-	MapGeneratorTransformer( Resolvers resolvers )
-	{
-		this.resolvers = resolvers;
-	}
+class MapGeneratorTransformer extends Transformer with ResolverTransformer {
+  final TransformerOptions _options;
 
-	Future<bool> shouldApplyResolver( Asset asset )
-	=> new Future.value( true );
+  MapGeneratorTransformer(Resolvers resolvers, this._options) {
+    this.resolvers = resolvers;
+  }
 
-	void applyResolver( Transform transform, Resolver resolver )
-	{
-		if ( resolver.getType( "nomirrorsmap.MapType" ) != null )
-		{
-			var id = transform.primaryInput.id;
-			var outputPath = path.url.join( path.url.dirname( id.path ), "${path.url.basenameWithoutExtension( id.path )}_nomirrorsmap_generated_maps.dart" );
-			var generatedAssetId = new AssetId( id.package, outputPath );
+  void applyResolver(Transform transform, Resolver resolver) {
+    var id = transform.primaryInput.id;
 
-			var mapFile = (new MapGenerator( resolver )
-				..addTypes( resolver.libraries
-							.expand( ( lib )
-									 => lib.units )
-							.expand( ( compilationUnit )
-									 => compilationUnit.types ).toList( ) ))
-			.buildMapFile( generatedAssetId );
+    var regex = new RegExp("(?=[A-Z])");
 
+    var filePrefix = TransformerHelpers.sanitizePathToUsableImport(id.path);
+    var mappingsClassName = TransformerHelpers.sanitizePathToUsableClassName(id.path) + "Mappings";
 
-			transform.addOutput(
-				new Asset.fromString( generatedAssetId, mapFile ) );
+    var mappingsFileName = "${filePrefix}_mappings.dart";
+    var outputPath = path.url.join(path.url.dirname(id.path), mappingsFileName);
+    var generatedAssetId = new AssetId(id.package, outputPath);
 
-			_editMain( transform, resolver );
-		}
-	}
+    _transformEntryFile(transform, resolver, mappingsFileName, mappingsClassName);
 
-	void _editMain( Transform transform, Resolver resolver )
-	{
-		AssetId id = transform.primaryInput.id;
-		var lib = resolver.getLibrary( id );
-		var unit = lib.definingCompilationUnit.node;
-		var transaction = resolver.createTextEditTransaction( lib );
+    var mappingsFile = new MappingsGenerator(resolver, id).generate(mappingsClassName, _options.libraryNames);
 
-		var imports = unit.directives.where( ( d )
-											 => d is ImportDirective );
-		transaction.edit( imports.last.end, imports.last.end, '\nimport '
-		"'${path.url.basenameWithoutExtension( id.path )}"
-		"_nomirrorsmap_generated_maps.dart' show NoMirrorsMapGeneratedMaps;\n"
-		"import 'package:nomirrorsmap/src/shared/shared.dart' as nomirrorsmap;\n" );
+    transform.addOutput(new Asset.fromString(generatedAssetId, mappingsFile));
+  }
 
-		FunctionExpression main = unit.declarations.where( ( d )
-														   =>
-														   d is FunctionDeclaration && d.name.toString( ) == 'main' )
-		.first.functionExpression;
-		var body = main.body;
-		if ( body is BlockFunctionBody )
-		{
-			var location = body.beginToken.end;
-			transaction.edit( location, location, '\n  nomirrorsmap.GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());' );
-		} else if ( body is ExpressionFunctionBody )
-		{
-			transaction.edit( body.beginToken.offset, body.endToken.end,
-							  "{\n  nomirrorsmap.GeneratedMapProvider.addMaps(NoMirrorsMapGeneratedMaps.load());\n"
-							  "  return ${body.expression};\n}" );
-		}
-		// EmptyFunctionBody can only appear as abstract methods and constructors.
+  void _transformEntryFile(Transform transform, Resolver resolver, String mappingsFileName, String mappingsClassName) {
+    AssetId id = transform.primaryInput.id;
+    var lib = resolver.getLibrary(id);
+    var unit = lib.definingCompilationUnit.node;
+    var transaction = resolver.createTextEditTransaction(lib);
 
-		var printer = transaction.commit( );
-		var url = id.path.startsWith( 'lib/' ) ?
-		'package:${id.package}/${id.path.substring( 4 )}' : id.path;
-		printer.build( url );
-		transform.addOutput( new Asset.fromString( id, printer.text ) );
-	}
+    var importParameters = _getImportParameters(unit);
+
+    transaction.edit(importParameters.startPoint, importParameters.startPoint,
+        '${importParameters.importStart}import "$mappingsFileName" as $mappingsClassName;' + (importParameters.startPoint == 0 ? "\n" : ""));
+
+    FunctionExpression main = unit.declarations.where((d) => d is FunctionDeclaration && d.name.toString() == 'main').first.functionExpression;
+    var body = main.body;
+    if (body is BlockFunctionBody) {
+      var location = body.beginToken.end;
+      transaction.edit(location, location, '\n\t$mappingsClassName.$mappingsClassName.register();\n');
+    } else if (body is ExpressionFunctionBody) {
+      transaction.edit(
+          body.beginToken.offset,
+          body.endToken.end,
+          "{\n\t$mappingsClassName.$mappingsClassName.register();\n"
+          "\treturn ${body.expression};\n}");
+    }
+
+    var printer = transaction.commit();
+    printer.build(id.path);
+    transform.addOutput(new Asset.fromString(id, printer.text));
+  }
+
+  _EntryPointImportParameters _getImportParameters(dynamic unit) {
+    List<Directive> imports = unit.directives.where((d) => d is ImportDirective).toList();
+
+    var result = new _EntryPointImportParameters()
+      ..startPoint = 0
+      ..importStart = "";
+
+    if (imports.length > 0) {
+      result.importStart = "\n";
+      result.startPoint = imports.last.end;
+    } else {
+      List<Directive> libraries = unit.directives.where((d) => d is LibraryDirective).toList();
+      if (libraries.length > 0) {
+        result.importStart = "\n\n";
+        result.startPoint = libraries.last.end;
+      }
+    }
+    return result;
+  }
 }
 
+class _EntryPointImportParameters {
+  int startPoint;
+  String importStart;
+}

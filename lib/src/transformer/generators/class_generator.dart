@@ -1,32 +1,47 @@
-part of nomirrorsmap.generators;
+part of nomirrorsmap.transformer;
 
-class ClassGenerator implements Generator{
-  final TypeHelper _typeHelper;
-
-  ClassGenerator(this._typeHelper);
-
+class _ClassGenerator extends _Generator with _TypeInformationRetriever {
   @override
-  bool isApplicable(element) => !(element is FieldElementImpl) && element is ClassElement && !element.isAbstract;
+  String generate(_GeneratorParameters parameters) {
+    var stringBuilder = new StringBuffer();
+    stringBuilder.write('''static void _registerClasses()
+	{''');
 
+    for (var type in parameters.typesToMap.where((type) => !type.isEnum)) {
+      var fullTypeName = type.library.displayName;
+      if (fullTypeName.length > 0) fullTypeName += ".";
+      fullTypeName += type.displayName;
 
-  //Should return noticed types
-  @override
-  List<Element> process(element, StringBuffer fileContent) {
-    var seenTypes = [];
+      var importedTypeName = _getImportTypeName(parameters.libraryImportAliases, type);
 
-    fileContent.write( "new nomirrorsmap.ClassGeneratedMap( ${_typeHelper.getTypeString(element)}, \"${_typeHelper.getFullTypeName(element)}\", ${_typeHelper.getInstantiationFunc(element)}, {\n" );
+      var hasDefaultConstructor = _typeHasConstructor(type);
+      var constructor = hasDefaultConstructor ? "() => new $importedTypeName()" : "null";
 
-    var currentElement = element;
-    do {
-      for (var field in currentElement.fields) {
-        seenTypes.add(field);
-        fileContent.write("'${field.displayName}': new nomirrorsmap.GeneratedPropertyMap( ${_typeHelper.getTypeString(field)}, (obj) => obj.${field.displayName}, (obj, value) => obj.${field.displayName} = value ),\n");
-      }
-      currentElement = currentElement.supertype.element;
+      stringBuilder.writeln(
+          "NoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {");
+
+      if (hasDefaultConstructor) _outputFields(type, parameters, stringBuilder);
+
+      stringBuilder.writeln("} );");
     }
-    while(currentElement != null && !currentElement.library.name.startsWith("dart.core"));
-    fileContent.write( "}),\n" );
 
-    return seenTypes;
+    stringBuilder.write("}");
+    return stringBuilder.toString();
+  }
+
+  String _getImportTypeName(UnmodifiableMapView<LibraryElement, String> libraryImportAliases, ClassElement type) {
+    if (libraryImportAliases.containsKey(type.library)) return libraryImportAliases[type.library] + "." + type.displayName;
+    return type.displayName;
+  }
+
+  void _outputFields(Element type, _GeneratorParameters parameters, StringBuffer stringBuilder) {
+    var fields = _getAllTypeFields(type, parameters).toList();
+    for (var field in fields) {
+      var typeText = field.typeText;
+      if (typeText.contains("<")) typeText = "const TypeOf<$typeText>().type";
+
+      stringBuilder.write("'${field.name}': $typeText");
+      if (fields.last != field) stringBuilder.writeln(",");
+    }
   }
 }
