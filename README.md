@@ -47,7 +47,7 @@ class Json {
 ```
 
 NoMirrorsMap has a few converters within the codebase by default, but you can easily write your own if you need to map to or from any other formats you may need (XML, CSV etc).  Feel free to submit these in a pull request!
-?
+
 #### Basic Example Using The `@Mappable()` Attribute
 pubspec.yaml
 ```
