@@ -86,7 +86,7 @@ class MappingsGenerator {
   }
 
   List<ClassElement> _getListTypesFromPropertiesThatAreNotAlreadyMapped() {
-    return _typesToMap
+    return TransformerHelpers.uniquifyList(_typesToMap
         .where((type) => !type.isEnum)
         .expand((type) => type.fields)
         .where((FieldElement field) => field.type.name == "List")
@@ -94,6 +94,6 @@ class MappingsGenerator {
         .where((InterfaceType type) => type is InterfaceType && type.typeArguments.length > 0)
         .map((type) => type.typeArguments.first.element)
         .where((ClassElement type) => !_typesToMap.contains(type))
-        .toList();
+        .toList());
   }
 }

@@ -13,7 +13,7 @@ class _FieldsGenerator extends _Generator with _TypeInformationRetriever {
         .map((field) => field.name)
         .toList();
 
-    for (var field in _uniquifyList(fieldNames)) {
+    for (var field in TransformerHelpers.uniquifyList(fieldNames)) {
       stringBuilder
           .writeln('''NoMirrorsMapStore.registerField( "$field", ( object, value ) => object.$field = value, (object) => object.$field );''');
     }
@@ -22,11 +22,5 @@ class _FieldsGenerator extends _Generator with _TypeInformationRetriever {
     return stringBuilder.toString();
   }
 
-  List<String> _uniquifyList(List<String> list) {
-    var result = new List<String>();
 
-    for (var element in list) if (!result.contains(element)) result.add(element);
-
-    return result;
-  }
 }
