@@ -14,13 +14,11 @@ class _FieldsGenerator extends _Generator with _TypeInformationRetriever {
         .toList();
 
     for (var field in TransformerHelpers.uniquifyList(fieldNames)) {
-      stringBuilder
-          .writeln('''NoMirrorsMapStore.registerField( "$field", ( object, value ) => object.$field = value, (object) => object.$field );''');
+      stringBuilder.writeln(
+          '''NoMirrorsMapStore.registerField( "$field", ( object, value ) => object.$field = value, (object) => object.$field );''');
     }
 
     stringBuilder.write("\t}");
     return stringBuilder.toString();
   }
-
-
 }

@@ -1,6 +1,7 @@
 part of nomirrorsmap.manipulators;
 
-abstract class BaseClassIteratorDataManipulator implements BaseObjectDataManipulator {
+abstract class BaseClassIteratorDataManipulator
+    implements BaseObjectDataManipulator {
   void manipulate(BaseIntermediateObject baseObjectData) {
     if (baseObjectData is ClassIntermediateObject) {
       ClassIntermediateObject classObjectData = baseObjectData;

@@ -5,8 +5,11 @@ class NewtonSoftJsonConverter extends JsonConverter {
   List<String> toJsonSeenHashcodes = new List<String>();
 
   @override
-  void setMetaData(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    if (toJsonSeenHashcodes.contains(classObjectData.previousHashCode)) stringBuffer.write("\"\$ref\":\"${classObjectData.previousHashCode}\"");
+  void setMetaData(
+      StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
+    if (toJsonSeenHashcodes
+        .contains(classObjectData.previousHashCode)) stringBuffer
+        .write("\"\$ref\":\"${classObjectData.previousHashCode}\"");
     else {
       toJsonSeenHashcodes.add(classObjectData.previousHashCode);
       stringBuffer.write("\"\$id\":\"${classObjectData.previousHashCode}\",");
@@ -25,9 +28,13 @@ class NewtonSoftJsonConverter extends JsonConverter {
   Type findObjectType(dynamic json) {
     Type objectType = null;
 
-    if (json.containsKey("\$type")) objectType = NoMirrorsMapStore.getClassGeneratedMapByQualifiedName(json["\$type"]).type;
+    if (json.containsKey("\$type")) objectType = NoMirrorsMapStore
+        .getClassGeneratedMapByQualifiedName(json["\$type"])
+        .type;
     else {
-      if (!json.containsKey("\$type") && fromJsonHashCodesAndTypes.containsKey(json["\$ref"])) objectType = fromJsonHashCodesAndTypes[json["\$ref"]];
+      if (!json.containsKey("\$type") &&
+          fromJsonHashCodesAndTypes.containsKey(json["\$ref"])) objectType =
+          fromJsonHashCodesAndTypes[json["\$ref"]];
     }
 
     return objectType;
@@ -35,7 +42,9 @@ class NewtonSoftJsonConverter extends JsonConverter {
 
   @override
   void afterCreatingClassObjectData(ClassIntermediateObject classObjectData) {
-    if (!fromJsonHashCodesAndTypes.containsKey(classObjectData.previousHashCode) && classObjectData.objectType != null) fromJsonHashCodesAndTypes[
+    if (!fromJsonHashCodesAndTypes
+            .containsKey(classObjectData.previousHashCode) &&
+        classObjectData.objectType != null) fromJsonHashCodesAndTypes[
         classObjectData.previousHashCode] = classObjectData.objectType;
   }
 }

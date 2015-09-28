@@ -16,7 +16,11 @@ class JsonConverter implements Converter {
   String getPreviousHashcode(Map json) => json[_hashcodeName];
 
   Type findObjectType(dynamic json) {
-    return json.containsKey("\$type") ? NoMirrorsMapStore.getClassGeneratedMapByQualifiedName(json["\$type"]).type : null;
+    return json.containsKey("\$type")
+        ? NoMirrorsMapStore
+            .getClassGeneratedMapByQualifiedName(json["\$type"])
+            .type
+        : null;
   }
 
   void afterCreatingClassObjectData(ClassIntermediateObject classObjectData) {}
@@ -36,7 +40,8 @@ class JsonConverter implements Converter {
       classObjectData.properties = properties;
 
       return classObjectData;
-    } else if (json is List) return new ListIntermediateObject()..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
+    } else if (json is List) return new ListIntermediateObject()
+      ..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
     return new NativeIntermediateObject()..value = json;
   }
 
@@ -46,20 +51,25 @@ class JsonConverter implements Converter {
     return stringBuffer.toString();
   }
 
-  void setMetaData(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    stringBuffer.write("\"$_hashcodeName\":\"${classObjectData.previousHashCode}\",");
+  void setMetaData(
+      StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
+    stringBuffer
+        .write("\"$_hashcodeName\":\"${classObjectData.previousHashCode}\",");
 
     setTypeFromObjectType(stringBuffer, classObjectData);
   }
 
-  void setTypeFromObjectType(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    var map = NoMirrorsMapStore.getClassGeneratedMapWithNoCheck(classObjectData.objectType);
+  void setTypeFromObjectType(
+      StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
+    var map = NoMirrorsMapStore
+        .getClassGeneratedMapWithNoCheck(classObjectData.objectType);
     if (map != null) {
       stringBuffer.write("\"\$type\":\"${map.fullName}\",");
     }
   }
 
-  void _fromBaseObjectData(BaseIntermediateObject baseObjectData, StringBuffer stringBuffer) {
+  void _fromBaseObjectData(
+      BaseIntermediateObject baseObjectData, StringBuffer stringBuffer) {
     if (baseObjectData is ClassIntermediateObject) {
       stringBuffer.write("{");
 
@@ -84,7 +94,9 @@ class JsonConverter implements Converter {
     }
 
     if (baseObjectData is NativeIntermediateObject) {
-      if (baseObjectData.value is String) stringBuffer.write("\"" + baseObjectData.value.replaceAll(r"\", r'\\').replaceAll("\"", '\\"') + "\"");
+      if (baseObjectData.value is String) stringBuffer.write("\"" +
+          baseObjectData.value.replaceAll(r"\", r'\\').replaceAll("\"", '\\"') +
+          "\"");
       else stringBuffer.write(baseObjectData.value);
     }
     /*

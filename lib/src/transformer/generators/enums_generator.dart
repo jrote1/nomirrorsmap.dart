@@ -8,8 +8,11 @@ class _EnumsGenerator implements _Generator {
 	{''');
 
     for (var type in parameters.typesToMap.where((type) => type.isEnum)) {
-      var importedTypeName = parameters.libraryImportAliases[type.library] + "." + type.displayName;
-      stringBuilder.writeln("NoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );");
+      var importedTypeName = parameters.libraryImportAliases[type.library] +
+          "." +
+          type.displayName;
+      stringBuilder.writeln(
+          "NoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );");
     }
 
     stringBuilder.write("}");

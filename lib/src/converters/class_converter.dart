@@ -11,10 +11,12 @@ class ClassConverter implements Converter {
 
   BaseIntermediateObject toBaseIntermediateObject(Object value) {
     var valueType = value.runtimeType;
-    if (converters.containsKey(valueType)) return converters[valueType].from(value);
+    if (converters.containsKey(valueType)) return converters[valueType]
+        .from(value);
 
     if (value is List) {
-      return new ListIntermediateObject()..values = value.map((v) => toBaseIntermediateObject(v)).toList();
+      return new ListIntermediateObject()
+        ..values = value.map((v) => toBaseIntermediateObject(v)).toList();
     }
 
     if (_isPrimitive(value)) return new NativeIntermediateObject()
@@ -42,7 +44,8 @@ class ClassConverter implements Converter {
     for (var i = 0; i < generatedMap.fields.length; i++) {
       var property = generatedMap.fields[i];
       var getter = property.fieldMapping.getter;
-      properties[property.fieldMapping.name] = toBaseIntermediateObject(getter(value));
+      properties[property.fieldMapping.name] =
+          toBaseIntermediateObject(getter(value));
     }
 
     return new ClassIntermediateObject()
@@ -56,15 +59,22 @@ class ClassConverter implements Converter {
     return _isTypeEnum(value.runtimeType);
   }
 
-  bool _isPrimitive(v) => v is num || v is bool || v is String || v == null || v is DateTime;
+  bool _isPrimitive(v) =>
+      v is num || v is bool || v is String || v == null || v is DateTime;
 
-  Map<String, ClassConverterInstance> instances = new Map<String, ClassConverterInstance>();
+  Map<String, ClassConverterInstance> instances =
+      new Map<String, ClassConverterInstance>();
 
   dynamic fromBaseIntermediateObject(BaseIntermediateObject baseObjectData) {
-    return _fromBaseObjectData(baseObjectData, baseObjectData.objectType == null ? startType : baseObjectData.objectType);
+    return _fromBaseObjectData(
+        baseObjectData,
+        baseObjectData.objectType == null
+            ? startType
+            : baseObjectData.objectType);
   }
 
-  dynamic _fromBaseObjectData(BaseIntermediateObject baseObjectData, Type type) {
+  dynamic _fromBaseObjectData(
+      BaseIntermediateObject baseObjectData, Type type) {
     if (baseObjectData is ClassIntermediateObject) {
       var generatedMap = NoMirrorsMapStore.getClassGeneratedMap(type);
       if (generatedMap.instantiate ==
@@ -72,25 +82,34 @@ class ClassConverter implements Converter {
       var instance = generatedMap.instantiate();
 
       ClassConverterInstance classConverterInstance;
-      if (baseObjectData.previousHashCode != null && instances.containsKey(baseObjectData.previousHashCode)) classConverterInstance =
+      if (baseObjectData.previousHashCode != null &&
+          instances.containsKey(
+              baseObjectData.previousHashCode)) classConverterInstance =
           instances[baseObjectData.previousHashCode];
       else {
         classConverterInstance = new ClassConverterInstance()
           ..filled = false
           ..instance = instance;
 
-        if (baseObjectData.previousHashCode != null) instances[baseObjectData.previousHashCode] = classConverterInstance;
+        if (baseObjectData.previousHashCode != null) instances[
+            baseObjectData.previousHashCode] = classConverterInstance;
       }
-      if (!classConverterInstance.filled && baseObjectData.properties.length > 0) {
+      if (!classConverterInstance.filled &&
+          baseObjectData.properties.length > 0) {
         for (var property in generatedMap.fields) {
-          if (baseObjectData.properties.containsKey(property.fieldMapping.name)) {
+          if (baseObjectData.properties
+              .containsKey(property.fieldMapping.name)) {
             var setter = property.fieldMapping.setter;
 
-            var propertyObjectData = baseObjectData.properties[property.fieldMapping.name];
-            var propertyType = propertyObjectData.objectType == null ? property.type : propertyObjectData.objectType;
+            var propertyObjectData =
+                baseObjectData.properties[property.fieldMapping.name];
+            var propertyType = propertyObjectData.objectType == null
+                ? property.type
+                : propertyObjectData.objectType;
 
             Object value;
-            if (converters.containsKey(propertyType)) value = converters[propertyType].to(propertyObjectData);
+            if (converters.containsKey(propertyType)) value =
+                converters[propertyType].to(propertyObjectData);
             else value = _fromBaseObjectData(propertyObjectData, propertyType);
 
             if (value is List) {
@@ -110,7 +129,10 @@ class ClassConverter implements Converter {
 
       var listType = classMap == null ? Object : classMap.type;
 
-      return baseObjectData.values.map((v) => _fromBaseObjectData(v, v.objectType == null ? listType : v.objectType)).toList();
+      return baseObjectData.values
+          .map((v) => _fromBaseObjectData(
+              v, v.objectType == null ? listType : v.objectType))
+          .toList();
     }
     var nativeObjectValue = (baseObjectData as NativeIntermediateObject).value;
 

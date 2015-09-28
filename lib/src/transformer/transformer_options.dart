@@ -8,7 +8,8 @@ class TransformerOptions {
   TransformerOptions.initialize(this.libraryNames);
 
   factory TransformerOptions(BarbackSettings settings) {
-    return new TransformerOptions.initialize(_readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM));
+    return new TransformerOptions.initialize(
+        _readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM));
   }
 
   static List<String> _readLibraryList(Map config, String paramName) {

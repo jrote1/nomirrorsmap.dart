@@ -21,11 +21,15 @@ List getPhases([List<String> libraryNames = const []]) {
   var resolvers = new Resolvers(dartSdkDirectory);
 
   return [
-    [new MapGeneratorTransformer(resolvers, new TransformerOptions.initialize(libraryNames))]
+    [
+      new MapGeneratorTransformer(
+          resolvers, new TransformerOptions.initialize(libraryNames))
+    ]
   ];
 }
 
-String mappingsClassGenerator(List<String> imports, List<String> propertyMaps, List<String> classMaps, List<String> enumMaps) {
+String mappingsClassGenerator(List<String> imports, List<String> propertyMaps,
+    List<String> classMaps, List<String> enumMaps) {
   var source = '''library WebMainDartMappings;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
@@ -61,7 +65,8 @@ class TransformerTests {
     test("With empty type generates mappings", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -83,7 +88,8 @@ class TestClass
     test("With type with properties of native types generates mappings", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -111,7 +117,8 @@ class TestClass
     test("With type with properties of seen types", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -136,7 +143,8 @@ class TestClass
     test("With type in different package", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:testProject1/testProject1.dart';
+        'testProject|web/main.dart':
+            '''import 'package:testProject1/testProject1.dart';
 
         main() {}''',
         'testProject1|lib/testProject1.dart': '''library TestProject1;
@@ -174,7 +182,8 @@ class TestClass
     test("With type that is enum", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -188,15 +197,19 @@ enum MyEnum
 }
 '''
       }, results: {
-        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator(["import 'main.dart' as web_main_dart;"], [], [],
-            ["NoMirrorsMapStore.registerEnum( web_main_dart.MyEnum, web_main_dart.MyEnum.values );"])
+        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+          "import 'main.dart' as web_main_dart;"
+        ], [], [], [
+          "NoMirrorsMapStore.registerEnum( web_main_dart.MyEnum, web_main_dart.MyEnum.values );"
+        ])
       });
     });
 
     test("With type that has base types", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -236,7 +249,8 @@ class Type3
     test("With type that has GenericBaseType", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -274,7 +288,8 @@ class Type3
     test("With type that has List", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -300,7 +315,8 @@ class Type1
     test("With library name specified reads all type form that library", () {
       return applyTransformers(getPhases(["TestProject1"]), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:testProject1/testProject1.dart';
 
 main(){}
@@ -324,7 +340,8 @@ main(){}
     test("With type is generic ignores generic part", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:testProject1/testProject1.dart';
 
 main(){}
@@ -360,7 +377,8 @@ class Class2
     test("Picks up lists from properties", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:testProject1/testProject1.dart';
 
 main(){}
@@ -392,7 +410,8 @@ class Class1
     test("Does not add constructor for abstract type", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -425,7 +444,8 @@ abstract class Class1
     test("Does not property map where does not have set/get", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -451,7 +471,8 @@ class ClassWithOnlyGetOrSet
     test("Does not property map where is not public", () {
       return applyTransformers(getPhases(), inputs: {
         'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-        'testProject|web/main.dart': '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
 
@@ -476,11 +497,14 @@ class MainModificationTransformerTests {
   static String defaultMappingsFile = mappingsClassGenerator([], [], [], []);
 
   static void run(List<List<Transformer>> phases) {
-    test("With no types and no imports generates mappings and modifys main method", () {
+    test(
+        "With no types and no imports generates mappings and modifys main method",
+        () {
       return applyTransformers(phases, inputs: {
         'testProject|web/main.dart': '''main(){}'''
       }, results: {
-        'testProject|web/main.dart': '''import "web_main_dart_mappings.dart" as WebMainDartMappings;
+        'testProject|web/main.dart':
+            '''import "web_main_dart_mappings.dart" as WebMainDartMappings;
 main(){
 	WebMainDartMappings.WebMainDartMappings.register();
 }''',
@@ -488,7 +512,9 @@ main(){
       });
     });
 
-    test("With no types and has imports generates mappings and modifys main method", () {
+    test(
+        "With no types and has imports generates mappings and modifys main method",
+        () {
       return applyTransformers(phases, inputs: {
         'testProject|web/main.dart': '''import 'dart:io';
 
@@ -504,7 +530,9 @@ main(){
       });
     });
 
-    test("With no types and no imports and library directive generates mappings and modifys main method", () {
+    test(
+        "With no types and no imports and library directive generates mappings and modifys main method",
+        () {
       return applyTransformers(phases, inputs: {
         'testProject|web/main.dart': '''library TestProject;
 
@@ -521,7 +549,9 @@ main(){
       });
     });
 
-    test("With no types and no imports and main is expression directive generates mappings and modifys main method", () {
+    test(
+        "With no types and no imports and main is expression directive generates mappings and modifys main method",
+        () {
       return applyTransformers(phases, inputs: {
         'testProject|web/main.dart': '''library TestProject;
 
