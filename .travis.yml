@@ -5,4 +5,5 @@ dart:
 sudo: false
 before_script:
  - chmod +x travis.sh
+ - chmod +x ensure_dartfmt.sh
 script: ./travis.sh
