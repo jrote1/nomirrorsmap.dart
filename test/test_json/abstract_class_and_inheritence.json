@@ -1,9 +1,0 @@
-{
-  "$id": "1",
-  "$type": "nomirrorsmap.tests.InheritedClass",
-  "data": [
-    {
-      "$ref": "1"
-    }
-  ]
-}

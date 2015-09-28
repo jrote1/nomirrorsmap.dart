@@ -15,10 +15,6 @@ import 'new_transformer_tests.dart';
 
 part 'type_to_type_tests.dart';
 
-String getFileContent(String fileName) {
-  return new io.File.fromUri(new Uri.file(fileName)).readAsStringSync();
-}
-
 main() async {
   test_mappings.TestProjectMappings.register();
 
@@ -339,8 +335,10 @@ main() async {
       var converter = new NewtonSoftJsonConverter();
       String json = converter.fromBaseIntermediateObject(list);
 
-      expect(json,
-          contains(getFileContent("test\\test_json\\newtonsoft_test.json")));
+      expect(
+          json,
+          contains(
+              r'''[{"$id":"1","$type":"nomirrorsmap.tests.NewtonSoftTest","age":14,"gender":"m"},{"$ref":"1"}]'''));
     });
 
     test(
@@ -348,7 +346,7 @@ main() async {
         () {
       var converter = new NewtonSoftJsonConverter();
       ListIntermediateObject json = converter.toBaseIntermediateObject(
-          getFileContent("test\\test_json\\newtonsoft_test.json"));
+          r'''[{"$id":"1","$type":"nomirrorsmap.tests.NewtonSoftTest","age":14,"gender":"m"},{"$ref":"1"}]''');
 
       expect((json.values[0] as ClassIntermediateObject).previousHashCode, "1");
       expect((json.values[0] as ClassIntermediateObject).previousHashCode,
@@ -357,8 +355,21 @@ main() async {
 
     test("can deserialize using dollar ref property only", () {
       var converter = new NewtonSoftJsonConverter();
-      var jsonText =
-          getFileContent("test\\test_json\\convert_using_dollarRef.json");
+      var jsonText = r'''{
+  "$id": "1",
+  "$type": "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+  "name": "Test User",
+  "people": [{
+    "$id": "2",
+    "$type": "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+    "name": "Another Test User",
+    "people": []
+  },
+    {
+      "$ref": "1"
+    }
+  ]
+}''';
       var mapper = new NoMirrorsMap();
       var result = mapper.convert(jsonText, converter, new ClassConverter());
 
@@ -381,8 +392,15 @@ main() async {
 
     test("Can deserialize", () {
       var converter = new NewtonSoftJsonConverter();
-      var jsonText = getFileContent(
-          "test\\test_json\\abstract_class_and_inheritence.json");
+      var jsonText = r'''{
+  "$id": "1",
+  "$type": "nomirrorsmap.tests.InheritedClass",
+  "data": [
+    {
+      "$ref": "1"
+    }
+  ]
+}''';
       BaseIntermediateObject result =
           converter.toBaseIntermediateObject(jsonText);
 
