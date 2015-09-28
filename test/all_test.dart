@@ -2,7 +2,7 @@ library nomirrorsmap.tests;
 
 import 'dart:io' as io;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 import 'package:nomirrorsmap/src/shared/shared.dart';
@@ -15,28 +15,27 @@ import 'new_transformer_tests.dart';
 
 part 'type_to_type_tests.dart';
 
-String getFileContent(String fileName) {
-  return new io.File.fromUri(new Uri.file(fileName)).readAsStringSync();
-}
-
 main() async {
   test_mappings.TestProjectMappings.register();
 
   group("Type to Type", () => TypeToTypeTests.run());
-  group("Transformer Main Modification", () => MainModificationTransformerTests.run(getPhases()));
+  group("Transformer Main Modification",
+      () => MainModificationTransformerTests.run(getPhases()));
   group("Transformer", () => TransformerTests.run());
 
   group("Serialization Tests", () {
     test("Can serialize an object that is null", () {
-      var result = new NoMirrorsMap().convert(null, new ClassConverter(), new JsonConverter());
+      var result = new NoMirrorsMap()
+          .convert(null, new ClassConverter(), new JsonConverter());
       expect(result, "null");
     });
 
     test("Can serialize to Pascal case", () {
       var result = new NoMirrorsMap().convert(new Person()
-        ..id = 1
-        ..children = []
-        ..parents = [], new ClassConverter(), new JsonConverter(), [new PascalCaseManipulator()]);
+            ..id = 1
+            ..children = []
+            ..parents = [], new ClassConverter(), new JsonConverter(),
+          [new PascalCaseManipulator()]);
       expect(result, endsWith('''"Id":1,"Parents":[],"Children":[]}'''));
     });
 
@@ -59,29 +58,40 @@ main() async {
         ]);
 
       var stopwatch = new Stopwatch()..start();
-      var result = new NoMirrorsMap().convert(list, new ClassConverter(), new NewtonSoftJsonConverter());
+      var result = new NoMirrorsMap()
+          .convert(list, new ClassConverter(), new NewtonSoftJsonConverter());
       stopwatch.stop();
       print("Took: ${stopwatch.elapsedMilliseconds}");
     });
 
     test("Generic test", () {
       var person = new PersonGeneric()..val = new Person();
-      var json = new NoMirrorsMap().convert(person, new ClassConverter(), new NewtonSoftJsonConverter());
-      var decodedPerson = new NoMirrorsMap().convert(json, new NewtonSoftJsonConverter(), new ClassConverter(startType: PersonGeneric));
+      var json = new NoMirrorsMap()
+          .convert(person, new ClassConverter(), new NewtonSoftJsonConverter());
+      var decodedPerson = new NoMirrorsMap().convert(
+          json,
+          new NewtonSoftJsonConverter(),
+          new ClassConverter(startType: PersonGeneric));
     });
 
     test("Can deserialize to object", () {
       ClassConverter.converters[Duration] = new CustomClassConverter<Duration>()
         ..to = ((BaseIntermediateObject input) {
           var classObjectData = input as ClassIntermediateObject;
-          return new Duration(minutes: classObjectData.properties["minutes"].value, seconds: classObjectData.properties["seconds"].value);
+          return new Duration(
+              minutes: classObjectData.properties["minutes"].value,
+              seconds: classObjectData.properties["seconds"].value);
         })
         ..from = ((Duration duration) {
-          return {"minutes": duration.inMinutes, "seconds": duration.inSeconds % 60};
+          return {
+            "minutes": duration.inMinutes,
+            "seconds": duration.inSeconds % 60
+          };
         });
 
       var json = r'''{ "duration": {"minutes":15, "seconds":10} }''';
-      var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: TypeWithDuration)) as TypeWithDuration;
+      var result = new NoMirrorsMap().convert(json, new JsonConverter(),
+          new ClassConverter(startType: TypeWithDuration)) as TypeWithDuration;
 
       expect(result.duration.inMinutes, 15);
       expect(result.duration.inSeconds, 15 * 60 + 10);
@@ -92,15 +102,23 @@ main() async {
     test("Can deserialize null DateTime", () {
       var json = "null";
 
-      var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: DateTime)) as Person;
+      var result = new NoMirrorsMap().convert(json, new JsonConverter(),
+          new ClassConverter(startType: DateTime)) as Person;
 
       expect(result, isNull);
     });
 
     test("Can deserialize simple object structure", () {
-      var json = new io.File.fromUri(new Uri.file("test/test_json/simple_object.json")).readAsStringSync();
+      var json = r'''{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 1,
+  "parents": [],
+  "children": []
+}''';
 
-      var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter()) as Person;
+      var result = new NoMirrorsMap()
+          .convert(json, new JsonConverter(), new ClassConverter()) as Person;
 
       expect(result.id, 1);
       expect(result.children, isNotNull);
@@ -108,19 +126,65 @@ main() async {
     });
 
     test("Can deserialize objects with circular references", () {
-      var json = new io.File.fromUri(new Uri.file("test/test_json/hashcode_test.json")).readAsStringSync();
+      var json = r'''{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 3,
+  "parents": [{
+    "$type": "nomirrorsmap.tests.Person",
+    "$hashcode": "48854486",
+    "id": 1,
+    "parents": [],
+    "children": [{
+      "$type": "nomirrorsmap.tests.Person",
+      "$hashcode": "48854487",
+      "id": 2,
+      "parents": [{
+        "$type": "nomirrorsmap.tests.Person",
+        "$hashcode": "48854486"
+      }],
+      "children": []
+    }]
+  }],
+  "children": []
+}''';
 
-      var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter()) as Person;
+      var result = new NoMirrorsMap()
+          .convert(json, new JsonConverter(), new ClassConverter()) as Person;
 
       var parent = result.parents[0];
 
       expect(parent.children[0].parents[0], parent);
     });
 
-    test("Can deserialize objects with circular references, even if properties are seen after reference", () {
-      var json = new io.File.fromUri(new Uri.file("test/test_json/reversed_hashcode_json.json")).readAsStringSync();
+    test(
+        "Can deserialize objects with circular references, even if properties are seen after reference",
+        () {
+      var json = r'''{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 3,
+  "parents": [{
+    "$type": "nomirrorsmap.tests.Person",
+    "$hashcode": "48854486",
+    "parents": [],
+    "children": [{
+      "$type": "nomirrorsmap.tests.Person",
+      "$hashcode": "48854487",
+      "id": 2,
+      "parents": [{
+        "$type": "nomirrorsmap.tests.Person",
+        "$hashcode": "48854486",
+        "id": 1
+      }],
+      "children": []
+    }]
+  }],
+  "children": []
+}''';
 
-      var result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter()) as Person;
+      var result = new NoMirrorsMap()
+          .convert(json, new JsonConverter(), new ClassConverter()) as Person;
 
       var parent = result.parents[0];
 
@@ -131,7 +195,8 @@ main() async {
     test("Can deserialize objects that do not have \$type", () {
       var json = "{\"id\": 1, \"children\": [], \"parents\": []}";
 
-      Person result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: Person));
+      Person result = new NoMirrorsMap().convert(
+          json, new JsonConverter(), new ClassConverter(startType: Person));
 
       expect(result.id, 1);
       expect(result.children, isNotNull);
@@ -139,21 +204,26 @@ main() async {
     });
 
     test("Can deserialize null", () {
-      var result = new NoMirrorsMap().convert("null", new JsonConverter(), new ClassConverter());
+      var result = new NoMirrorsMap()
+          .convert("null", new JsonConverter(), new ClassConverter());
       expect(result, null);
     });
 
     test("Can deserialize using CamelCaseManipulator", () {
-      var json = '''{"\$type":"nomirrorsmap.tests.Person","\$hashcode":"511757599","Id":1,"Parents":[],"Children":[]}''';
+      var json =
+          '''{"\$type":"nomirrorsmap.tests.Person","\$hashcode":"511757599","Id":1,"Parents":[],"Children":[]}''';
 
-      Person result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(), [new CamelCaseManipulator()]);
+      Person result = new NoMirrorsMap().convert(json, new JsonConverter(),
+          new ClassConverter(), [new CamelCaseManipulator()]);
       expect(result.id, 1);
     });
 
     test("Can deserialize type that contains a list", () {
-      var json = "{\"id\": 1, \"children\": [{\"id\": 2,\"children\": [], \"parents\": []}], \"parents\": []}";
+      var json =
+          "{\"id\": 1, \"children\": [{\"id\": 2,\"children\": [], \"parents\": []}], \"parents\": []}";
 
-      Person result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: Person));
+      Person result = new NoMirrorsMap().convert(
+          json, new JsonConverter(), new ClassConverter(startType: Person));
 
       expect(result.id, 1);
       expect(result.children.length, 1);
@@ -161,17 +231,60 @@ main() async {
     });
 
     test("Can deserialize type that contains a list", () {
-      var json = new io.File.fromUri(new Uri.file("test/test_json/list.json")).readAsStringSync();
+      var json = r'''{
+  "odata.metadata": "http://localhost/odata/$metadata#Users/@Element",
+  "Id": 2,
+  "FirstName": "No",
+  "LastName": "Mirrors",
+  "EmailAddress": "fsgpoidhnfoglb@example.com",
+  "MobilePhone": "65406834354356",
+  "Umpire": false,
+  "TeamUsers": [
+    {
+      "Id": 6665,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    },
+    {
+      "Id": 6677,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    },
+    {
+      "Id": 6680,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    }
+  ],
+  "SecurityRole": {
+    "Id": 1,
+    "Name": "Administrator",
+    "Description": "Top level security.  Can perform all actions within the system",
+    "AssociationLevel": {
+      "Id": 1,
+      "Value": "Top"
+    }
+  }
+}''';
 
-      User result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: User), [new CamelCaseManipulator()]);
+      User result = new NoMirrorsMap().convert(json, new JsonConverter(),
+          new ClassConverter(startType: User), [new CamelCaseManipulator()]);
 
       expect(result.id, 2);
       expect(result.teamUsers[0].role.id, 1);
     });
 
     test("Can deserialize type that contains a DateTime", () {
-      ClassWithDateTime result =
-          new NoMirrorsMap().convert("{\"time\": \"2055-02-03T15:57:12\"}", new JsonConverter(), new ClassConverter(startType: ClassWithDateTime));
+      ClassWithDateTime result = new NoMirrorsMap().convert(
+          "{\"time\": \"2055-02-03T15:57:12\"}",
+          new JsonConverter(),
+          new ClassConverter(startType: ClassWithDateTime));
 
       expect(result.time, new isInstanceOf<DateTime>());
     });
@@ -179,7 +292,8 @@ main() async {
 
   group("ClassConverter test", () {
     setUp(() {
-      ClassConverter.converters[CustomConverterTest] = new CustomClassConverter<CustomConverterTest>()
+      ClassConverter.converters[
+          CustomConverterTest] = new CustomClassConverter<CustomConverterTest>()
         ..to = ((NativeIntermediateObject val) {
           var values = val.value.split("|");
           var result = new CustomConverterTest()
@@ -191,34 +305,52 @@ main() async {
           ..value = "${val.id}|${val.value}"
           ..objectType = String);
     });
-    test("When a custom converter is specified for a type, the converter is used when converting to baseObject", () {
-      var object = new CustomConverterParentTest()..testProperty = (new CustomConverterTest()
-        ..id = 1
-        ..value = "Matthew");
+    test(
+        "When a custom converter is specified for a type, the converter is used when converting to baseObject",
+        () {
+      var object = new CustomConverterParentTest()
+        ..testProperty = (new CustomConverterTest()
+          ..id = 1
+          ..value = "Matthew");
 
       var classConverter = new ClassConverter();
-      ClassIntermediateObject baseObject = classConverter.toBaseIntermediateObject(object);
+      ClassIntermediateObject baseObject =
+          classConverter.toBaseIntermediateObject(object);
       var result = baseObject.properties["testProperty"];
 
       expect(result.value, "1|Matthew");
     });
 
-    test("When a custom converter is specified for a type, the convert is used when converting from baseObject", () {
+    test(
+        "When a custom converter is specified for a type, the convert is used when converting from baseObject",
+        () {
       var classObjectData = new ClassIntermediateObject()..properties = {};
-      classObjectData.properties["testProperty"] = new NativeIntermediateObject()..value = "1|Matthew";
+      classObjectData.properties["testProperty"] =
+          new NativeIntermediateObject()..value = "1|Matthew";
       classObjectData.previousHashCode = "1";
       classObjectData.objectType = CustomConverterParentTest;
 
       var classConverter = new ClassConverter();
-      CustomConverterParentTest result = classConverter.fromBaseIntermediateObject(classObjectData);
+      CustomConverterParentTest result =
+          classConverter.fromBaseIntermediateObject(classObjectData);
 
       expect(result.testProperty.value, "Matthew");
       expect(result.testProperty.id, 1);
     });
 
-    test("With a json string with no type attributes and a sub property of different type, deserialises correctly", () {
-      var json = new io.File.fromUri(new Uri.file("test/test_json/no_type_string_objects.json")).readAsStringSync();
-      NoTypeTestClass result = new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: NoTypeTestClass));
+    test(
+        "With a json string with no type attributes and a sub property of different type, deserialises correctly",
+        () {
+      var json = r'''{
+  "id": 1,
+  "firstName": "Matthew",
+  "testProperty": {
+    "id": 2,
+    "name": "OtherName"
+  }
+}''';
+      NoTypeTestClass result = new NoMirrorsMap().convert(json,
+          new JsonConverter(), new ClassConverter(startType: NoTypeTestClass));
       expect(result.testProperty.name, "OtherName");
     });
 
@@ -258,8 +390,10 @@ main() async {
       const String jsonHashcodeName = "\$ref";
 
       var converter = new JsonConverter(jsonHashcodeName);
-      var json = '{ "\$type": "nomirrorsmap.tests.CustomConverterTest",\"$jsonHashcodeName\": \"$hashcode\"}';
-      var baseObjectData = converter.toBaseIntermediateObject(json) as ClassIntermediateObject;
+      var json =
+          '{ "\$type": "nomirrorsmap.tests.CustomConverterTest",\"$jsonHashcodeName\": \"$hashcode\"}';
+      var baseObjectData =
+          converter.toBaseIntermediateObject(json) as ClassIntermediateObject;
 
       expect(baseObjectData.previousHashCode, hashcode);
       expect(baseObjectData.properties.containsKey(jsonHashcodeName), true);
@@ -287,20 +421,41 @@ main() async {
       var converter = new NewtonSoftJsonConverter();
       String json = converter.fromBaseIntermediateObject(list);
 
-      expect(json, contains(getFileContent("test\\test_json\\newtonsoft_test.json")));
+      expect(
+          json,
+          contains(
+              r'''[{"$id":"1","$type":"nomirrorsmap.tests.NewtonSoftTest","age":14,"gender":"m"},{"$ref":"1"}]'''));
     });
 
-    test("For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references", () {
+    test(
+        "For toBaseObjectData, When called with two objects with same reference, Then returned objects should restore references",
+        () {
       var converter = new NewtonSoftJsonConverter();
-      ListIntermediateObject json = converter.toBaseIntermediateObject(getFileContent("test\\test_json\\newtonsoft_test.json"));
+      ListIntermediateObject json = converter.toBaseIntermediateObject(
+          r'''[{"$id":"1","$type":"nomirrorsmap.tests.NewtonSoftTest","age":14,"gender":"m"},{"$ref":"1"}]''');
 
       expect((json.values[0] as ClassIntermediateObject).previousHashCode, "1");
-      expect((json.values[0] as ClassIntermediateObject).previousHashCode, (json.values[1] as ClassIntermediateObject).previousHashCode);
+      expect((json.values[0] as ClassIntermediateObject).previousHashCode,
+          (json.values[1] as ClassIntermediateObject).previousHashCode);
     });
 
     test("can deserialize using dollar ref property only", () {
       var converter = new NewtonSoftJsonConverter();
-      var jsonText = getFileContent("test\\test_json\\convert_using_dollarRef.json");
+      var jsonText = r'''{
+  "$id": "1",
+  "$type": "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+  "name": "Test User",
+  "people": [{
+    "$id": "2",
+    "$type": "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+    "name": "Another Test User",
+    "people": []
+  },
+    {
+      "$ref": "1"
+    }
+  ]
+}''';
       var mapper = new NoMirrorsMap();
       var result = mapper.convert(jsonText, converter, new ClassConverter());
 
@@ -311,24 +466,38 @@ main() async {
     });
 
     test("can serialize object with no properties", () {
-      var json = '''[{"\$id":"994910500","\$type":"nomirrorsmap.tests.TypeWithNoProperties"},{"\$ref":"994910500"}]''';
+      var json =
+          '''[{"\$id":"994910500","\$type":"nomirrorsmap.tests.TypeWithNoProperties"},{"\$ref":"994910500"}]''';
 
-      var result = new NoMirrorsMap()
-          .convert(json, new NewtonSoftJsonConverter(), new ClassConverter(startType: const TypeOf<List<TypeWithNoProperties>>().type));
+      var result = new NoMirrorsMap().convert(
+          json,
+          new NewtonSoftJsonConverter(),
+          new ClassConverter(
+              startType: const TypeOf<List<TypeWithNoProperties>>().type));
     });
 
     test("Can deserialize", () {
       var converter = new NewtonSoftJsonConverter();
-      var jsonText = getFileContent("test\\test_json\\abstract_class_and_inheritence.json");
-      BaseIntermediateObject result = converter.toBaseIntermediateObject(jsonText);
+      var jsonText = r'''{
+  "$id": "1",
+  "$type": "nomirrorsmap.tests.InheritedClass",
+  "data": [
+    {
+      "$ref": "1"
+    }
+  ]
+}''';
+      BaseIntermediateObject result =
+          converter.toBaseIntermediateObject(jsonText);
 
       assertClassObjectDataTypeNotNull(result);
     });
 
     test("Can deserialize generic", () {
       var json = '''{ "id": 1 }''';
-      var result =
-          new NoMirrorsMap().convert(json, new JsonConverter(), new ClassConverter(startType: const TypeOf<GenericType>().type)) as GenericType<int>;
+      var result = new NoMirrorsMap().convert(json, new JsonConverter(),
+              new ClassConverter(startType: const TypeOf<GenericType>().type))
+          as GenericType<int>;
       expect(result.id, 1);
     });
   });
@@ -353,7 +522,7 @@ void buildMappingsFile() {
 			const Mappable();
 		}
 	''',
-          'testProject|web/tests.dart': '''import '../test/test_objects.dart';
+          'testProject|web/all_test.dart': '''import '../test/test_objects.dart';
 
 			main() {}''',
           'testProject|test/test_objects.dart': await new File("test/test_objects.dart").readAsString()

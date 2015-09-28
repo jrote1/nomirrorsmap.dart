@@ -12,8 +12,10 @@ class _ClassTopGenerator implements _Generator {
     stringBuilder.writeln("import 'package:nomirrorsmap/nomirrorsmap.dart';");
 
     for (var library in parameters.libraryImportAliases.keys) {
-      var importPath = _resolver.getImportUri(library, from: parameters.assetId);
-      stringBuilder.writeln("import '$importPath' as ${parameters.libraryImportAliases[library]};");
+      var importPath =
+          _resolver.getImportUri(library, from: parameters.assetId);
+      stringBuilder.writeln(
+          "import '$importPath' as ${parameters.libraryImportAliases[library]};");
     }
 
     return '''${stringBuilder.toString( )}
