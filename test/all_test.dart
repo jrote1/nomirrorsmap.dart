@@ -2,7 +2,7 @@ library nomirrorsmap.tests;
 
 import 'dart:io' as io;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/src/conversion_objects/conversion_objects.dart';
 import 'package:nomirrorsmap/src/shared/shared.dart';
@@ -418,7 +418,7 @@ void buildMappingsFile() {
 			const Mappable();
 		}
 	''',
-          'testProject|web/tests.dart': '''import '../test/test_objects.dart';
+          'testProject|web/all_test.dart': '''import '../test/test_objects.dart';
 
 			main() {}''',
           'testProject|test/test_objects.dart': await new File("test/test_objects.dart").readAsString()

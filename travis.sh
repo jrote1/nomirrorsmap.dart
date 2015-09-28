@@ -6,7 +6,7 @@ set -e
 $(dirname -- "$0")/ensure_dartfmt.sh
 
 # Run the tests.
-pub run test
+pub run unittest
 
 # Run the build.dart file - just to make sure it works
 dart --checked build.dart
@@ -17,5 +17,5 @@ if [ "$COVERALLS_TOKEN" ] && [ "$TRAVIS_DART_VERSION" = "stable" ]; then
   pub global run dart_coveralls report \
     --retry 2 \
     --exclude-test-files \
-    test/tests.dart
+    test/all_test.dart
 fi

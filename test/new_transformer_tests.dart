@@ -1,6 +1,6 @@
 library transformer.tests;
 
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:nomirrorsmap/src/transformer/transformer.dart';
 import 'package:dart_style/dart_style.dart';
 
