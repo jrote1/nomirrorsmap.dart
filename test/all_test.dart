@@ -109,9 +109,13 @@ main() async {
     });
 
     test("Can deserialize simple object structure", () {
-      var json =
-          new io.File.fromUri(new Uri.file("test/test_json/simple_object.json"))
-              .readAsStringSync();
+      var json = r'''{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 1,
+  "parents": [],
+  "children": []
+}''';
 
       var result = new NoMirrorsMap()
           .convert(json, new JsonConverter(), new ClassConverter()) as Person;
@@ -122,9 +126,28 @@ main() async {
     });
 
     test("Can deserialize objects with circular references", () {
-      var json =
-          new io.File.fromUri(new Uri.file("test/test_json/hashcode_test.json"))
-              .readAsStringSync();
+      var json = r'''{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 3,
+  "parents": [{
+    "$type": "nomirrorsmap.tests.Person",
+    "$hashcode": "48854486",
+    "id": 1,
+    "parents": [],
+    "children": [{
+      "$type": "nomirrorsmap.tests.Person",
+      "$hashcode": "48854487",
+      "id": 2,
+      "parents": [{
+        "$type": "nomirrorsmap.tests.Person",
+        "$hashcode": "48854486"
+      }],
+      "children": []
+    }]
+  }],
+  "children": []
+}''';
 
       var result = new NoMirrorsMap()
           .convert(json, new JsonConverter(), new ClassConverter()) as Person;
@@ -137,9 +160,28 @@ main() async {
     test(
         "Can deserialize objects with circular references, even if properties are seen after reference",
         () {
-      var json = new io.File.fromUri(
-              new Uri.file("test/test_json/reversed_hashcode_json.json"))
-          .readAsStringSync();
+      var json = r'''{
+  "$type": "nomirrorsmap.tests.Person",
+  "$hashcode": "547833245",
+  "id": 3,
+  "parents": [{
+    "$type": "nomirrorsmap.tests.Person",
+    "$hashcode": "48854486",
+    "parents": [],
+    "children": [{
+      "$type": "nomirrorsmap.tests.Person",
+      "$hashcode": "48854487",
+      "id": 2,
+      "parents": [{
+        "$type": "nomirrorsmap.tests.Person",
+        "$hashcode": "48854486",
+        "id": 1
+      }],
+      "children": []
+    }]
+  }],
+  "children": []
+}''';
 
       var result = new NoMirrorsMap()
           .convert(json, new JsonConverter(), new ClassConverter()) as Person;
@@ -189,8 +231,47 @@ main() async {
     });
 
     test("Can deserialize type that contains a list", () {
-      var json = new io.File.fromUri(new Uri.file("test/test_json/list.json"))
-          .readAsStringSync();
+      var json = r'''{
+  "odata.metadata": "http://localhost/odata/$metadata#Users/@Element",
+  "Id": 2,
+  "FirstName": "No",
+  "LastName": "Mirrors",
+  "EmailAddress": "fsgpoidhnfoglb@example.com",
+  "MobilePhone": "65406834354356",
+  "Umpire": false,
+  "TeamUsers": [
+    {
+      "Id": 6665,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    },
+    {
+      "Id": 6677,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    },
+    {
+      "Id": 6680,
+      "Role": {
+        "Id": 1,
+        "Name": "Organiser"
+      }
+    }
+  ],
+  "SecurityRole": {
+    "Id": 1,
+    "Name": "Administrator",
+    "Description": "Top level security.  Can perform all actions within the system",
+    "AssociationLevel": {
+      "Id": 1,
+      "Value": "Top"
+    }
+  }
+}''';
 
       User result = new NoMirrorsMap().convert(json, new JsonConverter(),
           new ClassConverter(startType: User), [new CamelCaseManipulator()]);
@@ -260,9 +341,14 @@ main() async {
     test(
         "With a json string with no type attributes and a sub property of different type, deserialises correctly",
         () {
-      var json = new io.File.fromUri(
-              new Uri.file("test/test_json/no_type_string_objects.json"))
-          .readAsStringSync();
+      var json = r'''{
+  "id": 1,
+  "firstName": "Matthew",
+  "testProperty": {
+    "id": 2,
+    "name": "OtherName"
+  }
+}''';
       NoTypeTestClass result = new NoMirrorsMap().convert(json,
           new JsonConverter(), new ClassConverter(startType: NoTypeTestClass));
       expect(result.testProperty.name, "OtherName");
