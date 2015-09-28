@@ -77,6 +77,8 @@ class MappingsGenerator {
   }
 
   String generate(String className, List<String> libraryNamesToInclude) {
+    if(libraryNamesToInclude == null) libraryNamesToInclude = [];
+
     _addTypes(libraryNamesToInclude);
 
     var generators = <_Generator>[
