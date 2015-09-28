@@ -53,9 +53,10 @@ class JsonConverter implements Converter {
   }
 
   void setTypeFromObjectType(StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    stringBuffer.write("\"\$type\":\"${NoMirrorsMapStore
-        .getClassGeneratedMap( classObjectData.objectType )
-        .fullName}\",");
+    var typeString = "";
+    var map = NoMirrorsMapStore.getClassGeneratedMapWithNoCheck(classObjectData.objectType);
+    if (map != null) typeString = map.fullName;
+    stringBuffer.write("\"\$type\":\"$typeString\",");
   }
 
   void _fromBaseObjectData(BaseIntermediateObject baseObjectData, StringBuffer stringBuffer) {
