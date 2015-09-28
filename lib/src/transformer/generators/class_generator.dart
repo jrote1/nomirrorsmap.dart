@@ -20,7 +20,7 @@ class _ClassGenerator extends _Generator with _TypeInformationRetriever {
       stringBuilder.writeln(
           "NoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {");
 
-      if (hasDefaultConstructor) _outputFields(type, parameters, stringBuilder);
+      _outputFields(type, parameters, stringBuilder);
 
       stringBuilder.writeln("} );");
     }
