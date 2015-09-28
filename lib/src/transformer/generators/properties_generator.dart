@@ -8,7 +8,7 @@ class _FieldsGenerator extends _Generator with _TypeInformationRetriever {
 	{''');
 
     var fieldNames = parameters.typesToMap
-        .where((type) => !type.isEnum && _typeHasConstructor(type))
+        .where((type) => !type.isEnum)
         .expand((type) => _getAllTypeFields(type, parameters))
         .map((field) => field.name)
         .toList();
