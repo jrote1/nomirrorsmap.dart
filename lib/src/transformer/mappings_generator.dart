@@ -20,6 +20,7 @@ class MappingsGenerator {
 
     var allTypes = _expandCompilationUnitsWhereShouldBeMapped(
         (compilationUnit) => compilationUnit.enums);
+
     allTypes.addAll(_expandCompilationUnitsWhereShouldBeMapped(
             (compilationUnit) => compilationUnit.types)
         .where((type) => !type.isAbstract));
@@ -60,7 +61,9 @@ class MappingsGenerator {
       if (mappableMetadataType != null) {
         var metadata = type.metadata
             .map((meta) => meta.element)
-            .where((element) => element is ConstructorElement);
+            .where((element) => element is ConstructorElement)
+            .toList();
+        if (type.isEnum) metadata = _getEnumMetaData(type);
 
         for (ConstructorElement meta in metadata) {
           DartType metaType = meta.enclosingElement.type;
@@ -74,6 +77,19 @@ class MappingsGenerator {
         }
       }
     }
+  }
+
+  //This is a hack to fix a bug in analyzer don't judge it
+  List _getEnumMetaData(ClassElement type) {
+    var annotations = type.library.units
+        .expand((u) => u.node.declarations
+            .where((d) => d is EnumDeclaration && d.name.name == type.name))
+        .first
+        .metadata;
+    return annotations
+        .map((a) => a.element)
+        .where((element) => element is ConstructorElement)
+        .toList();
   }
 
   String generate(String className, List<String> libraryNamesToInclude) {
