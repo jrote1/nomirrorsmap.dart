@@ -64,7 +64,8 @@ class JsonConverter implements Converter {
     var map = NoMirrorsMapStore
         .getClassGeneratedMapWithNoCheck(classObjectData.objectType);
     if (map != null) {
-      stringBuffer.write("\"\$type\":\"${map.fullName}\",");
+      stringBuffer.write("\"\$type\":\"${map.fullName}\"");
+      stringBuffer.write(classObjectData.properties.length > 0 ? "," : "");
     }
   }
 
