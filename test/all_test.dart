@@ -399,8 +399,10 @@ main() async {
       expect(baseObjectData.properties.containsKey(jsonHashcodeName), true);
     });
 
-    test("can convert datetime to json",(){
-      var nativeIntermediateObject = new NativeIntermediateObject()..objectType = DateTime..value = new DateTime(2015,9,29,10,11);
+    test("can convert datetime to json", () {
+      var nativeIntermediateObject = new NativeIntermediateObject()
+        ..objectType = DateTime
+        ..value = new DateTime(2015, 9, 29, 10, 11);
       var converter = new JsonConverter();
       var json = converter.fromBaseIntermediateObject(nativeIntermediateObject);
       expect(json, '"${nativeIntermediateObject.value.toString()}"');

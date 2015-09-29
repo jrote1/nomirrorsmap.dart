@@ -97,8 +97,8 @@ class JsonConverter implements Converter {
       if (baseObjectData.value is String) stringBuffer.write("\"" +
           baseObjectData.value.replaceAll(r"\", r'\\').replaceAll("\"", '\\"') +
           "\"");
-      else if (baseObjectData.value is DateTime)
-        stringBuffer.write('"${baseObjectData.value.toString()}"');
+      else if (baseObjectData.value is DateTime) stringBuffer
+          .write('"${baseObjectData.value.toString()}"');
       else stringBuffer.write(baseObjectData.value);
     }
     /*
