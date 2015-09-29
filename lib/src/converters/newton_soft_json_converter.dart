@@ -9,7 +9,7 @@ class NewtonSoftJsonConverter extends JsonConverter {
       StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
     if (toJsonSeenHashcodes
         .contains(classObjectData.previousHashCode)) stringBuffer
-        .write("\"\$ref\":\"${classObjectData.previousHashCode}\"");
+        .write("\"\$ref\":\"${classObjectData.previousHashCode}\",");
     else {
       toJsonSeenHashcodes.add(classObjectData.previousHashCode);
       stringBuffer.write("\"\$id\":\"${classObjectData.previousHashCode}\",");
