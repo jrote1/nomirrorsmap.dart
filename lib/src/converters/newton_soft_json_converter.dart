@@ -7,10 +7,10 @@ class NewtonSoftJsonConverter extends JsonConverter {
   @override
   void setMetaData(
       StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    if (toJsonSeenHashcodes
-        .contains(classObjectData.previousHashCode)) stringBuffer
-        .write("\"\$ref\":\"${classObjectData.previousHashCode}\",");
-    else {
+    if (toJsonSeenHashcodes.contains(classObjectData.previousHashCode)) {
+      stringBuffer.write("\"\$ref\":\"${classObjectData.previousHashCode}\"");
+      stringBuffer.write(classObjectData.properties.length > 0 ? "," : "");
+    } else {
       toJsonSeenHashcodes.add(classObjectData.previousHashCode);
       stringBuffer.write("\"\$id\":\"${classObjectData.previousHashCode}\",");
       setTypeFromObjectType(stringBuffer, classObjectData);
