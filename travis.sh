@@ -9,7 +9,7 @@ $(dirname -- "$0")/ensure_dartfmt.sh
 pub run unittest
 
 # Install dart_coveralls; gather and send coverage data.
-if [ "$COVERALLS_TOKEN" ] && [ "$TRAVIS_DART_VERSION" = "stable" ]; then
+if [ "$COVERALLS_TOKEN" ] && [ "$TRAVIS_DART_VERSION" = "stable" ] && [ "$TRAVIS_PULL_REQUEST" = "false"] && [ "$TRAVIS_BRANCH" = "master" ]"; then
   pub global activate dart_coveralls
   pub global run dart_coveralls report \
     --retry 2 \
