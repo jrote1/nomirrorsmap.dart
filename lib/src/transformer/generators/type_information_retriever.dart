@@ -11,8 +11,11 @@ class _TypeInformationRetriever {
         ..name = field.name
         ..typeText = field.type is TypeParameterTypeImpl
             ? "dynamic"
-            : _getActualTypeText(field.type, parameters);
+            : _getPropertyType(type.name, field.name, field.type, parameters);
     });
+
+    for (var mixin
+        in type.mixins) yield* _getAllTypeFields(mixin.element, parameters);
 
     if (!isObject(type.supertype)) {
       for (var currentType = type.supertype;
@@ -34,7 +37,8 @@ class _TypeInformationRetriever {
 
           yield new _Field()
             ..name = field.name
-            ..typeText = _getActualTypeText(type, parameters);
+            ..typeText = _getPropertyType(
+                currentType.element.name, field.name, type, parameters);
         }
       }
     }
@@ -48,35 +52,43 @@ class _TypeInformationRetriever {
         .toList();
   }
 
-  String _getActualTypeText(
+  String _getPropertyType(String containTypeName, String propertyName,
       InterfaceType type, _GeneratorParameters parameters) {
     try {
-      var typeName = type.name;
-      if (parameters.libraryImportAliases
-          .containsKey(type.element.library)) typeName =
-          parameters.libraryImportAliases[type.element.library] +
-              "." +
-              typeName;
-
-      if (type.typeArguments.length > 0) {
-        var genericPart = "<${type.typeArguments.map( ( typeArgument )
-															  {
-																  if ( typeArgument is DynamicTypeImpl )
-																	  return "dynamic";
-																  return _getActualTypeText( typeArgument, parameters );
-															  } ).join( "," )}>";
-        if (genericPart != "<dynamic>") typeName += genericPart;
-      }
-
-      return typeName;
+      return _getActualTypeText(type, parameters);
     } catch (ex) {
-      throw "Could not get type text for ${type.name}";
+      throw "In the type '$containTypeName' for the property '$propertyName' of type '${type.name}', could not generate the type text";
     }
   }
 
+  String _getActualTypeText(
+      InterfaceType type, _GeneratorParameters parameters) {
+    var typeName = type.name;
+    if (parameters.libraryImportAliases
+        .containsKey(type.element.library)) typeName =
+        parameters.libraryImportAliases[type.element.library] + "." + typeName;
+
+    if (type.typeArguments.length > 0) {
+      var genericPart = "<${type.typeArguments.map( ( typeArgument )
+														  {
+															  if ( typeArgument is DynamicTypeImpl )
+																  return "dynamic";
+															  return _getActualTypeText( typeArgument, parameters );
+														  } ).join( "," )}>";
+      if (genericPart != "<dynamic>") typeName += genericPart;
+    }
+
+    return typeName;
+  }
+
   bool _typeHasConstructor(ClassElement type) {
+    if (type.unnamedConstructor != null &&
+        type.unnamedConstructor.parameters.length > 0 &&
+        type.unnamedConstructor.parameters
+            .every((p) => p.parameterKind.isOptional)) return true;
     return type.constructors
             .any((constructor) => constructor.parameters.length == 0) &&
-        !type.isAbstract;
+        !type.isAbstract &&
+        type.library.name != "dart.core";
   }
 }
