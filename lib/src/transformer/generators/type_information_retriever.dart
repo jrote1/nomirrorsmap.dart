@@ -50,22 +50,28 @@ class _TypeInformationRetriever {
 
   String _getActualTypeText(
       InterfaceType type, _GeneratorParameters parameters) {
-    var typeName = type.name;
-    if (parameters.libraryImportAliases
-        .containsKey(type.element.library)) typeName =
-        parameters.libraryImportAliases[type.element.library] + "." + typeName;
+    try {
+      var typeName = type.name;
+      if (parameters.libraryImportAliases
+          .containsKey(type.element.library)) typeName =
+          parameters.libraryImportAliases[type.element.library] +
+              "." +
+              typeName;
 
-    if (type.typeArguments.length > 0) {
-      var genericPart = "<${type.typeArguments.map( ( typeArgument )
-														  {
-															  if ( typeArgument is DynamicTypeImpl )
-																  return "dynamic";
-															  return _getActualTypeText( typeArgument, parameters );
-														  } ).join( "," )}>";
-      if (genericPart != "<dynamic>") typeName += genericPart;
+      if (type.typeArguments.length > 0) {
+        var genericPart = "<${type.typeArguments.map( ( typeArgument )
+															  {
+																  if ( typeArgument is DynamicTypeImpl )
+																	  return "dynamic";
+																  return _getActualTypeText( typeArgument, parameters );
+															  } ).join( "," )}>";
+        if (genericPart != "<dynamic>") typeName += genericPart;
+      }
+
+      return typeName;
+    } catch (ex) {
+      throw "Could not get type text for ${type.name}";
     }
-
-    return typeName;
   }
 
   bool _typeHasConstructor(ClassElement type) {
