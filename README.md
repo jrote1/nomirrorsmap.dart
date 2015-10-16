@@ -109,3 +109,7 @@ class SecondEncodableObject {
 	int id;
 }
 ```
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/jrote1/nomirrorsmap.dart/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
