@@ -70,8 +70,10 @@ class MappingsGenerator {
           if (metaType.isAssignableTo(mappableMetadataType.type)) {
             if (!type.isEnum &&
                 (type.unnamedConstructor == null ||
-                (type.unnamedConstructor.parameters.length >
-                        0 && type.unnamedConstructor.parameters.any((p) => !p.parameterKind.isOptional)))) throw "The type '${type.displayName}' has a @Mappable() annotation but no DefaultConstructor";
+                    (type.unnamedConstructor.parameters.length > 0 &&
+                        type.unnamedConstructor.parameters.any((p) => !p
+                            .parameterKind
+                            .isOptional)))) throw "The type '${type.displayName}' has a @Mappable() annotation but no DefaultConstructor";
             yield type;
           }
         }

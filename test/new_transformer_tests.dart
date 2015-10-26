@@ -492,9 +492,9 @@ class ClassWithOnlyGetOrSet
     });
 
     test("Generates constuctor for ClassWithPositionalArguments", () {
-        return applyTransformers(getPhases(), inputs: {
-            'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-            'testProject|web/main.dart':
+      return applyTransformers(getPhases(), inputs: {
+        'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+        'testProject|web/main.dart':
             '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
@@ -505,19 +505,19 @@ class ClassWithPositionalArguments
 	ClassWithPositionalArguments([int val = 0]);
 }
 '''
-        }, results: {
-            'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
-                                                                                      "import 'main.dart' as web_main_dart;"
-                                                                                  ], [], [
-                '''NoMirrorsMapStore.registerClass( "ClassWithPositionalArguments", web_main_dart.ClassWithPositionalArguments, const TypeOf<List<web_main_dart.ClassWithPositionalArguments>>().type, () => new web_main_dart.ClassWithPositionalArguments(), {} );'''
-            ], [])
-        });
+      }, results: {
+        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+          "import 'main.dart' as web_main_dart;"
+        ], [], [
+          '''NoMirrorsMapStore.registerClass( "ClassWithPositionalArguments", web_main_dart.ClassWithPositionalArguments, const TypeOf<List<web_main_dart.ClassWithPositionalArguments>>().type, () => new web_main_dart.ClassWithPositionalArguments(), {} );'''
+        ], [])
+      });
     });
 
     test("Does not property map for DateTime", () {
-        return applyTransformers(getPhases(), inputs: {
-            'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-            'testProject|web/main.dart':
+      return applyTransformers(getPhases(), inputs: {
+        'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+        'testProject|web/main.dart':
             '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
@@ -528,22 +528,24 @@ class ClassWithDateTime
 	List<DateTime> val;
 }
 '''
-        }, results: {
-            'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
-                                                                                      "import 'main.dart' as web_main_dart;"
-                                                                                  ], ["val"], [
-                '''NoMirrorsMapStore.registerClass( "ClassWithDateTime", web_main_dart.ClassWithDateTime, const TypeOf<List<web_main_dart.ClassWithDateTime>>().type, () => new web_main_dart.ClassWithDateTime(), {
+      }, results: {
+        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+          "import 'main.dart' as web_main_dart;"
+        ], [
+          "val"
+        ], [
+          '''NoMirrorsMapStore.registerClass( "ClassWithDateTime", web_main_dart.ClassWithDateTime, const TypeOf<List<web_main_dart.ClassWithDateTime>>().type, () => new web_main_dart.ClassWithDateTime(), {
                   'val': const TypeOf<List<DateTime>>().type
                 } );''',
-                '''NoMirrorsMapStore.registerClass( "dart.core.DateTime", DateTime, const TypeOf<List<DateTime>>().type, null, {} );'''
-            ], [])
-        });
+          '''NoMirrorsMapStore.registerClass( "dart.core.DateTime", DateTime, const TypeOf<List<DateTime>>().type, null, {} );'''
+        ], [])
+      });
     });
 
     test("Type has with generates correct map", () {
-        return applyTransformers(getPhases(), inputs: {
-            'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
-            'testProject|web/main.dart':
+      return applyTransformers(getPhases(), inputs: {
+        'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+        'testProject|web/main.dart':
             '''import 'package:nomirrorsmap/nomirrorsmap.dart';
 
 main(){}
@@ -559,15 +561,17 @@ class BaseClass
     int id;
 }
 '''
-        }, results: {
-            'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
-                                                                                      "import 'main.dart' as web_main_dart;"
-                                                                                  ], ["id"], [
-                '''NoMirrorsMapStore.registerClass( "ClassWithWith", web_main_dart.ClassWithWith, const TypeOf<List<web_main_dart.ClassWithWith>>().type, () => new web_main_dart.ClassWithWith(), {
+      }, results: {
+        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+          "import 'main.dart' as web_main_dart;"
+        ], [
+          "id"
+        ], [
+          '''NoMirrorsMapStore.registerClass( "ClassWithWith", web_main_dart.ClassWithWith, const TypeOf<List<web_main_dart.ClassWithWith>>().type, () => new web_main_dart.ClassWithWith(), {
                   'id': int
                 } );'''
-            ], [])
-        });
+        ], [])
+      });
     });
   }
 }
