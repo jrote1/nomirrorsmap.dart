@@ -4,7 +4,8 @@ class NewtonSoftJsonConverter extends JsonConverter {
   Map<String, Type> fromJsonHashCodesAndTypes = new Map<String, Type>();
   List<String> toJsonSeenHashcodes = new List<String>();
 
-  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+  TypeInformationRetriever get _typeInformationRetriever =>
+      TypeInformationRetrieverLocator.instance;
 
   @override
   void setMetaData(

@@ -3,9 +3,9 @@ library nomirrorsmap.mirrors;
 import 'src/converters/converters.dart';
 import 'package:reflective/reflective.dart' as reflective;
 
-void useMirrors()
-{
-  TypeInformationRetrieverLocator.setInstance(new MirrorsTypeInformationRetriever());
+void useMirrors() {
+  TypeInformationRetrieverLocator
+      .setInstance(new MirrorsTypeInformationRetriever());
 }
 
 class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
@@ -38,13 +38,15 @@ class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
 
   @override
   ClassMapping getClassGeneratedMapByListType(Type type) {
-    var classType = new reflective.TypeReflection(type).getTypeArguments().first.type;
+    var classType =
+        new reflective.TypeReflection(type).getTypeArguments().first.type;
     return getClassGeneratedMap(classType);
   }
 
   @override
   ClassMapping getClassGeneratedMapByQualifiedName(String qualifiedName) {
-    var classType = new reflective.TypeReflection.fromFullName(qualifiedName).type;
+    var classType =
+        new reflective.TypeReflection.fromFullName(qualifiedName).type;
     return getClassGeneratedMap(classType);
   }
 

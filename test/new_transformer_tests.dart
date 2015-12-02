@@ -652,18 +652,17 @@ main() {
       });
     });
 
-    test(
-        "Whe using nomirrorsmap_mirrors import it gets removed",
-        () {
-        return applyTransformers(phases, inputs: {
-            'nomirrrorsmap|lib/nomirrorsmap_mirrors.dart': 'library nomirrorsmap.mirrors;',
-            'testProject|web/main.dart': '''library TestProject;
+    test("Whe using nomirrorsmap_mirrors import it gets removed", () {
+      return applyTransformers(phases, inputs: {
+        'nomirrrorsmap|lib/nomirrorsmap_mirrors.dart':
+            'library nomirrorsmap.mirrors;',
+        'testProject|web/main.dart': '''library TestProject;
 
 import 'package:nomirrorsmap/nomirrorsmap_mirrors.dart';
 
 main() => 1;'''
-        }, results: {
-            'testProject|web/main.dart': '''library TestProject;
+      }, results: {
+        'testProject|web/main.dart': '''library TestProject;
 
 
 import "web_main_dart_mappings.dart" as WebMainDartMappings;
@@ -672,26 +671,25 @@ main() {
 	WebMainDartMappings.WebMainDartMappings.register();
 	return 1;
 }''',
-            'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
-        });
+        'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
+      });
     });
 
-    test(
-        "Whe using nomirrorsmap_mirrors useMirrors gets removed",
-        () {
-        return applyTransformers(phases, inputs: {
-            'nomirrrorsmap|lib/nomirrorsmap_mirrors.dart': 'library nomirrorsmap.mirrors;'
-                ''
-                'void useMirrors(){}',
-            'testProject|web/main.dart': '''library TestProject;
+    test("Whe using nomirrorsmap_mirrors useMirrors gets removed", () {
+      return applyTransformers(phases, inputs: {
+        'nomirrrorsmap|lib/nomirrorsmap_mirrors.dart':
+            'library nomirrorsmap.mirrors;'
+            ''
+            'void useMirrors(){}',
+        'testProject|web/main.dart': '''library TestProject;
 
 import 'package:nomirrorsmap/nomirrorsmap_mirrors.dart' as nomirrorsmapmirrors;
 
 main(){
     nomirrorsmapmirrors.useMirrors();
 }'''
-        }, results: {
-            'testProject|web/main.dart': '''library TestProject;
+      }, results: {
+        'testProject|web/main.dart': '''library TestProject;
 
 
 import "web_main_dart_mappings.dart" as WebMainDartMappings;
@@ -701,8 +699,8 @@ main(){
 
 
 }''',
-            'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
-        });
+        'testProject|web/web_main_dart_mappings.dart': defaultMappingsFile
+      });
     });
   }
 }

@@ -20,5 +20,4 @@ class MainTransformer extends TransformerGroup {
   }
 }
 
-class LibraryTransformer {
-}
+class LibraryTransformer {}

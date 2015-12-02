@@ -4,7 +4,8 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
   Type startType;
   Map<Type, Type> typeMaps;
 
-  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+  TypeInformationRetriever get _typeInformationRetriever =>
+      TypeInformationRetrieverLocator.instance;
 
   TypeToTypeManipulator(this.startType, [Map<Type, Type> typeMaps = null]) {
     this.typeMaps = typeMaps == null ? {} : typeMaps;

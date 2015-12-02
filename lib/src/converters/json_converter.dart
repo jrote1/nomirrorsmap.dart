@@ -3,7 +3,8 @@ part of nomirrorsmap.converters;
 class JsonConverter implements Converter {
   String _hashcodeName;
 
-  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+  TypeInformationRetriever get _typeInformationRetriever =>
+      TypeInformationRetrieverLocator.instance;
 
   JsonConverter([String hashcodeName = "\$hashcode"]) {
     _hashcodeName = hashcodeName;

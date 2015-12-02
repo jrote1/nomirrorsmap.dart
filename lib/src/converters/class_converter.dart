@@ -9,7 +9,8 @@ class ClassConverter implements Converter {
 
   Set<int> seenHashCodes = new Set<int>();
 
-  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+  TypeInformationRetriever get _typeInformationRetriever =>
+      TypeInformationRetrieverLocator.instance;
 
   BaseIntermediateObject toBaseIntermediateObject(Object value) {
     var valueType = value.runtimeType;
@@ -38,7 +39,8 @@ class ClassConverter implements Converter {
       ..properties = {};
     seenHashCodes.add(hashCode);
 
-    var generatedMap = _typeInformationRetriever.getClassGeneratedMap(valueType);
+    var generatedMap =
+        _typeInformationRetriever.getClassGeneratedMap(valueType);
 
     var properties = {};
 
@@ -127,7 +129,8 @@ class ClassConverter implements Converter {
       return classConverterInstance.instance;
     }
     if (baseObjectData is ListIntermediateObject) {
-      var classMap = _typeInformationRetriever.getClassGeneratedMapByListType(type);
+      var classMap =
+          _typeInformationRetriever.getClassGeneratedMapByListType(type);
 
       var listType = classMap == null ? Object : classMap.type;
 
@@ -145,7 +148,8 @@ class ClassConverter implements Converter {
       return DateTime.parse(nativeObjectValue);
     }
     if (_isTypeEnum(type)) {
-      return _typeInformationRetriever.getEnumGeneratedMap(type)[nativeObjectValue];
+      return _typeInformationRetriever.getEnumGeneratedMap(type)[
+          nativeObjectValue];
     }
 
     if (type == double && nativeObjectValue != null) {
