@@ -4,6 +4,8 @@ class NewtonSoftJsonConverter extends JsonConverter {
   Map<String, Type> fromJsonHashCodesAndTypes = new Map<String, Type>();
   List<String> toJsonSeenHashcodes = new List<String>();
 
+  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+
   @override
   void setMetaData(
       StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
@@ -28,7 +30,7 @@ class NewtonSoftJsonConverter extends JsonConverter {
   Type findObjectType(dynamic json) {
     Type objectType = null;
 
-    if (json.containsKey("\$type")) objectType = NoMirrorsMapStore
+    if (json.containsKey("\$type")) objectType = _typeInformationRetriever
         .getClassGeneratedMapByQualifiedName(json["\$type"])
         .type;
     else {

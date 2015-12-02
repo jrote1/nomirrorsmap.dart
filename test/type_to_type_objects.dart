@@ -1,7 +1,5 @@
 library nomirrorsmap.type_to_type_objects;
 
-import 'dart:collection';
-
 class TestEntity {
   String stringProperty;
   int intProperty;

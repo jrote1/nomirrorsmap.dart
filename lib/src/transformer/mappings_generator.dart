@@ -84,7 +84,7 @@ class MappingsGenerator {
   //This is a hack to fix a bug in analyzer don't judge it
   List _getEnumMetaData(ClassElement type) {
     var annotations = type.library.units
-        .expand((u) => u.node.declarations
+        .expand((u) => u.computeNode().declarations
             .where((d) => d is EnumDeclaration && d.name.name == type.name))
         .first
         .metadata;

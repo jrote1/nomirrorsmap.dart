@@ -1,23 +1,23 @@
 part of nomirrorsmap.converters;
 
-class NoMirrorsMapStore {
-  static List<_FieldMapping> _fieldMappings = [];
-  static List<_ClassMapping> _classMappings = [];
+class NoMirrorsMapStore implements TypeInformationRetriever {
+  static List<FieldMapping> _fieldMappings = [];
+  static List<ClassMapping> _classMappings = [];
   static Map<Type, List> _enumMappings = {};
 
   static void registerField(
       String fieldName,
       void setter(dynamic object, dynamic value),
       dynamic getter(dynamic object)) {
-    _fieldMappings.add(new _FieldMapping()
+    _fieldMappings.add(new FieldMapping()
       ..getter = getter
       ..setter = setter
       ..name = fieldName);
   }
 
-  static Map<Type, _ClassMapping> _classMappingsByType = {};
+  static Map<Type, ClassMapping> _classMappingsByType = {};
 
-  static _ClassMapping getClassGeneratedMap(Type type) {
+  ClassMapping getClassGeneratedMap(Type type) {
     var classMapping = _classMappingsByType[type];
     if (classMapping == null) {
       if (_classMappings
@@ -30,7 +30,7 @@ class NoMirrorsMapStore {
     return classMapping;
   }
 
-  static _ClassMapping getClassGeneratedMapWithNoCheck(Type type) {
+  ClassMapping getClassGeneratedMapWithNoCheck(Type type) {
     var classMapping = _classMappingsByType[type];
     if (classMapping == null) {
       if (_classMappings
@@ -41,9 +41,9 @@ class NoMirrorsMapStore {
     return classMapping;
   }
 
-  static Map<Type, _ClassMapping> _classMappingsByListType = {};
+  static Map<Type, ClassMapping> _classMappingsByListType = {};
 
-  static _ClassMapping getClassGeneratedMapByListType(Type type) {
+  ClassMapping getClassGeneratedMapByListType(Type type) {
     var classMapping = _classMappingsByListType[type];
     if (classMapping == null) {
       if (!type.toString().contains("<")) return null;
@@ -55,8 +55,7 @@ class NoMirrorsMapStore {
     return classMapping;
   }
 
-  static _ClassMapping getClassGeneratedMapByQualifiedName(
-      String qualifiedName) {
+  ClassMapping getClassGeneratedMapByQualifiedName(String qualifiedName) {
     if (_classMappings
         .any((m) => m.fullName == qualifiedName)) return _classMappings
         .firstWhere((m) => m.fullName == qualifiedName);
@@ -67,12 +66,12 @@ class NoMirrorsMapStore {
       dynamic instantiate(), Map<String, Type> fields) {
     var classFields = [];
     fields.forEach((k, v) {
-      classFields.add(new _ClassField()
+      classFields.add(new ClassField()
         ..type = v
         ..fieldMapping = _fieldMappings.firstWhere((p) => p.name == k));
     });
 
-    _classMappings.add(new _ClassMapping()
+    _classMappings.add(new ClassMapping()
       ..type = type
       ..listType = listType
       ..fullName = fullName
@@ -84,11 +83,6 @@ class NoMirrorsMapStore {
     _enumMappings[type] = values;
   }
 
-  static bool containsEnumGeneratedMap(Type type) {
-    return _enumMappings.containsKey(type);
-  }
-
-  static List getEnumGeneratedMap(Type type) {
-    return _enumMappings[type];
-  }
+  bool containsEnumGeneratedMap(Type type) => _enumMappings.containsKey(type);
+  List getEnumGeneratedMap(Type type) => _enumMappings[type];
 }

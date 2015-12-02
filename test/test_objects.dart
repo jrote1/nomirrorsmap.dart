@@ -1,7 +1,6 @@
-library nomirrorsmap.tests;
+library nomirrorsmap.test_objects;
 
 import 'package:nomirrorsmap/nomirrorsmap.dart';
-import 'dart:collection';
 
 @Mappable()
 enum TestEnum { One, Two }

@@ -1,6 +1,6 @@
 part of nomirrorsmap.converters;
 
-class _ClassField {
+class ClassField {
   Type type;
-  _FieldMapping fieldMapping;
+  FieldMapping fieldMapping;
 }

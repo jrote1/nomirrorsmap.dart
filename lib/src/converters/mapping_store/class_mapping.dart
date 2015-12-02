@@ -1,9 +1,9 @@
 part of nomirrorsmap.converters;
 
-class _ClassMapping {
+class ClassMapping {
   String fullName;
   Type type;
   Type listType;
   Function instantiate;
-  List<_ClassField> fields;
+  List<ClassField> fields;
 }

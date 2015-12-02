@@ -3,6 +3,8 @@ part of nomirrorsmap.converters;
 class JsonConverter implements Converter {
   String _hashcodeName;
 
+  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+
   JsonConverter([String hashcodeName = "\$hashcode"]) {
     _hashcodeName = hashcodeName;
   }
@@ -17,7 +19,7 @@ class JsonConverter implements Converter {
 
   Type findObjectType(dynamic json) {
     return json.containsKey("\$type")
-        ? NoMirrorsMapStore
+        ? _typeInformationRetriever
             .getClassGeneratedMapByQualifiedName(json["\$type"])
             .type
         : null;
@@ -61,7 +63,7 @@ class JsonConverter implements Converter {
 
   void setTypeFromObjectType(
       StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    var map = NoMirrorsMapStore
+    var map = _typeInformationRetriever
         .getClassGeneratedMapWithNoCheck(classObjectData.objectType);
     if (map != null) {
       stringBuffer.write("\"\$type\":\"${map.fullName}\"");

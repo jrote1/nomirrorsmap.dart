@@ -19,3 +19,6 @@ class MainTransformer extends TransformerGroup {
     return new MainTransformer(new TransformerOptions(settings));
   }
 }
+
+class LibraryTransformer {
+}

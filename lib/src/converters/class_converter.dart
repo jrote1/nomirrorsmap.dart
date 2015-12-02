@@ -9,6 +9,8 @@ class ClassConverter implements Converter {
 
   Set<int> seenHashCodes = new Set<int>();
 
+  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+
   BaseIntermediateObject toBaseIntermediateObject(Object value) {
     var valueType = value.runtimeType;
     if (converters.containsKey(valueType)) return converters[valueType]
@@ -36,7 +38,7 @@ class ClassConverter implements Converter {
       ..properties = {};
     seenHashCodes.add(hashCode);
 
-    var generatedMap = NoMirrorsMapStore.getClassGeneratedMap(valueType);
+    var generatedMap = _typeInformationRetriever.getClassGeneratedMap(valueType);
 
     var properties = {};
 
@@ -76,7 +78,7 @@ class ClassConverter implements Converter {
   dynamic _fromBaseObjectData(
       BaseIntermediateObject baseObjectData, Type type) {
     if (baseObjectData is ClassIntermediateObject) {
-      var generatedMap = NoMirrorsMapStore.getClassGeneratedMap(type);
+      var generatedMap = _typeInformationRetriever.getClassGeneratedMap(type);
       if (generatedMap.instantiate ==
           null) throw "Type '$type' does not have a default constructor, make sure it has a default constructor wuth no paramters";
       var instance = generatedMap.instantiate();
@@ -125,7 +127,7 @@ class ClassConverter implements Converter {
       return classConverterInstance.instance;
     }
     if (baseObjectData is ListIntermediateObject) {
-      var classMap = NoMirrorsMapStore.getClassGeneratedMapByListType(type);
+      var classMap = _typeInformationRetriever.getClassGeneratedMapByListType(type);
 
       var listType = classMap == null ? Object : classMap.type;
 
@@ -143,7 +145,7 @@ class ClassConverter implements Converter {
       return DateTime.parse(nativeObjectValue);
     }
     if (_isTypeEnum(type)) {
-      return NoMirrorsMapStore.getEnumGeneratedMap(type)[nativeObjectValue];
+      return _typeInformationRetriever.getEnumGeneratedMap(type)[nativeObjectValue];
     }
 
     if (type == double && nativeObjectValue != null) {
@@ -154,6 +156,6 @@ class ClassConverter implements Converter {
   }
 
   bool _isTypeEnum(Type type) {
-    return NoMirrorsMapStore.containsEnumGeneratedMap(type);
+    return _typeInformationRetriever.containsEnumGeneratedMap(type);
   }
 }

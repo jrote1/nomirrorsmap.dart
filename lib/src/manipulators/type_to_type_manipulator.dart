@@ -4,6 +4,8 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
   Type startType;
   Map<Type, Type> typeMaps;
 
+  TypeInformationRetriever get _typeInformationRetriever => TypeInformationRetrieverLocator.instance;
+
   TypeToTypeManipulator(this.startType, [Map<Type, Type> typeMaps = null]) {
     this.typeMaps = typeMaps == null ? {} : typeMaps;
   }
@@ -16,7 +18,7 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
     toType = _getMappedType(baseObjectData, toType);
     if (baseObjectData is ClassIntermediateObject) {
       var classGeneratedMap =
-          NoMirrorsMapStore.getClassGeneratedMapWithNoCheck(toType);
+          _typeInformationRetriever.getClassGeneratedMapWithNoCheck(toType);
       if (classGeneratedMap == null || classGeneratedMap.instantiate == null) {
         throw 'Are you missing a type map from "class ${baseObjectData.objectType}" to "abstract class $toType" or a @Mappable() attribute on "class ${baseObjectData.objectType}"';
       }
@@ -36,7 +38,7 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
     }
     if (baseObjectData is ListIntermediateObject) {
       var listGeneratedMap =
-          NoMirrorsMapStore.getClassGeneratedMapByListType(toType);
+          _typeInformationRetriever.getClassGeneratedMapByListType(toType);
       for (var value in baseObjectData.values) {
         _manipulate(listGeneratedMap.type, value);
       }

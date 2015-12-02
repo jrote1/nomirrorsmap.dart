@@ -19,3 +19,13 @@ class CustomClassConverter<TActualType> {
 
   Function get to => _toFunc;
 }
+
+class Mappable {
+  const Mappable();
+}
+
+class TypeOf<T> {
+  const TypeOf();
+
+  Type get type => T;
+}

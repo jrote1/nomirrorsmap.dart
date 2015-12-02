@@ -122,19 +122,19 @@ class TestProjectMappings {
 
   static void _registerClasses() {
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.InheritedClass",
+        "nomirrorsmap.test_objects.InheritedClass",
         test_test_objects_dart.InheritedClass,
         const TypeOf<List<test_test_objects_dart.InheritedClass>>().type,
         () => new test_test_objects_dart.InheritedClass(), {
       'data': const TypeOf<List<test_test_objects_dart.TheAbstractClass>>().type
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TypeWithNoProperties",
+        "nomirrorsmap.test_objects.TypeWithNoProperties",
         test_test_objects_dart.TypeWithNoProperties,
         const TypeOf<List<test_test_objects_dart.TypeWithNoProperties>>().type,
         () => new test_test_objects_dart.TypeWithNoProperties(), {});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.SimpleTypeUsingDollarRef",
+        "nomirrorsmap.test_objects.SimpleTypeUsingDollarRef",
         test_test_objects_dart.SimpleTypeUsingDollarRef,
         const TypeOf<List<test_test_objects_dart.SimpleTypeUsingDollarRef>>()
             .type,
@@ -146,13 +146,13 @@ class TestProjectMappings {
               .type
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.NewtonSoftTest",
+        "nomirrorsmap.test_objects.NewtonSoftTest",
         test_test_objects_dart.NewtonSoftTest,
         const TypeOf<List<test_test_objects_dart.NewtonSoftTest>>().type,
         () => new test_test_objects_dart.NewtonSoftTest(),
         {'age': int, 'gender': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.Person",
+        "nomirrorsmap.test_objects.Person",
         test_test_objects_dart.Person,
         const TypeOf<List<test_test_objects_dart.Person>>().type,
         () => new test_test_objects_dart.Person(), {
@@ -161,26 +161,26 @@ class TestProjectMappings {
       'children': const TypeOf<List<test_test_objects_dart.Person>>().type
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ClassWithDouble",
+        "nomirrorsmap.test_objects.ClassWithDouble",
         test_test_objects_dart.ClassWithDouble,
         const TypeOf<List<test_test_objects_dart.ClassWithDouble>>().type,
         () => new test_test_objects_dart.ClassWithDouble(),
         {'val': double});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.CustomConverterParentTest",
+        "nomirrorsmap.test_objects.CustomConverterParentTest",
         test_test_objects_dart.CustomConverterParentTest,
         const TypeOf<List<test_test_objects_dart.CustomConverterParentTest>>()
             .type,
         () => new test_test_objects_dart.CustomConverterParentTest(),
         {'testProperty': test_test_objects_dart.CustomConverterTest});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.CustomConverterTest",
+        "nomirrorsmap.test_objects.CustomConverterTest",
         test_test_objects_dart.CustomConverterTest,
         const TypeOf<List<test_test_objects_dart.CustomConverterTest>>().type,
         () => new test_test_objects_dart.CustomConverterTest(),
         {'id': int, 'value': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.NoTypeTestClass",
+        "nomirrorsmap.test_objects.NoTypeTestClass",
         test_test_objects_dart.NoTypeTestClass,
         const TypeOf<List<test_test_objects_dart.NoTypeTestClass>>().type,
         () => new test_test_objects_dart.NoTypeTestClass(), {
@@ -189,14 +189,14 @@ class TestProjectMappings {
       'testProperty': test_test_objects_dart.NoTypeTestPropertyClass
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.NoTypeTestPropertyClass",
+        "nomirrorsmap.test_objects.NoTypeTestPropertyClass",
         test_test_objects_dart.NoTypeTestPropertyClass,
         const TypeOf<List<test_test_objects_dart.NoTypeTestPropertyClass>>()
             .type,
         () => new test_test_objects_dart.NoTypeTestPropertyClass(),
         {'id': int, 'name': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.User",
+        "nomirrorsmap.test_objects.User",
         test_test_objects_dart.User,
         const TypeOf<List<test_test_objects_dart.User>>().type,
         () => new test_test_objects_dart.User(), {
@@ -210,7 +210,7 @@ class TestProjectMappings {
       'securityRole': test_test_objects_dart.SecurityRole
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TeamMember",
+        "nomirrorsmap.test_objects.TeamMember",
         test_test_objects_dart.TeamMember,
         const TypeOf<List<test_test_objects_dart.TeamMember>>().type,
         () => new test_test_objects_dart.TeamMember(), const {
@@ -218,13 +218,13 @@ class TestProjectMappings {
       'user': test_test_objects_dart.User
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.Role",
+        "nomirrorsmap.test_objects.Role",
         test_test_objects_dart.Role,
         const TypeOf<List<test_test_objects_dart.Role>>().type,
         () => new test_test_objects_dart.Role(),
         const {'id': int, 'name': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.SecurityRole",
+        "nomirrorsmap.test_objects.SecurityRole",
         test_test_objects_dart.SecurityRole,
         const TypeOf<List<test_test_objects_dart.SecurityRole>>().type,
         () => new test_test_objects_dart.SecurityRole(), const {
@@ -234,37 +234,37 @@ class TestProjectMappings {
       'associationLevel': test_test_objects_dart.AssociationLevel
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.AssociationLevel",
+        "nomirrorsmap.test_objects.AssociationLevel",
         test_test_objects_dart.AssociationLevel,
         const TypeOf<List<test_test_objects_dart.AssociationLevel>>().type,
         () => new test_test_objects_dart.AssociationLevel(),
         const {'id': int, 'value': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ClassWithDateTime",
+        "nomirrorsmap.test_objects.ClassWithDateTime",
         test_test_objects_dart.ClassWithDateTime,
         const TypeOf<List<test_test_objects_dart.ClassWithDateTime>>().type,
         () => new test_test_objects_dart.ClassWithDateTime(),
         const {'time': DateTime});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.PersonGeneric",
+        "nomirrorsmap.test_objects.PersonGeneric",
         test_test_objects_dart.PersonGeneric,
         const TypeOf<List<test_test_objects_dart.PersonGeneric>>().type,
         () => new test_test_objects_dart.PersonGeneric(),
         const {'val': test_test_objects_dart.Person});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TypeWithDuration",
+        "nomirrorsmap.test_objects.TypeWithDuration",
         test_test_objects_dart.TypeWithDuration,
         const TypeOf<List<test_test_objects_dart.TypeWithDuration>>().type,
         () => new test_test_objects_dart.TypeWithDuration(),
         const {'duration': Duration});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.GenericType",
+        "nomirrorsmap.test_objects.GenericType",
         test_test_objects_dart.GenericType,
         const TypeOf<List<test_test_objects_dart.GenericType>>().type,
         () => new test_test_objects_dart.GenericType(),
         const {'id': dynamic});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TestEntity",
+        "nomirrorsmap.test_objects.TestEntity",
         test_type_to_type_objects_dart.TestEntity,
         const TypeOf<List<test_type_to_type_objects_dart.TestEntity>>().type,
         () => new test_type_to_type_objects_dart.TestEntity(), const {
@@ -276,7 +276,7 @@ class TestProjectMappings {
       'numProperty': num
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TestDto",
+        "nomirrorsmap.test_objects.TestDto",
         test_type_to_type_objects_dart.TestDto,
         const TypeOf<List<test_type_to_type_objects_dart.TestDto>>().type,
         () => new test_type_to_type_objects_dart.TestDto(), const {
@@ -288,25 +288,25 @@ class TestProjectMappings {
       'numProperty': num
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TestEntity2",
+        "nomirrorsmap.test_objects.TestEntity2",
         test_type_to_type_objects_dart.TestEntity2,
         const TypeOf<List<test_type_to_type_objects_dart.TestEntity2>>().type,
         () => new test_type_to_type_objects_dart.TestEntity2(),
         const {'test': test_type_to_type_objects_dart.TestEntity});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.TestDto2",
+        "nomirrorsmap.test_objects.TestDto2",
         test_type_to_type_objects_dart.TestDto2,
         const TypeOf<List<test_type_to_type_objects_dart.TestDto2>>().type,
         () => new test_type_to_type_objects_dart.TestDto2(),
         const {'test': test_type_to_type_objects_dart.TestDto});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ListEntity",
+        "nomirrorsmap.test_objects.ListEntity",
         test_type_to_type_objects_dart.ListEntity,
         const TypeOf<List<test_type_to_type_objects_dart.ListEntity>>().type,
         () => new test_type_to_type_objects_dart.ListEntity(),
         {'list': const TypeOf<List<String>>().type});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ListDto",
+        "nomirrorsmap.test_objects.ListDto",
         test_type_to_type_objects_dart.ListDto,
         const TypeOf<List<test_type_to_type_objects_dart.ListDto>>().type,
         () => new test_type_to_type_objects_dart.ListDto(),
@@ -314,21 +314,21 @@ class TestProjectMappings {
     NoMirrorsMapStore.registerClass("dart.core.String", String,
         const TypeOf<List<String>>().type, null, {});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.NonPrimitiveListEntity",
+        "nomirrorsmap.test_objects.NonPrimitiveListEntity",
         test_type_to_type_objects_dart.NonPrimitiveListEntity,
         const TypeOf<
             List<test_type_to_type_objects_dart.NonPrimitiveListEntity>>().type,
         () => new test_type_to_type_objects_dart.NonPrimitiveListEntity(),
         {'list': const TypeOf<List<test_type_to_type_objects_dart.TestEntity>>().type});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.NonPrimitiveListDto",
+        "nomirrorsmap.test_objects.NonPrimitiveListDto",
         test_type_to_type_objects_dart.NonPrimitiveListDto,
         const TypeOf<List<test_type_to_type_objects_dart.NonPrimitiveListDto>>()
             .type,
         () => new test_type_to_type_objects_dart.NonPrimitiveListDto(),
         {'list': const TypeOf<List<test_type_to_type_objects_dart.TestDto>>().type});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.InheritedDto",
+        "nomirrorsmap.test_objects.InheritedDto",
         test_type_to_type_objects_dart.InheritedDto,
         const TypeOf<List<test_type_to_type_objects_dart.InheritedDto>>().type,
         () => new test_type_to_type_objects_dart.InheritedDto(), {
@@ -341,7 +341,7 @@ class TestProjectMappings {
       'numProperty': num
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.InheritedEntity",
+        "nomirrorsmap.test_objects.InheritedEntity",
         test_type_to_type_objects_dart.InheritedEntity,
         const TypeOf<List<test_type_to_type_objects_dart.InheritedEntity>>()
             .type,
@@ -356,20 +356,20 @@ class TestProjectMappings {
       'numProperty': num
     });
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ConcreteEntity",
+        "nomirrorsmap.test_objects.ConcreteEntity",
         test_type_to_type_objects_dart.ConcreteEntity,
         const TypeOf<List<test_type_to_type_objects_dart.ConcreteEntity>>()
             .type,
         () => new test_type_to_type_objects_dart.ConcreteEntity(),
         {'id': int, 'name': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ConcreteDto",
+        "nomirrorsmap.test_objects.ConcreteDto",
         test_type_to_type_objects_dart.ConcreteDto,
         const TypeOf<List<test_type_to_type_objects_dart.ConcreteDto>>().type,
         () => new test_type_to_type_objects_dart.ConcreteDto(),
         {'id': int, 'name': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.ConcreteWithNoMapEntity",
+        "nomirrorsmap.test_objects.ConcreteWithNoMapEntity",
         test_type_to_type_objects_dart.ConcreteWithNoMapEntity,
         const TypeOf<
                 List<test_type_to_type_objects_dart.ConcreteWithNoMapEntity>>()
@@ -378,13 +378,13 @@ class TestProjectMappings {
         {'id': int, 'name': String});
 
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.SourceType",
+        "nomirrorsmap.test_objects.SourceType",
         test_type_to_type_objects_dart.SourceType,
         const TypeOf<List<test_type_to_type_objects_dart.SourceType>>().type,
         () => new test_type_to_type_objects_dart.SourceType(),
         {'intProperty': int, 'stringProperty': String});
     NoMirrorsMapStore.registerClass(
-        "nomirrorsmap.tests.DestType",
+        "nomirrorsmap.test_objects.DestType",
         test_type_to_type_objects_dart.DestType,
         const TypeOf<List<test_type_to_type_objects_dart.DestType>>().type,
         () => new test_type_to_type_objects_dart.DestType(),
