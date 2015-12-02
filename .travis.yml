@@ -1,12 +1,8 @@
 language: dart
 dart: 
-  - dev
   - stable
 sudo: false
 before_script:
  - chmod +x travis.sh
  - chmod +x ensure_dartfmt.sh
 script: ./travis.sh
-matrix:
-  allow_failures:
-    - env: "DART_CHANNEL=dev"
