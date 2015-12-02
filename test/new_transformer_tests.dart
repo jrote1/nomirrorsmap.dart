@@ -10,7 +10,7 @@ import 'package:code_transformers/tests.dart';
 import 'package:code_transformers/src/dart_sdk.dart';
 
 String MAP_LIBRARY = '''
-		library nomirrorsmap;
+		library nomirrorsmap.shared;
 
 		class Mappable{
 			const Mappable();
