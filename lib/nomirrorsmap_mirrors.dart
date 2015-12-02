@@ -11,7 +11,7 @@ void useMirrors() {
 class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
   @override
   bool containsEnumGeneratedMap(Type type) {
-    return new reflective.TypeReflection(type).isEnum();
+    return new reflective.TypeReflection(type).isEnum;
   }
 
   @override
@@ -39,7 +39,7 @@ class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
   @override
   ClassMapping getClassGeneratedMapByListType(Type type) {
     var classType =
-        new reflective.TypeReflection(type).getTypeArguments().first.type;
+        new reflective.TypeReflection(type).typeArguments.first.type;
     return getClassGeneratedMap(classType);
   }
 
@@ -57,6 +57,6 @@ class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
 
   @override
   List getEnumGeneratedMap(Type type) {
-    return new reflective.TypeReflection(type).getEnumValues();
+    return new reflective.TypeReflection(type).enumValues;
   }
 }
