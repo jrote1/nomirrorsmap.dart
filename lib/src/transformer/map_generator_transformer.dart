@@ -57,8 +57,6 @@ class MapGeneratorTransformer extends Transformer with ResolverTransformer {
     var body = main.body;
 
     if (body is BlockFunctionBody) {
-      var methodInvocation =
-          body.getAncestor((node) => node is MethodInvocation);
       Iterable<MethodInvocation> methodInvocations = body.block.statements
           .where((statement) => statement is ExpressionStatement &&
               statement.expression is MethodInvocation)

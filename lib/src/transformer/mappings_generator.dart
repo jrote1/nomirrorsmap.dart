@@ -55,7 +55,8 @@ class MappingsGenerator {
 
   Iterable<ClassElement> _getTypesThatShouldBeMapped(
       List<ClassElement> types, List<LibraryElement> libraries) sync* {
-    var mappableMetadataType = _resolver.getType("nomirrorsmap.shared.Mappable");
+    var mappableMetadataType =
+        _resolver.getType("nomirrorsmap.shared.Mappable");
     for (var type in types) {
       if (libraries.contains(type.library)) yield type;
       if (mappableMetadataType != null) {

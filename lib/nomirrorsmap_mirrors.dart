@@ -26,7 +26,7 @@ class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
         ..getter = field.value;
 
       result.fields.add(new ClassField()
-        ..type = field.type.type
+        ..type = field.type.rawType
         ..fieldMapping = fieldMapping);
     }
     result.type = type;
@@ -39,14 +39,14 @@ class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
   @override
   ClassMapping getClassGeneratedMapByListType(Type type) {
     var classType =
-        new reflective.TypeReflection(type).typeArguments.first.type;
+        new reflective.TypeReflection(type).typeArguments.first.rawType;
     return getClassGeneratedMap(classType);
   }
 
   @override
   ClassMapping getClassGeneratedMapByQualifiedName(String qualifiedName) {
     var classType =
-        new reflective.TypeReflection.fromFullName(qualifiedName).type;
+        new reflective.TypeReflection.fromFullName(qualifiedName).rawType;
     return getClassGeneratedMap(classType);
   }
 
