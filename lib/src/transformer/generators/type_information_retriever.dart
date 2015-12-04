@@ -18,14 +18,23 @@ class _TypeInformationRetriever {
         in type.mixins) yield* _getAllTypeFields(mixin.element, parameters);
 
     if (!isObject(type.supertype)) {
+      var typeArguments = <String, InterfaceType>{};
       for (var currentType = type.supertype;
           !isObject(currentType);
           currentType = currentType.element.supertype) {
+        for (var i = 0; i < currentType.typeArguments.length; i++) {
+          var typeArgument = currentType.typeArguments[i];
+          if (typeArgument is TypeParameterType) typeArgument =
+              typeArguments[typeArgument.displayName];
+          typeArguments[currentType.typeParameters[i].displayName] =
+              typeArgument;
+        }
+
         var genericParameters = <TypeParameterElement, InterfaceType>{};
         if (currentType.typeArguments.length > 0) {
-          for (var generic in currentType.typeArguments) {
-            genericParameters[currentType.element.typeParameters[
-                currentType.typeArguments.indexOf(generic)]] = generic;
+          for (var typeParameter in currentType.typeParameters) {
+            genericParameters[typeParameter] =
+                typeArguments[typeParameter.displayName];
           }
         }
 

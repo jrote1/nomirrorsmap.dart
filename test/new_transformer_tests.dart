@@ -573,6 +573,53 @@ class BaseClass
         ], [])
       });
     });
+
+    test("geneic part of intermediate class is unknown", () {
+      return applyTransformers(getPhases(), inputs: {
+        'nomirrorsmap|lib/nomirrorsmap.dart': MAP_LIBRARY,
+        'testProject|web/main.dart':
+            '''import 'package:nomirrorsmap/nomirrorsmap.dart';
+
+main(){}
+
+class User<TType>
+{
+    TType UserType;
+}
+
+class Employee<TType> extends User<TType>
+{
+}
+
+@Mappable()
+class PermanentEmployee extends Employee<PermanentEmployment>
+{
+}
+
+@Mappable()
+class PermanentEmployment
+{
+}
+
+
+
+
+'''
+      }, results: {
+        'testProject|web/web_main_dart_mappings.dart': mappingsClassGenerator([
+          "import 'main.dart' as web_main_dart;"
+        ], [
+          "UserType"
+        ], [
+          '''NoMirrorsMapStore.registerClass( "PermanentEmployee", web_main_dart.PermanentEmployee, const TypeOf<List<web_main_dart.PermanentEmployee>>().type, () => new web_main_dart.PermanentEmployee(), {
+                  'UserType': web_main_dart.PermanentEmployment
+                } );''',
+          '''NoMirrorsMapStore.registerClass( "PermanentEmployment", web_main_dart.PermanentEmployment, const TypeOf<List<web_main_dart.PermanentEmployment>>().type, () => new web_main_dart.PermanentEmployment(), {
+
+                } );'''
+        ], [])
+      });
+    });
   }
 }
 
