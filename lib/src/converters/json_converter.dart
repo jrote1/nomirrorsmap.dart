@@ -1,81 +1,111 @@
 part of nomirrorsmap.converters;
 
-class JsonConverter implements Converter
-{
-	String _hashcodeName;
+class JsonConverter implements Converter {
+  String _hashcodeName;
 
-	JsonConverter( [String hashcodeName = "\$hashcode"] )
-	{
-		_hashcodeName = hashcodeName;
-	}
+  TypeInformationRetriever get _typeInformationRetriever =>
+      TypeInformationRetrieverLocator.instance;
 
-	BaseObjectData toBaseObjectData( dynamic value )
-	{
-		if ( !(value is String) )
-			throw new Exception( "value is not a String" );
-		var json = JSON.decode( value );
-		return _jsonToBaseObjectData( json );
-	}
+  JsonConverter([String hashcodeName = "\$hashcode"]) {
+    _hashcodeName = hashcodeName;
+  }
 
-	String getPreviousHashcode( Map json )
-	=> json[_hashcodeName];
+  BaseIntermediateObject toBaseIntermediateObject(dynamic value) {
+    if (!(value is String)) throw new Exception("value is not a String");
+    var json = JSON.decode(value);
+    return _jsonToBaseObjectData(json);
+  }
 
-	Type findObjectType( dynamic json )
-	{
-		return json.containsKey( "\$type" ) ? GeneratedMapProvider.getClassGeneratedMapByQualifiedName( json["\$type"] ).type : null;
-	}
+  String getPreviousHashcode(Map json) => json[_hashcodeName];
 
-	void afterCreatingClassObjectData( ClassObjectData classObjectData )
-	{
-	}
+  Type findObjectType(dynamic json) {
+    return json.containsKey("\$type")
+        ? _typeInformationRetriever
+            .getClassGeneratedMapByQualifiedName(json["\$type"])
+            .type
+        : null;
+  }
 
-	BaseObjectData _jsonToBaseObjectData( dynamic json )
-	{
-		if ( json is Map )
-		{
-			var classObjectData = new ClassObjectData( );
-			classObjectData.previousHashCode = getPreviousHashcode( json );
-			classObjectData.previousHashCode = getPreviousHashcode( json );
-			classObjectData.objectType = findObjectType( json );
+  void afterCreatingClassObjectData(ClassIntermediateObject classObjectData) {}
 
-			afterCreatingClassObjectData( classObjectData );
-			Map<String, BaseObjectData> properties = {
-			};
-			(json as Map).forEach( ( key, value )
-								   {
-									   properties[key] = _jsonToBaseObjectData( value );
-								   } );
+  BaseIntermediateObject _jsonToBaseObjectData(dynamic json) {
+    if (json is Map) {
+      var classObjectData = new ClassIntermediateObject();
+      classObjectData.previousHashCode = getPreviousHashcode(json);
+      classObjectData.objectType = findObjectType(json);
 
+      afterCreatingClassObjectData(classObjectData);
+      Map<String, BaseIntermediateObject> properties = {};
+      (json as Map).forEach((key, value) {
+        properties[key] = _jsonToBaseObjectData(value);
+      });
 
-			classObjectData.properties = properties;
+      classObjectData.properties = properties;
 
-			return classObjectData;
-		} else if ( json is List )
-			return new ListObjectData( )
-				..values = json.map( ( o )
-									 => _jsonToBaseObjectData( o ) ).toList( );
-		return new NativeObjectData( )
-			..value = json;
-	}
+      return classObjectData;
+    } else if (json is List) return new ListIntermediateObject()
+      ..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
+    return new NativeIntermediateObject()..value = json;
+  }
 
-	dynamic fromBaseObjectData( BaseObjectData baseObjectData )
-	{
-		return JSON.encode( _fromBaseObjectData( baseObjectData ) );
-	}
+  dynamic fromBaseIntermediateObject(BaseIntermediateObject baseObjectData) {
+    var stringBuffer = new StringBuffer();
+    _fromBaseObjectData(baseObjectData, stringBuffer);
+    return stringBuffer.toString();
+  }
 
-	void setMetaData( Map result, String hashcode, ClassObjectData classObjectData )
-	{
-		result[_hashcodeName] = hashcode;
-		setTypeFromObjectType( result, classObjectData );
-	}
+  void setMetaData(
+      StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
+    stringBuffer
+        .write("\"$_hashcodeName\":\"${classObjectData.previousHashCode}\",");
 
-	void setTypeFromObjectType( Map json, ClassObjectData classObjectData )
-	{
-		json["\$type"] =  GeneratedMapProvider.getClassGeneratedMap(classObjectData.objectType).qualifiedName;
-	}
+    setTypeFromObjectType(stringBuffer, classObjectData);
+  }
 
-	dynamic _fromBaseObjectData( BaseObjectData baseObjectData )
-	{
+  void setTypeFromObjectType(
+      StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
+    var map = _typeInformationRetriever
+        .getClassGeneratedMapWithNoCheck(classObjectData.objectType);
+    if (map != null) {
+      stringBuffer.write("\"\$type\":\"${map.fullName}\"");
+      stringBuffer.write(classObjectData.properties.length > 0 ? "," : "");
+    }
+  }
+
+  void _fromBaseObjectData(
+      BaseIntermediateObject baseObjectData, StringBuffer stringBuffer) {
+    if (baseObjectData is ClassIntermediateObject) {
+      stringBuffer.write("{");
+
+      setMetaData(stringBuffer, baseObjectData);
+
+      for (var key in baseObjectData.properties.keys) {
+        stringBuffer.write("\"$key\":");
+        _fromBaseObjectData(baseObjectData.properties[key], stringBuffer);
+        if (baseObjectData.properties.keys.last != key) stringBuffer.write(",");
+      }
+
+      stringBuffer.write("}");
+    }
+    if (baseObjectData is ListIntermediateObject) {
+      stringBuffer.write("[");
+      for (var i = 0; i < baseObjectData.values.length; i++) {
+        var value = baseObjectData.values[i];
+        _fromBaseObjectData(value, stringBuffer);
+        if (i != (baseObjectData.values.length - 1)) stringBuffer.write(",");
+      }
+      stringBuffer.write("]");
+    }
+
+    if (baseObjectData is NativeIntermediateObject) {
+      if (baseObjectData.value is String) stringBuffer.write("\"" +
+          baseObjectData.value.replaceAll(r"\", r'\\').replaceAll("\"", '\\"') +
+          "\"");
+      else if (baseObjectData.value is DateTime) stringBuffer
+          .write('"${baseObjectData.value.toString()}"');
+      else stringBuffer.write(baseObjectData.value);
+    }
+    /*
 		if ( baseObjectData is ClassObjectData )
 		{
 			var result = {
@@ -93,6 +123,6 @@ class JsonConverter implements Converter
 											  => _fromBaseObjectData( v ) ).toList( );
 		}
 		return (baseObjectData as NativeObjectData).value;
-	}
+		*/
+  }
 }
-

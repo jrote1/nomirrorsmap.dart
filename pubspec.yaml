@@ -1,15 +1,14 @@
 name: nomirrorsmap
-version: 1.0.0-beta1
+version: 1.0.22
 author: jrote1<jrote1@me.com>
-description: A multipurpose mapping library
+description: A library for mapping without mirrors this includes JSON and Object to Object
 homepage: https://github.com/jrote1/nomirrorsmap.dart
 environment:
   sdk: '>=1.9.0 <2.0.0'
 dependencies:
-  barback: '>=0.12.0 <0.17.0'
-  code_transformers: '>=0.2.3 <0.3.0'
+  code_transformers: any
+  dart_style: any
   path: '>=1.0.0 <2.0.0'
+  reflective: '^0.0.23'
 dev_dependencies:
   unittest: any
-transformers:
-- nomirrorsmap

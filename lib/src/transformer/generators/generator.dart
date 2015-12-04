@@ -1,6 +1,5 @@
-part of nomirrorsmap.generators;
+part of nomirrorsmap.transformer;
 
-abstract class Generator{
-  bool isApplicable(dynamic element);
-  List<Element> process(dynamic element, StringBuffer fileContent);
+abstract class _Generator {
+  String generate(_GeneratorParameters parameters);
 }
