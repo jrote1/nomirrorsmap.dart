@@ -4,52 +4,48 @@ class _ClassGenerator extends _Generator with _TypeInformationRetriever {
   @override
   String generate(_GeneratorParameters parameters) {
     var stringBuilder = new StringBuffer();
-    stringBuilder.write('''static void _registerClasses()
-	{''');
+    stringBuilder.write('''\tstatic void _registerClasses()
+	{\n''');
 
-    for (var type in parameters.typesToMap.where((type) => !type.isEnum)) {
+    var classes = parameters.typesToMap.where((type) => !type.isEnum).toList();
+    if (classes.length == 0) stringBuilder.writeln("");
+
+    for (var type in classes) {
       var fullTypeName = type.library.displayName;
       if (fullTypeName.length > 0) fullTypeName += ".";
       fullTypeName += type.displayName;
 
-      var importedTypeName =
-          _getImportTypeName(parameters.libraryImportAliases, type);
+      var importedTypeName = _getImportTypeName(parameters.libraryImportAliases, type);
 
       var hasDefaultConstructor = _typeHasConstructor(type);
-      var constructor =
-          hasDefaultConstructor ? "() => new $importedTypeName()" : "null";
+      var constructor = hasDefaultConstructor ? "() => new $importedTypeName()" : "null";
 
-      stringBuilder.writeln(
-          "NoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {");
+      stringBuilder.writeln("\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {");
 
       _outputFields(type, parameters, stringBuilder);
 
-      stringBuilder.writeln("} );");
+      stringBuilder.writeln("\t\t} );");
     }
 
-    stringBuilder.write("}");
+    stringBuilder.writeln("\t}");
     return stringBuilder.toString();
   }
 
-  String _getImportTypeName(
-      UnmodifiableMapView<LibraryElement, String> libraryImportAliases,
-      ClassElement type) {
-    if (libraryImportAliases
-        .containsKey(type.library)) return libraryImportAliases[type.library] +
-        "." +
-        type.displayName;
+  String _getImportTypeName(UnmodifiableMapView<LibraryElement, String> libraryImportAliases, ClassElement type) {
+    if (libraryImportAliases.containsKey(type.library)) return libraryImportAliases[type.library] + "." + type.displayName;
     return type.displayName;
   }
 
-  void _outputFields(Element type, _GeneratorParameters parameters,
-      StringBuffer stringBuilder) {
+  void _outputFields(Element type, _GeneratorParameters parameters, StringBuffer stringBuilder) {
     var fields = _getAllTypeFields(type, parameters).toList();
+    if (fields.length == 0) return;
     for (var field in fields) {
       var typeText = field.typeText;
       if (typeText.contains("<")) typeText = "const TypeOf<$typeText>().type";
 
-      stringBuilder.write("'${field.name}': $typeText");
+      stringBuilder.write("\t\t\t'${field.name}': $typeText");
       if (fields.last != field) stringBuilder.writeln(",");
     }
+    stringBuilder.writeln();
   }
 }

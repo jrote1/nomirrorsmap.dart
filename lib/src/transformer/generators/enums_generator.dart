@@ -4,18 +4,18 @@ class _EnumsGenerator implements _Generator {
   @override
   String generate(_GeneratorParameters parameters) {
     var stringBuilder = new StringBuffer();
-    stringBuilder.write('''static void _registerEnums()
-	{''');
+    stringBuilder.write('''\tstatic void _registerEnums()
+	{\n''');
 
-    for (var type in parameters.typesToMap.where((type) => type.isEnum)) {
-      var importedTypeName = parameters.libraryImportAliases[type.library] +
-          "." +
-          type.displayName;
-      stringBuilder.writeln(
-          "NoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );");
+    var enums = parameters.typesToMap.where((type) => type.isEnum).toList();
+    if (enums.length == 0) stringBuilder.writeln("");
+
+    for (var type in enums) {
+      var importedTypeName = parameters.libraryImportAliases[type.library] + "." + type.displayName;
+      stringBuilder.writeln("\t\tNoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );");
     }
 
-    stringBuilder.write("}");
+    stringBuilder.writeln("\t}");
     return stringBuilder.toString();
   }
 }

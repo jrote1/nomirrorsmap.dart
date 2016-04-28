@@ -2,14 +2,19 @@ part of nomirrorsmap.transformer;
 
 class TransformerOptions {
   static const LIBRARY_NAMES_PARAM = "library_names";
+  static const FORMAT_CODE_NAMES_PARAM = "format_code";
 
   final List<String> libraryNames;
+  final bool formatCode;
 
-  TransformerOptions.initialize(this.libraryNames);
+  TransformerOptions.initialize(this.libraryNames, this.formatCode);
 
   factory TransformerOptions(BarbackSettings settings) {
-    return new TransformerOptions.initialize(
-        _readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM));
+    return new TransformerOptions.initialize(_readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM), _readBool(settings.configuration, FORMAT_CODE_NAMES_PARAM, defaultValue: true));
+  }
+
+  static bool _readBool(Map config, String paramName, {bool defaultValue}) {
+    return config.containsKey(paramName) ? config[paramName] != false : defaultValue;
   }
 
   static List<String> _readLibraryList(Map config, String paramName) {
