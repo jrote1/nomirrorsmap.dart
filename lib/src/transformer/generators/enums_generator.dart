@@ -11,8 +11,11 @@ class _EnumsGenerator implements _Generator {
     if (enums.length == 0) stringBuilder.writeln("");
 
     for (var type in enums) {
-      var importedTypeName = parameters.libraryImportAliases[type.library] + "." + type.displayName;
-      stringBuilder.writeln("\t\tNoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );");
+      var importedTypeName = parameters.libraryImportAliases[type.library] +
+          "." +
+          type.displayName;
+      stringBuilder.writeln(
+          "\t\tNoMirrorsMapStore.registerEnum( $importedTypeName, $importedTypeName.values );");
     }
 
     stringBuilder.writeln("\t}");

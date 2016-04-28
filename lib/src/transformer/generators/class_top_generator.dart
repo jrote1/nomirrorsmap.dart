@@ -16,8 +16,10 @@ class _ClassTopGenerator implements _Generator {
     if (libraries.length == 0) stringBuilder.writeln();
 
     for (var library in libraries) {
-      var importPath = _resolver.getImportUri(library, from: parameters.assetId);
-      stringBuilder.writeln("import '$importPath' as ${parameters.libraryImportAliases[library]};");
+      var importPath =
+          _resolver.getImportUri(library, from: parameters.assetId);
+      stringBuilder.writeln(
+          "import '$importPath' as ${parameters.libraryImportAliases[library]};");
     }
 
     return '''${stringBuilder.toString( )}class ${parameters.mappingsClassName}

@@ -15,12 +15,15 @@ class _ClassGenerator extends _Generator with _TypeInformationRetriever {
       if (fullTypeName.length > 0) fullTypeName += ".";
       fullTypeName += type.displayName;
 
-      var importedTypeName = _getImportTypeName(parameters.libraryImportAliases, type);
+      var importedTypeName =
+          _getImportTypeName(parameters.libraryImportAliases, type);
 
       var hasDefaultConstructor = _typeHasConstructor(type);
-      var constructor = hasDefaultConstructor ? "() => new $importedTypeName()" : "null";
+      var constructor =
+          hasDefaultConstructor ? "() => new $importedTypeName()" : "null";
 
-      stringBuilder.writeln("\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {");
+      stringBuilder.writeln(
+          "\t\tNoMirrorsMapStore.registerClass( \"$fullTypeName\", $importedTypeName, const TypeOf<List<$importedTypeName>>().type, $constructor, {");
 
       _outputFields(type, parameters, stringBuilder);
 
@@ -31,12 +34,16 @@ class _ClassGenerator extends _Generator with _TypeInformationRetriever {
     return stringBuilder.toString();
   }
 
-  String _getImportTypeName(UnmodifiableMapView<LibraryElement, String> libraryImportAliases, ClassElement type) {
-    if (libraryImportAliases.containsKey(type.library)) return libraryImportAliases[type.library] + "." + type.displayName;
+  String _getImportTypeName(
+      UnmodifiableMapView<LibraryElement, String> libraryImportAliases,
+      ClassElement type) {
+    if (libraryImportAliases.containsKey(type.library))
+      return libraryImportAliases[type.library] + "." + type.displayName;
     return type.displayName;
   }
 
-  void _outputFields(Element type, _GeneratorParameters parameters, StringBuffer stringBuilder) {
+  void _outputFields(Element type, _GeneratorParameters parameters,
+      StringBuffer stringBuilder) {
     var fields = _getAllTypeFields(type, parameters).toList();
     if (fields.length == 0) return;
     for (var field in fields) {

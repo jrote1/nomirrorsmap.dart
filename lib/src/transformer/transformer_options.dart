@@ -10,11 +10,16 @@ class TransformerOptions {
   TransformerOptions.initialize(this.libraryNames, this.formatCode);
 
   factory TransformerOptions(BarbackSettings settings) {
-    return new TransformerOptions.initialize(_readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM), _readBool(settings.configuration, FORMAT_CODE_NAMES_PARAM, defaultValue: true));
+    return new TransformerOptions.initialize(
+        _readLibraryList(settings.configuration, LIBRARY_NAMES_PARAM),
+        _readBool(settings.configuration, FORMAT_CODE_NAMES_PARAM,
+            defaultValue: true));
   }
 
   static bool _readBool(Map config, String paramName, {bool defaultValue}) {
-    return config.containsKey(paramName) ? config[paramName] != false : defaultValue;
+    return config.containsKey(paramName)
+        ? config[paramName] != false
+        : defaultValue;
   }
 
   static List<String> _readLibraryList(Map config, String paramName) {
