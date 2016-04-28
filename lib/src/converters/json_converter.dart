@@ -43,8 +43,9 @@ class JsonConverter implements Converter {
       classObjectData.properties = properties;
 
       return classObjectData;
-    } else if (json is List) return new ListIntermediateObject()
-      ..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
+    } else if (json is List)
+      return new ListIntermediateObject()
+        ..values = json.map((o) => _jsonToBaseObjectData(o)).toList();
     return new NativeIntermediateObject()..value = json;
   }
 
@@ -98,12 +99,16 @@ class JsonConverter implements Converter {
     }
 
     if (baseObjectData is NativeIntermediateObject) {
-      if (baseObjectData.value is String) stringBuffer.write("\"" +
-          baseObjectData.value.replaceAll(r"\", r'\\').replaceAll("\"", '\\"') +
-          "\"");
-      else if (baseObjectData.value is DateTime) stringBuffer
-          .write('"${baseObjectData.value.toString()}"');
-      else stringBuffer.write(baseObjectData.value);
+      if (baseObjectData.value is String)
+        stringBuffer.write("\"" +
+            baseObjectData.value
+                .replaceAll(r"\", r'\\')
+                .replaceAll("\"", '\\"') +
+            "\"");
+      else if (baseObjectData.value is DateTime)
+        stringBuffer.write('"${baseObjectData.value.toString()}"');
+      else
+        stringBuffer.write(baseObjectData.value);
     }
     /*
 		if ( baseObjectData is ClassObjectData )

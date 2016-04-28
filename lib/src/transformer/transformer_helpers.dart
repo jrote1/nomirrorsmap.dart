@@ -16,8 +16,8 @@ class TransformerHelpers {
   static List uniquifyList(List list) {
     var result = [];
 
-    for (var element
-        in list) if (!result.contains(element)) result.add(element);
+    for (var element in list)
+      if (!result.contains(element)) result.add(element);
 
     return result;
   }

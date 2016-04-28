@@ -14,17 +14,18 @@ class ClassConverter implements Converter {
 
   BaseIntermediateObject toBaseIntermediateObject(Object value) {
     var valueType = value.runtimeType;
-    if (converters.containsKey(valueType)) return converters[valueType]
-        .from(value);
+    if (converters.containsKey(valueType))
+      return converters[valueType].from(value);
 
     if (value is List) {
       return new ListIntermediateObject()
         ..values = value.map((v) => toBaseIntermediateObject(v)).toList();
     }
 
-    if (_isPrimitive(value)) return new NativeIntermediateObject()
-      ..objectType = valueType
-      ..value = value;
+    if (_isPrimitive(value))
+      return new NativeIntermediateObject()
+        ..objectType = valueType
+        ..value = value;
 
     if (_isEnum(value)) {
       return new NativeIntermediateObject()
@@ -33,10 +34,11 @@ class ClassConverter implements Converter {
     }
 
     var hashCode = value.hashCode;
-    if (seenHashCodes.contains(hashCode)) return new ClassIntermediateObject()
-      ..objectType = valueType
-      ..previousHashCode = hashCode.toString()
-      ..properties = {};
+    if (seenHashCodes.contains(hashCode))
+      return new ClassIntermediateObject()
+        ..objectType = valueType
+        ..previousHashCode = hashCode.toString()
+        ..properties = {};
     seenHashCodes.add(hashCode);
 
     var generatedMap =
@@ -81,22 +83,21 @@ class ClassConverter implements Converter {
       BaseIntermediateObject baseObjectData, Type type) {
     if (baseObjectData is ClassIntermediateObject) {
       var generatedMap = _typeInformationRetriever.getClassGeneratedMap(type);
-      if (generatedMap.instantiate ==
-          null) throw "Type '$type' does not have a default constructor, make sure it has a default constructor wuth no paramters";
+      if (generatedMap.instantiate == null)
+        throw "Type '$type' does not have a default constructor, make sure it has a default constructor wuth no paramters";
       var instance = generatedMap.instantiate();
 
       ClassConverterInstance classConverterInstance;
       if (baseObjectData.previousHashCode != null &&
-          instances.containsKey(
-              baseObjectData.previousHashCode)) classConverterInstance =
-          instances[baseObjectData.previousHashCode];
+          instances.containsKey(baseObjectData.previousHashCode))
+        classConverterInstance = instances[baseObjectData.previousHashCode];
       else {
         classConverterInstance = new ClassConverterInstance()
           ..filled = false
           ..instance = instance;
 
-        if (baseObjectData.previousHashCode != null) instances[
-            baseObjectData.previousHashCode] = classConverterInstance;
+        if (baseObjectData.previousHashCode != null)
+          instances[baseObjectData.previousHashCode] = classConverterInstance;
       }
       if (!classConverterInstance.filled &&
           baseObjectData.properties.length > 0) {
@@ -112,9 +113,10 @@ class ClassConverter implements Converter {
                 : propertyObjectData.objectType;
 
             Object value;
-            if (converters.containsKey(propertyType)) value =
-                converters[propertyType].to(propertyObjectData);
-            else value = _fromBaseObjectData(propertyObjectData, propertyType);
+            if (converters.containsKey(propertyType))
+              value = converters[propertyType].to(propertyObjectData);
+            else
+              value = _fromBaseObjectData(propertyObjectData, propertyType);
 
             if (value is List) {
               var list = [];

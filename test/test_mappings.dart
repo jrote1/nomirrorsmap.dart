@@ -140,11 +140,11 @@ class TestProjectMappings {
             .type,
         () => new test_test_objects_dart.SimpleTypeUsingDollarRef(),
         {
-      'name': String,
-      'people':
-          const TypeOf<List<test_test_objects_dart.SimpleTypeUsingDollarRef>>()
+          'name': String,
+          'people': const TypeOf<
+                  List<test_test_objects_dart.SimpleTypeUsingDollarRef>>()
               .type
-    });
+        });
     NoMirrorsMapStore.registerClass(
         "nomirrorsmap.test_objects.NewtonSoftTest",
         test_test_objects_dart.NewtonSoftTest,
@@ -317,16 +317,24 @@ class TestProjectMappings {
         "nomirrorsmap.test_objects.NonPrimitiveListEntity",
         test_type_to_type_objects_dart.NonPrimitiveListEntity,
         const TypeOf<
-            List<test_type_to_type_objects_dart.NonPrimitiveListEntity>>().type,
+                List<test_type_to_type_objects_dart.NonPrimitiveListEntity>>()
+            .type,
         () => new test_type_to_type_objects_dart.NonPrimitiveListEntity(),
-        {'list': const TypeOf<List<test_type_to_type_objects_dart.TestEntity>>().type});
+        {
+          'list':
+              const TypeOf<List<test_type_to_type_objects_dart.TestEntity>>()
+                  .type
+        });
     NoMirrorsMapStore.registerClass(
         "nomirrorsmap.test_objects.NonPrimitiveListDto",
         test_type_to_type_objects_dart.NonPrimitiveListDto,
         const TypeOf<List<test_type_to_type_objects_dart.NonPrimitiveListDto>>()
             .type,
         () => new test_type_to_type_objects_dart.NonPrimitiveListDto(),
-        {'list': const TypeOf<List<test_type_to_type_objects_dart.TestDto>>().type});
+        {
+          'list':
+              const TypeOf<List<test_type_to_type_objects_dart.TestDto>>().type
+        });
     NoMirrorsMapStore.registerClass(
         "nomirrorsmap.test_objects.InheritedDto",
         test_type_to_type_objects_dart.InheritedDto,
@@ -347,14 +355,14 @@ class TestProjectMappings {
             .type,
         () => new test_type_to_type_objects_dart.InheritedEntity(),
         {
-      'extraProperty': int,
-      'stringProperty': String,
-      'intProperty': int,
-      'dateTimeProperty': DateTime,
-      'doubleProperty': double,
-      'boolProperty': bool,
-      'numProperty': num
-    });
+          'extraProperty': int,
+          'stringProperty': String,
+          'intProperty': int,
+          'dateTimeProperty': DateTime,
+          'doubleProperty': double,
+          'boolProperty': bool,
+          'numProperty': num
+        });
     NoMirrorsMapStore.registerClass(
         "nomirrorsmap.test_objects.ConcreteEntity",
         test_type_to_type_objects_dart.ConcreteEntity,

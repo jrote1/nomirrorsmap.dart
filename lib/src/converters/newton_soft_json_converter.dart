@@ -31,13 +31,14 @@ class NewtonSoftJsonConverter extends JsonConverter {
   Type findObjectType(dynamic json) {
     Type objectType = null;
 
-    if (json.containsKey("\$type")) objectType = _typeInformationRetriever
-        .getClassGeneratedMapByQualifiedName(json["\$type"])
-        .type;
+    if (json.containsKey("\$type"))
+      objectType = _typeInformationRetriever
+          .getClassGeneratedMapByQualifiedName(json["\$type"])
+          .type;
     else {
       if (!json.containsKey("\$type") &&
-          fromJsonHashCodesAndTypes.containsKey(json["\$ref"])) objectType =
-          fromJsonHashCodesAndTypes[json["\$ref"]];
+          fromJsonHashCodesAndTypes.containsKey(json["\$ref"]))
+        objectType = fromJsonHashCodesAndTypes[json["\$ref"]];
     }
 
     return objectType;
@@ -47,7 +48,8 @@ class NewtonSoftJsonConverter extends JsonConverter {
   void afterCreatingClassObjectData(ClassIntermediateObject classObjectData) {
     if (!fromJsonHashCodesAndTypes
             .containsKey(classObjectData.previousHashCode) &&
-        classObjectData.objectType != null) fromJsonHashCodesAndTypes[
-        classObjectData.previousHashCode] = classObjectData.objectType;
+        classObjectData.objectType != null)
+      fromJsonHashCodesAndTypes[classObjectData.previousHashCode] =
+          classObjectData.objectType;
   }
 }

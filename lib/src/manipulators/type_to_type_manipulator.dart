@@ -29,12 +29,12 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
       classObjectData.objectType = toType;
 
       classObjectData.properties.forEach((k, v) {
-        if (classGeneratedMap.fields
-            .any((p) => p.fieldMapping.name == k)) _manipulate(
-            classGeneratedMap.fields
-                .firstWhere((p) => p.fieldMapping.name == k)
-                .type,
-            v);
+        if (classGeneratedMap.fields.any((p) => p.fieldMapping.name == k))
+          _manipulate(
+              classGeneratedMap.fields
+                  .firstWhere((p) => p.fieldMapping.name == k)
+                  .type,
+              v);
       });
     }
     if (baseObjectData is ListIntermediateObject) {
@@ -47,8 +47,8 @@ class TypeToTypeManipulator extends BaseObjectDataManipulator {
   }
 
   Type _getMappedType(BaseIntermediateObject baseObjectData, Type type) {
-    if (typeMaps.containsKey(baseObjectData.objectType)) return typeMaps[
-        baseObjectData.objectType];
+    if (typeMaps.containsKey(baseObjectData.objectType))
+      return typeMaps[baseObjectData.objectType];
     return type;
   }
 }

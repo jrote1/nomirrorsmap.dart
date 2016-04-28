@@ -45,10 +45,13 @@ main() async {
         });
 
         test("Can serialize to Pascal case", () {
-          var result = noMirrorsMap.convert(new Person()
+          var result = noMirrorsMap.convert(
+              new Person()
                 ..id = 1
                 ..children = []
-                ..parents = [], new ClassConverter(), new JsonConverter(),
+                ..parents = [],
+              new ClassConverter(),
+              new JsonConverter(),
               [new PascalCaseManipulator()]);
           expect(result, endsWith('''"Id":1,"Parents":[],"Children":[]}'''));
         });
@@ -56,20 +59,21 @@ main() async {
         test("Performance test", () {
           //218
           var list = [];
-          for (int i = 0; i < 1000; i++) list.add(new Person()
-            ..id = i
-            ..children = [
-              new Person()
-                ..id = i
-                ..children = []
-                ..parents = []
-            ]
-            ..parents = [
-              new Person()
-                ..id = i
-                ..children = []
-                ..parents = []
-            ]);
+          for (int i = 0; i < 1000; i++)
+            list.add(new Person()
+              ..id = i
+              ..children = [
+                new Person()
+                  ..id = i
+                  ..children = []
+                  ..parents = []
+              ]
+              ..parents = [
+                new Person()
+                  ..id = i
+                  ..children = []
+                  ..parents = []
+              ]);
 
           var stopwatch = new Stopwatch()..start();
           noMirrorsMap.convert(
@@ -318,8 +322,8 @@ main() async {
                     ..value = values[1];
                   return result;
                 })
-                ..from = (CustomConverterTest val) =>
-                    (new NativeIntermediateObject()
+                ..from =
+                    (CustomConverterTest val) => (new NativeIntermediateObject()
                       ..value = "${val.id}|${val.value}"
                       ..objectType = String);
         });

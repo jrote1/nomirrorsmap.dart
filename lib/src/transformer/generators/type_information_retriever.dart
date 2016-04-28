@@ -14,8 +14,8 @@ class _TypeInformationRetriever {
             : _getPropertyType(type.name, field.name, field.type, parameters);
     });
 
-    for (var mixin
-        in type.mixins) yield* _getAllTypeFields(mixin.element, parameters);
+    for (var mixin in type.mixins)
+      yield* _getAllTypeFields(mixin.element, parameters);
 
     if (!isObject(type.supertype)) {
       var typeArguments = <String, InterfaceType>{};
@@ -24,8 +24,8 @@ class _TypeInformationRetriever {
           currentType = currentType.element.supertype) {
         for (var i = 0; i < currentType.typeArguments.length; i++) {
           var typeArgument = currentType.typeArguments[i];
-          if (typeArgument is TypeParameterType) typeArgument =
-              typeArguments[typeArgument.displayName];
+          if (typeArgument is TypeParameterType)
+            typeArgument = typeArguments[typeArgument.displayName];
           typeArguments[currentType.typeParameters[i].displayName] =
               typeArgument;
         }
@@ -73,9 +73,10 @@ class _TypeInformationRetriever {
   String _getActualTypeText(
       InterfaceType type, _GeneratorParameters parameters) {
     var typeName = type.name;
-    if (parameters.libraryImportAliases
-        .containsKey(type.element.library)) typeName =
-        parameters.libraryImportAliases[type.element.library] + "." + typeName;
+    if (parameters.libraryImportAliases.containsKey(type.element.library))
+      typeName = parameters.libraryImportAliases[type.element.library] +
+          "." +
+          typeName;
 
     if (type.typeArguments.length > 0) {
       var genericPart = "<${type.typeArguments.map( ( typeArgument )

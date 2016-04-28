@@ -20,9 +20,9 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
   ClassMapping getClassGeneratedMap(Type type) {
     var classMapping = _classMappingsByType[type];
     if (classMapping == null) {
-      if (_classMappings
-          .any((m) => m.type == type)) return _classMappingsByType[type] =
-          _classMappings.firstWhere((m) => m.type == type);
+      if (_classMappings.any((m) => m.type == type))
+        return _classMappingsByType[type] =
+            _classMappings.firstWhere((m) => m.type == type);
       else {
         throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
       }
@@ -33,9 +33,9 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
   ClassMapping getClassGeneratedMapWithNoCheck(Type type) {
     var classMapping = _classMappingsByType[type];
     if (classMapping == null) {
-      if (_classMappings
-          .any((m) => m.type == type)) return _classMappingsByType[type] =
-          _classMappings.firstWhere((m) => m.type == type);
+      if (_classMappings.any((m) => m.type == type))
+        return _classMappingsByType[type] =
+            _classMappings.firstWhere((m) => m.type == type);
       return null;
     }
     return classMapping;
@@ -47,18 +47,17 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
     var classMapping = _classMappingsByListType[type];
     if (classMapping == null) {
       if (!type.toString().contains("<")) return null;
-      if (_classMappings
-          .any((m) => m.listType == type)) return _classMappingsByListType[
-          type] = _classMappings.firstWhere((m) => m.listType == type);
+      if (_classMappings.any((m) => m.listType == type))
+        return _classMappingsByListType[type] =
+            _classMappings.firstWhere((m) => m.listType == type);
       throw "Can't find map for type '${type.toString( )}' is it missing the @Mappable() annotation ";
     }
     return classMapping;
   }
 
   ClassMapping getClassGeneratedMapByQualifiedName(String qualifiedName) {
-    if (_classMappings
-        .any((m) => m.fullName == qualifiedName)) return _classMappings
-        .firstWhere((m) => m.fullName == qualifiedName);
+    if (_classMappings.any((m) => m.fullName == qualifiedName))
+      return _classMappings.firstWhere((m) => m.fullName == qualifiedName);
     throw "Can't find map for type '$qualifiedName' is it missing the @Mappable() annotation ";
   }
 

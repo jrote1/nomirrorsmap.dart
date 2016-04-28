@@ -12,6 +12,7 @@ class _GeneratorParameters {
       List<Element> typesToMap,
       Map<LibraryElement, String> libraryImportAliases)
       : this.typesToMap = new UnmodifiableListView<Element>(typesToMap),
-        this.libraryImportAliases = new UnmodifiableMapView<LibraryElement,
-            String>(libraryImportAliases);
+        this.libraryImportAliases =
+            new UnmodifiableMapView<LibraryElement, String>(
+                libraryImportAliases);
 }
