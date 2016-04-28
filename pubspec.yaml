@@ -11,5 +11,5 @@ dependencies:
   path: '>=1.0.0 <2.0.0'
   reflective: '^0.0.23'
 dev_dependencies:
-  unittest: any
+  test: any
   transformer_test: any
