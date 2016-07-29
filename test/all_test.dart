@@ -11,6 +11,7 @@ import 'test_mappings.dart' as test_mappings;
 import 'type_to_type_objects.dart' as objects;
 import 'test_objects.dart';
 import 'new_transformer_tests.dart';
+import 'package:reflective/reflective.dart';
 
 part 'type_to_type_tests.dart';
 
@@ -91,25 +92,33 @@ main() async {
         });
 
         test("Can deserialize to object", () {
-          ClassConverter.converters[Duration] =
-              new CustomClassConverter<Duration>()
-                ..to = ((BaseIntermediateObject input) {
-                  var classObjectData = input as ClassIntermediateObject;
-                  return new Duration(
-                      minutes: classObjectData.properties["minutes"].value,
-                      seconds: classObjectData.properties["seconds"].value);
-                })
-                ..from = ((Duration duration) {
-                  return {
-                    "minutes": duration.inMinutes,
-                    "seconds": duration.inSeconds % 60
-                  };
-                });
+          ClassConverter.converters[Duration] = new CustomClassConverter<Duration>()
+            ..to = ((ClassIntermediateObject input) {
+              return new Duration(
+                  minutes:
+                  (input.properties["minutes"] as NativeIntermediateObject).value,
+                  seconds: (input.properties["seconds"] as NativeIntermediateObject)
+                      .value);
+            })
+            ..from = ((Duration duration) {
+              return new ClassIntermediateObject()
+                ..objectType = Duration
+                ..previousHashCode = duration.hashCode.toString()
+                ..properties = {
+                  "minutes": new NativeIntermediateObject()
+                    ..value = duration.inMinutes
+                    ..objectType = int,
+                  "seconds": new NativeIntermediateObject()
+                    ..value = duration.inSeconds % 60
+                    ..objectType = int
+                };
+            });
 
           var json = r'''{ "duration": {"minutes":15, "seconds":10} }''';
           var result = noMirrorsMap.convert(json, new JsonConverter(),
                   new ClassConverter(startType: TypeWithDuration))
               as TypeWithDuration;
+          noMirrorsMap.convert(result, new ClassConverter(), new JsonConverter());
 
           expect(result.duration.inMinutes, 15);
           expect(result.duration.inSeconds, 15 * 60 + 10);
