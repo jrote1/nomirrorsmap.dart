@@ -102,7 +102,7 @@ main() async {
             })
             ..from = ((Duration duration) {
               return new ClassIntermediateObject()
-                ..objectType = Duration
+                ..objectType = null
                 ..previousHashCode = duration.hashCode.toString()
                 ..properties = {
                   "minutes": new NativeIntermediateObject()
