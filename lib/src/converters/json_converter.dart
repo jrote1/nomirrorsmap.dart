@@ -65,7 +65,7 @@ class JsonConverter implements Converter {
 
   void setTypeFromObjectType(
       StringBuffer stringBuffer, ClassIntermediateObject classObjectData) {
-    var map = _typeInformationRetriever
+    var map = classObjectData.objectType == null ? null : _typeInformationRetriever
         .getClassGeneratedMapWithNoCheck(classObjectData.objectType);
     if (map != null) {
       stringBuffer.write("\"\$type\":\"${map.fullName}\"");
