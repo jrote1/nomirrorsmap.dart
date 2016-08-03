@@ -92,13 +92,16 @@ main() async {
         });
 
         test("Can deserialize to object", () {
-          ClassConverter.converters[Duration] = new CustomClassConverter<Duration>()
+          ClassConverter.converters[
+              Duration] = new CustomClassConverter<Duration>()
             ..to = ((ClassIntermediateObject input) {
               return new Duration(
                   minutes:
-                  (input.properties["minutes"] as NativeIntermediateObject).value,
-                  seconds: (input.properties["seconds"] as NativeIntermediateObject)
-                      .value);
+                      (input.properties["minutes"] as NativeIntermediateObject)
+                          .value,
+                  seconds:
+                      (input.properties["seconds"] as NativeIntermediateObject)
+                          .value);
             })
             ..from = ((Duration duration) {
               return new ClassIntermediateObject()
@@ -118,7 +121,8 @@ main() async {
           var result = noMirrorsMap.convert(json, new JsonConverter(),
                   new ClassConverter(startType: TypeWithDuration))
               as TypeWithDuration;
-          noMirrorsMap.convert(result, new ClassConverter(), new JsonConverter());
+          noMirrorsMap.convert(
+              result, new ClassConverter(), new JsonConverter());
 
           expect(result.duration.inMinutes, 15);
           expect(result.duration.inSeconds, 15 * 60 + 10);

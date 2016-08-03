@@ -20,8 +20,7 @@ class MirrorsTypeInformationRetriever implements TypeInformationRetriever {
     reflective.TypeReflection reflectiveType = reflective.type(type);
     for (var fieldName in reflectiveType.fields.keys) {
       var field = reflectiveType.field(fieldName);
-      if(field.isConst)
-        continue;
+      if (field.isConst) continue;
 
       var fieldMapping = new FieldMapping()
         ..name = field.name
