@@ -31,11 +31,12 @@ class NewtonSoftJsonConverter extends JsonConverter {
   Type findObjectType(dynamic json) {
     Type objectType = null;
 
-    if (json.containsKey("\$type"))
+    if (json.containsKey("\$type")) {
+      var typeString = json["\$type"].toString().split(",")[0];
       objectType = _typeInformationRetriever
-          .getClassGeneratedMapByQualifiedName(json["\$type"])
+          .getClassGeneratedMapByQualifiedName(typeString)
           .type;
-    else {
+    } else {
       if (!json.containsKey("\$type") &&
           fromJsonHashCodesAndTypes.containsKey(json["\$ref"]))
         objectType = fromJsonHashCodesAndTypes[json["\$ref"]];

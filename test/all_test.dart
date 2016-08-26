@@ -550,6 +550,24 @@ main() async {
           assertClassObjectDataTypeNotNull(result);
         });
 
+        test("Can deserialize when using standard NewtonSoft type information",
+            () {
+          var converter = new NewtonSoftJsonConverter();
+          var jsonText = r'''{
+  "$id": "1",
+  "$type": "nomirrorsmap.test_objects.InheritedClass, The.Assembly.Name",
+  "data": [
+    {
+      "$ref": "1"
+    }
+  ]
+}''';
+          BaseIntermediateObject result =
+              converter.toBaseIntermediateObject(jsonText);
+
+          assertClassObjectDataTypeNotNull(result);
+        });
+
         test("Can deserialize generic", () {
           var json = '''{ "id": 1 }''';
           var result = noMirrorsMap.convert(
