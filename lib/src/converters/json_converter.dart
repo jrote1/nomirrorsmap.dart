@@ -2,12 +2,15 @@ part of nomirrorsmap.converters;
 
 class JsonConverter implements Converter {
   String _hashcodeName;
+  bool _includeMetadata;
 
   TypeInformationRetriever get _typeInformationRetriever =>
       TypeInformationRetrieverLocator.instance;
 
-  JsonConverter([String hashcodeName = "\$hashcode"]) {
+  JsonConverter(
+      {String hashcodeName: "\$hashcode", bool includeMetadata: true}) {
     _hashcodeName = hashcodeName;
+    _includeMetadata = includeMetadata;
   }
 
   BaseIntermediateObject toBaseIntermediateObject(dynamic value) {
@@ -80,7 +83,7 @@ class JsonConverter implements Converter {
     if (baseObjectData is ClassIntermediateObject) {
       stringBuffer.write("{");
 
-      setMetaData(stringBuffer, baseObjectData);
+      if (_includeMetadata) setMetaData(stringBuffer, baseObjectData);
 
       for (var key in baseObjectData.properties.keys) {
         stringBuffer.write("\"$key\":");
@@ -112,24 +115,5 @@ class JsonConverter implements Converter {
       else
         stringBuffer.write(baseObjectData.value);
     }
-    /*
-		if ( baseObjectData is ClassObjectData )
-		{
-			var result = {
-			};
-			setMetaData( result, baseObjectData.previousHashCode, baseObjectData );
-			baseObjectData.properties.forEach( ( name, value )
-											   {
-												   result[name] = _fromBaseObjectData( value );
-											   } );
-			return result;
-		}
-		if ( baseObjectData is ListObjectData )
-		{
-			return baseObjectData.values.map( ( v )
-											  => _fromBaseObjectData( v ) ).toList( );
-		}
-		return (baseObjectData as NativeObjectData).value;
-		*/
   }
 }

@@ -416,7 +416,7 @@ main() async {
             ..previousHashCode = hashcode
             ..objectType = CustomConverterTest;
 
-          var converter = new JsonConverter(jsonHashcodeName);
+          var converter = new JsonConverter(hashcodeName: jsonHashcodeName);
           String jsonResult = converter.fromBaseIntermediateObject(data);
 
           var expected = "\"$jsonHashcodeName\":\"$hashcode\"";
@@ -427,7 +427,7 @@ main() async {
           const String hashcode = "1234";
           const String jsonHashcodeName = "\$ref";
 
-          var converter = new JsonConverter(jsonHashcodeName);
+          var converter = new JsonConverter(hashcodeName: jsonHashcodeName);
           var json =
               '{ "\$type": "nomirrorsmap.test_objects.CustomConverterTest",\"$jsonHashcodeName\": \"$hashcode\"}';
           var baseObjectData = converter.toBaseIntermediateObject(json)
@@ -451,6 +451,17 @@ main() async {
           var result = noMirrorsMap.convert("0", new JsonConverter(),
               new ClassConverter(startType: TestEnum));
           expect(result, TestEnum.One);
+        });
+
+        test("Can serialise without including metadata", () {
+          var result = noMirrorsMap.convert(
+              new Person()
+                ..id = 1
+                ..children = []
+                ..parents = [],
+              new ClassConverter(),
+              new JsonConverter(includeMetadata: false));
+          expect(result, '''{"id":1,"parents":[],"children":[]}''');
         });
       });
 
@@ -522,7 +533,7 @@ main() async {
           expect(result.people[1].name, "Test User");
         });
 
-        test("can serialize object with no properties", () {
+        test("can deserialize object with no properties", () {
           var json =
               '''[{"\$id":"994910500","\$type":"nomirrorsmap.test_objects.TypeWithNoProperties"},{"\$ref":"994910500"}]''';
 
@@ -578,47 +589,21 @@ main() async {
               as GenericType<int>;
           expect(result.id, 1);
         });
+
+        test("Can serialise without including metadata", () {
+          var result = noMirrorsMap.convert(
+              new Person()
+                ..id = 1
+                ..children = []
+                ..parents = [],
+              new ClassConverter(),
+              new NewtonSoftJsonConverter(includeMetadata: false));
+          expect(result, '''{"id":1,"parents":[],"children":[]}''');
+        });
       });
     });
   }
 }
-
-/*
-void buildMappingsFile() {
-  var resolvers = new Resolvers(dartSdkDirectory);
-
-  var phases = [
-    [new MapGeneratorTransformer(resolvers)]
-  ];
-
-  test("Generate Mappings", () async {
-    var helper = new TestHelper(
-        phases,
-        {
-          'nomirrorsmap|lib/nomirrorsmap.dart': '''
-		library nomirrorsmap;
-
-		class Mappable{
-			const Mappable();
-		}
-	''',
-          'testProject|web/all_test.dart': '''import '../test/test_objects.dart';
-
-			main() {}''',
-          'testProject|test/test_objects.dart': await new File("test/test_objects.dart").readAsString()
-        },
-        [],
-        formatter: StringFormatter.noTrailingWhitespace);
-    helper.run();
-
-    var text = await helper['testProject|web/test_project_mappings.dart'];
-
-    await new File("test/test_mappings.dart").writeAsString(text);
-
-    //test_mappings.TestProjectMappings.re( );
-  });
-}
-*/
 
 void assertClassObjectDataTypeNotNull(BaseIntermediateObject objectData) {
   if (objectData is ClassIntermediateObject) {
