@@ -72,12 +72,19 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
         ..fieldMapping = _fieldMappings.firstWhere((p) => p.name == k));
     });
 
-    _classMappings.add(new ClassMapping()
+    var classMapping = new ClassMapping()
       ..type = type
       ..listType = listType
       ..fullName = fullName
       ..instantiate = instantiate
-      ..fields = classFields);
+      ..fields = classFields;
+    _classMappings.add(classMapping);
+
+    _classMappings.forEach((cm) {
+      cm.fields.where((field) => field.type == type).forEach((field) {
+        field.classMapping = classMapping;
+      });
+    });
   }
 
   static void registerEnum(Type type, List values) {
