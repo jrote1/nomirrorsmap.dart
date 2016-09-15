@@ -15,7 +15,8 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
       ..name = fieldName);
   }
 
-  static SplayTreeMap<Type, ClassMapping> _classMappingsByType = new SplayTreeMap<Type, ClassMapping>((a,b)=>a == b ? 0:1);
+  static SplayTreeMap<Type, ClassMapping> _classMappingsByType =
+      new SplayTreeMap<Type, ClassMapping>((a, b) => a == b ? 0 : 1);
 
   ClassMapping getClassGeneratedMap(Type type) {
     var classMapping = _classMappingsByType[type];
@@ -41,7 +42,8 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
     return classMapping;
   }
 
-  static SplayTreeMap<Type, ClassMapping> _classMappingsByListType = new SplayTreeMap<Type, ClassMapping>((a,b)=>a == b ? 0:1);
+  static SplayTreeMap<Type, ClassMapping> _classMappingsByListType =
+      new SplayTreeMap<Type, ClassMapping>((a, b) => a == b ? 0 : 1);
 
   ClassMapping getClassGeneratedMapByListType(Type type) {
     var classMapping = _classMappingsByListType[type];

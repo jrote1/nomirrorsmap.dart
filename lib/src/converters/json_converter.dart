@@ -85,8 +85,10 @@ class JsonConverter implements Converter {
 
       if (_includeMetadata) setMetaData(stringBuffer, baseObjectData);
 
-      var lastKey = baseObjectData.properties.keys.length > 0 ? baseObjectData.properties.keys.last : null;
-      baseObjectData.properties.forEach((key,value){
+      var lastKey = baseObjectData.properties.keys.length > 0
+          ? baseObjectData.properties.keys.last
+          : null;
+      baseObjectData.properties.forEach((key, value) {
         stringBuffer.write("\"$key\":");
         _fromBaseObjectData(value, stringBuffer);
         if (lastKey != key) stringBuffer.write(",");
