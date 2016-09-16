@@ -1,4 +1,4 @@
-## NoMirrorsMap [![Build Status](https://travis-ci.org/jrote1/nomirrorsmap.dart.svg)](https://travis-ci.org/jrote1/nomirrorsmap.dart) [![Coverage Status](https://coveralls.io/repos/jrote1/nomirrorsmap.dart/badge.svg?branch=master&service=github)](https://coveralls.io/github/jrote1/nomirrorsmap.dart?branch=master)
+## NoMirrorsMap [![Build Status](https://travis-ci.org/jrote1/nomirrorsmap.dart.svg?branch=master)](https://travis-ci.org/jrote1/nomirrorsmap.dart) [![Coverage Status](https://coveralls.io/repos/jrote1/nomirrorsmap.dart/badge.svg?branch=master&service=github)](https://coveralls.io/github/jrote1/nomirrorsmap.dart?branch=master)
 ### Information
 NoMirrorsMap allows you to map objects in one format to objects in another format.  For example, you can use it to serialise and deserialise native dart objects to and from Json, or to map an object of one type to an object of another type with the same property names.
 
