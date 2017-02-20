@@ -111,8 +111,8 @@ main() async {
         });
 
         test("Can deserialize to object", () {
-          ClassConverter.converters[
-              Duration] = new CustomClassConverter<Duration>()
+          ClassConverter
+              .converters[Duration] = new CustomClassConverter<Duration>()
             ..to = ((ClassIntermediateObject input) {
               return new Duration(
                   minutes:

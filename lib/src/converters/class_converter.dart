@@ -150,8 +150,8 @@ class ClassConverter implements Converter {
       return DateTime.parse(nativeObjectValue);
     }
     if (_isTypeEnum(type)) {
-      return _typeInformationRetriever.getEnumGeneratedMap(type)[
-          nativeObjectValue];
+      return _typeInformationRetriever
+          .getEnumGeneratedMap(type)[nativeObjectValue];
     }
 
     if (type == double && nativeObjectValue != null) {
