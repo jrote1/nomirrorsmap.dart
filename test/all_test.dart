@@ -1,5 +1,6 @@
 library nomirrorsmap.tests;
 
+import 'dart:io';
 import 'package:test/test.dart';
 import 'package:nomirrorsmap/nomirrorsmap.dart';
 import 'package:nomirrorsmap/nomirrorsmap_mirrors.dart';
@@ -43,6 +44,24 @@ main() async {
           var result = noMirrorsMap.convert(
               null, new ClassConverter(), new JsonConverter());
           expect(result, "null");
+        });
+
+        test("Can serialize with tab", () {
+          var previousJson = noMirrorsMap.convert(
+              new NoTypeTestPropertyClass()
+                ..id = 1
+                ..name = "\t",
+              new ClassConverter(),
+              new JsonConverter());
+          print(previousJson);
+          var result = noMirrorsMap.convert(
+              new NoTypeTestPropertyClass()
+                ..id = 1
+                ..name = previousJson,
+              new ClassConverter(),
+              new JsonConverter());
+
+          expect(result, endsWith('''"name\\":\\"\\\\t\\"}"}'''));
         });
 
         test("Can serialize to Pascal case", () {
