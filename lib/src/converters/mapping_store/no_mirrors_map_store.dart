@@ -15,7 +15,8 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
       ..name = fieldName);
   }
 
-  static Map<Type, ClassMapping> _classMappingsByType = {};
+  static SplayTreeMap<Type, ClassMapping> _classMappingsByType =
+      new SplayTreeMap<Type, ClassMapping>((a, b) => a == b ? 0 : 1);
 
   ClassMapping getClassGeneratedMap(Type type) {
     var classMapping = _classMappingsByType[type];
@@ -41,7 +42,8 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
     return classMapping;
   }
 
-  static Map<Type, ClassMapping> _classMappingsByListType = {};
+  static SplayTreeMap<Type, ClassMapping> _classMappingsByListType =
+      new SplayTreeMap<Type, ClassMapping>((a, b) => a == b ? 0 : 1);
 
   ClassMapping getClassGeneratedMapByListType(Type type) {
     var classMapping = _classMappingsByListType[type];
@@ -70,12 +72,19 @@ class NoMirrorsMapStore implements TypeInformationRetriever {
         ..fieldMapping = _fieldMappings.firstWhere((p) => p.name == k));
     });
 
-    _classMappings.add(new ClassMapping()
+    var classMapping = new ClassMapping()
       ..type = type
       ..listType = listType
       ..fullName = fullName
       ..instantiate = instantiate
-      ..fields = classFields);
+      ..fields = classFields;
+    _classMappings.add(classMapping);
+
+    _classMappings.forEach((cm) {
+      cm.fields.where((field) => field.type == type).forEach((field) {
+        field.classMapping = classMapping;
+      });
+    });
   }
 
   static void registerEnum(Type type, List values) {

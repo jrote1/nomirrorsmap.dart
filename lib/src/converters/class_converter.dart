@@ -12,25 +12,28 @@ class ClassConverter implements Converter {
   TypeInformationRetriever get _typeInformationRetriever =>
       TypeInformationRetrieverLocator.instance;
 
-  BaseIntermediateObject toBaseIntermediateObject(Object value) {
+  BaseIntermediateObject toBaseIntermediateObject(Object value,
+      [ClassMapping classMapping = null]) {
     var valueType = value.runtimeType;
     if (converters.containsKey(valueType))
       return converters[valueType].from(value);
 
-    if (value is List) {
-      return new ListIntermediateObject()
-        ..values = value.map((v) => toBaseIntermediateObject(v)).toList();
-    }
+    if (classMapping == null) {
+      if (value is List) {
+        return new ListIntermediateObject()
+          ..values = value.map((v) => toBaseIntermediateObject(v)).toList();
+      }
 
-    if (_isPrimitive(value))
-      return new NativeIntermediateObject()
-        ..objectType = valueType
-        ..value = value;
+      if (_isPrimitive(value))
+        return new NativeIntermediateObject()
+          ..objectType = valueType
+          ..value = value;
 
-    if (_isEnum(value)) {
-      return new NativeIntermediateObject()
-        ..objectType = int
-        ..value = (value as dynamic).index;
+      if (_isEnum(value)) {
+        return new NativeIntermediateObject()
+          ..objectType = int
+          ..value = (value as dynamic).index;
+      }
     }
 
     var hashCode = value.hashCode;
@@ -41,17 +44,17 @@ class ClassConverter implements Converter {
         ..properties = {};
     seenHashCodes.add(hashCode);
 
-    var generatedMap =
-        _typeInformationRetriever.getClassGeneratedMap(valueType);
+    if (classMapping == null)
+      classMapping = _typeInformationRetriever.getClassGeneratedMap(valueType);
 
     var properties = {};
 
     //Faster than foreach loop
-    for (var i = 0; i < generatedMap.fields.length; i++) {
-      var property = generatedMap.fields[i];
+    for (var i = 0; i < classMapping.fields.length; i++) {
+      var property = classMapping.fields[i];
       var getter = property.fieldMapping.getter;
       properties[property.fieldMapping.name] =
-          toBaseIntermediateObject(getter(value));
+          toBaseIntermediateObject(getter(value), property.classMapping);
     }
 
     return new ClassIntermediateObject()

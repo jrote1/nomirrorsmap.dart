@@ -12,7 +12,6 @@ import 'test_mappings.dart' as test_mappings;
 import 'type_to_type_objects.dart' as objects;
 import 'test_objects.dart';
 import 'new_transformer_tests.dart';
-import 'package:reflective/reflective.dart';
 
 part 'type_to_type_tests.dart';
 
@@ -25,10 +24,10 @@ main() async {
   group("Transformer", () => TransformerTests.run());
 
   var noMirrorsMapInstances = {
+    'Mappings Based': () {},
     'Mirrors Based': () {
       useMirrors();
-    },
-    'Mappings Based': () {}
+    }
   };
 
   for (var noMirrorsMapFuncKey in noMirrorsMapInstances.keys) {
@@ -94,6 +93,9 @@ main() async {
                   ..children = []
                   ..parents = []
               ]);
+
+          noMirrorsMap.convert(
+              list, new ClassConverter(), new NewtonSoftJsonConverter());
 
           var stopwatch = new Stopwatch()..start();
           noMirrorsMap.convert(

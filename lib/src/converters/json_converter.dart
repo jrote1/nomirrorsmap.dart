@@ -85,20 +85,24 @@ class JsonConverter implements Converter {
 
       if (_includeMetadata) setMetaData(stringBuffer, baseObjectData);
 
-      for (var key in baseObjectData.properties.keys) {
+      var lastKey = baseObjectData.properties.keys.length > 0
+          ? baseObjectData.properties.keys.last
+          : null;
+      baseObjectData.properties.forEach((key, value) {
         stringBuffer.write("\"$key\":");
-        _fromBaseObjectData(baseObjectData.properties[key], stringBuffer);
-        if (baseObjectData.properties.keys.last != key) stringBuffer.write(",");
-      }
+        _fromBaseObjectData(value, stringBuffer);
+        if (lastKey != key) stringBuffer.write(",");
+      });
 
       stringBuffer.write("}");
     }
     if (baseObjectData is ListIntermediateObject) {
       stringBuffer.write("[");
+      var lastIndex = baseObjectData.values.length - 1;
       for (var i = 0; i < baseObjectData.values.length; i++) {
         var value = baseObjectData.values[i];
         _fromBaseObjectData(value, stringBuffer);
-        if (i != (baseObjectData.values.length - 1)) stringBuffer.write(",");
+        if (i != lastIndex) stringBuffer.write(",");
       }
       stringBuffer.write("]");
     }
