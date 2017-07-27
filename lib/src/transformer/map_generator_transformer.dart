@@ -18,8 +18,8 @@ class MapGeneratorTransformer extends Transformer with ResolverTransformer {
     var outputPath = path.url.join(path.url.dirname(id.path), mappingsFileName);
     var generatedAssetId = new AssetId(id.package, outputPath);
 
-    _transformEntryFile(
-        transform, resolver, mappingsFileName, mappingsClassName);
+    if (!_transformEntryFile(
+        transform, resolver, mappingsFileName, mappingsClassName)) return;
 
     var mappingsFile = new MappingsGenerator(resolver, id, _options.formatCode)
         .generate(mappingsClassName, _options.libraryNames);
@@ -27,11 +27,19 @@ class MapGeneratorTransformer extends Transformer with ResolverTransformer {
     transform.addOutput(new Asset.fromString(generatedAssetId, mappingsFile));
   }
 
-  void _transformEntryFile(Transform transform, Resolver resolver,
+  bool _transformEntryFile(Transform transform, Resolver resolver,
       String mappingsFileName, String mappingsClassName) {
     AssetId id = transform.primaryInput.id;
     var lib = resolver.getLibrary(id);
     var unit = lib.definingCompilationUnit.computeNode();
+
+    if (unit.declarations
+            .where(
+                (d) => d is FunctionDeclaration && d.name.toString() == 'main')
+            .toList()
+            .length ==
+        0) return false;
+
     var transaction = resolver.createTextEditTransaction(lib);
 
     var importParameters = _getImportParameters(unit);
@@ -85,6 +93,8 @@ class MapGeneratorTransformer extends Transformer with ResolverTransformer {
     var printer = transaction.commit();
     printer.build(id.path);
     transform.addOutput(new Asset.fromString(id, printer.text));
+
+    return true;
   }
 
   _EntryPointImportParameters _getImportParameters(dynamic unit) {
