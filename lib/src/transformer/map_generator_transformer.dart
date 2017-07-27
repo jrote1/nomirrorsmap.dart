@@ -18,9 +18,8 @@ class MapGeneratorTransformer extends Transformer with ResolverTransformer {
     var outputPath = path.url.join(path.url.dirname(id.path), mappingsFileName);
     var generatedAssetId = new AssetId(id.package, outputPath);
 
-    if(!_transformEntryFile(
-        transform, resolver, mappingsFileName, mappingsClassName))
-      return;
+    if (!_transformEntryFile(
+        transform, resolver, mappingsFileName, mappingsClassName)) return;
 
     var mappingsFile = new MappingsGenerator(resolver, id, _options.formatCode)
         .generate(mappingsClassName, _options.libraryNames);
@@ -34,10 +33,12 @@ class MapGeneratorTransformer extends Transformer with ResolverTransformer {
     var lib = resolver.getLibrary(id);
     var unit = lib.definingCompilationUnit.computeNode();
 
-    if(unit.declarations
-        .where((d) => d is FunctionDeclaration && d.name.toString() == 'main').toList().length == 0)
-      return false;
-
+    if (unit.declarations
+            .where(
+                (d) => d is FunctionDeclaration && d.name.toString() == 'main')
+            .toList()
+            .length ==
+        0) return false;
 
     var transaction = resolver.createTextEditTransaction(lib);
 
